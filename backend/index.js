@@ -5,10 +5,13 @@ import cors from "cors";
 import initDb from "./db/initDB.js";
 import path from "node:path";
 import { fileURLToPath } from 'node:url';
+import { seedAdmin } from './db/seedAdmin.js';
+import authRouter from './routes/auth.route.js';
 
 const app = express();
 
 await initDb();
+await seedAdmin();
 
 const _filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(_filename);
@@ -22,6 +25,7 @@ app.use(cors());
 app.get("/api/v1/health", (req, res) => {
   res.send("School Result Management System is RUNNING");
 });
+app.use("/api/v1/auth", authRouter);
 
 app.use(express.static(path.join(__dirname, "../frontend/dist")));
 
@@ -35,5 +39,7 @@ app.use((req, res) => {
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT,"0.0.0.0", () => {
-    console.log(`Server is running on port ${PORT}`);
+    console.log(`Server is running on port ${PORT}
+      URL: http://localhost:${PORT}
+      `);
 })

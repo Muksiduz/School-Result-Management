@@ -1,9 +1,11 @@
 import pool from "./pool.js";
+import { seedAdmin } from "./seedAdmin.js";
 
 async function initDb() {
   try {
     const dbCheck = await pool.query("SELECT current_database()");
     console.log("Connected DB:", dbCheck.rows[0]);
+
     await pool.query(`
     CREATE TABLE IF NOT EXISTS users (
       id SERIAL PRIMARY KEY,
@@ -15,7 +17,7 @@ async function initDb() {
     )
   `);
 
-  await pool.query(`
+    await pool.query(`
     CREATE TABLE IF NOT EXISTS students (
       id SERIAL PRIMARY KEY,
       name TEXT NOT NULL,
@@ -23,14 +25,14 @@ async function initDb() {
     )
   `);
 
-  await pool.query(`
+    await pool.query(`
     CREATE TABLE IF NOT EXISTS classes (
       id SERIAL PRIMARY KEY,
       name TEXT NOT NULL
     )
   `);
 
-  await pool.query(`
+    await pool.query(`
     CREATE TABLE IF NOT EXISTS subjects (
       id SERIAL PRIMARY KEY,
       name TEXT NOT NULL,
@@ -38,7 +40,7 @@ async function initDb() {
     )
   `);
 
-  await pool.query(`
+    await pool.query(`
     CREATE TABLE IF NOT EXISTS academic_sessions (
       id SERIAL PRIMARY KEY,
       name TEXT NOT NULL,
@@ -48,7 +50,7 @@ async function initDb() {
     )
   `);
 
-  await pool.query(`
+    await pool.query(`
     CREATE TABLE IF NOT EXISTS unit_tests (
       id SERIAL PRIMARY KEY,
       name TEXT NOT NULL,
@@ -57,7 +59,7 @@ async function initDb() {
     )
   `);
 
-  await pool.query(`
+    await pool.query(`
     CREATE TABLE IF NOT EXISTS results (
       id SERIAL PRIMARY KEY,
       student_id INTEGER REFERENCES students(id),
@@ -70,8 +72,7 @@ async function initDb() {
     )
   `);
 
-  console.log("Tables created");
-
+    console.log("Tables created");
   } catch (error) {
     console.log(error);
   }
