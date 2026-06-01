@@ -1,0 +1,31 @@
+export const students = [
+  {
+    id: 1,
+    admissionNo: "ADM001",
+    firstName: "Rahim",
+    lastName: "Ali",
+    gender: "Male",
+    dob: "2012-05-12",
+    fatherName: "Karim Ali",
+    motherName: "Amina Ali",
+    phone: "9876543210",
+    address: "Guwahati",
+    className: "Class 6",
+    status: "Active",
+  },
+
+  {
+    id: 2,
+    admissionNo: "ADM002",
+    firstName: "Riya",
+    lastName: "Sharma",
+    gender: "Female",
+    dob: "2011-03-10",
+    fatherName: "Sunil Sharma",
+    motherName: "Anita Sharma",
+    phone: "9123456780",
+    address: "Delhi",
+    className: "Class 7",
+    status: "Active",
+  },
+];
