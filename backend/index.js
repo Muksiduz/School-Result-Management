@@ -7,6 +7,8 @@ import path from "node:path";
 import { fileURLToPath } from 'node:url';
 import { seedAdmin } from './db/seedAdmin.js';
 import authRouter from './routes/auth.route.js';
+import classesRouter from './routes/classes.route.js';
+import sectionsRouter from './routes/sections.route.js';
 
 const app = express();
 
@@ -25,8 +27,20 @@ app.use(cors());
 app.get("/api/v1/health", (req, res) => {
   res.send("School Result Management System is RUNNING");
 });
+
+// AUTH Routes
 app.use("/api/v1/auth", authRouter);
 
+// CLASSES Routes
+app.use("/api/v1/classes", classesRouter);
+
+// SECTIONS Routes
+app.use('/api/v1/sections', sectionsRouter);
+
+
+
+
+// STATIC FILES
 app.use(express.static(path.join(__dirname, "../frontend/dist")));
 
 app.use((req, res) => {
