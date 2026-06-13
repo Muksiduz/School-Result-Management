@@ -9,6 +9,7 @@ import { seedAdmin } from './db/seedAdmin.js';
 import authRouter from './routes/auth.route.js';
 import classesRouter from './routes/classes.route.js';
 import sectionsRouter from './routes/sections.route.js';
+import subjectsRouter from './routes/subjects.route.js';
 
 const app = express();
 
@@ -36,6 +37,9 @@ app.use("/api/v1/classes", classesRouter);
 
 // SECTIONS Routes
 app.use('/api/v1/sections', sectionsRouter);
+
+// SUBJECT Routes
+app.use('/api/v1/subjects', subjectsRouter);
 
 
 
