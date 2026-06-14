@@ -4,7 +4,6 @@ import express from "express";
 import cors from "cors";
 import initDb from "./db/initDB.js";
 import path from "node:path";
-
 import { fileURLToPath } from "node:url";
 import { seedAdmin } from "./db/seedAdmin.js";
 
