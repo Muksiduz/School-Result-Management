@@ -1,3 +1,5 @@
+import pool from "../db/pool.js";
+
 export async function getAllSections(req, res) {
     
       try {

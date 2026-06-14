@@ -48,7 +48,7 @@ GET - sections by class - By admin,teacher and viewers
 POST - create sections - By admin and teachers - name(section name) and class_id(because section is link to class) is required
 
 ### /api/v1/sections/:id
-PUT - update section - By admin only - name and class_id is required
+PUT - update section - By admin only - name  is required
 
 ### /api/v1/sectons/:id
 DELETE - delete section - BY admin only 
