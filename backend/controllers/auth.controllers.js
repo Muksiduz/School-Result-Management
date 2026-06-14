@@ -13,7 +13,7 @@ export async function loginController(req, res) {
     }
 
     const user = await pool.query(
-      `SELECT id,name,username,role,password FROM users WHERE username = $1`,
+      `SELECT user_id,name,username,role,password FROM users WHERE username = $1`,
       [username],
     );
     if (user.rows.length == 0) {
@@ -26,7 +26,7 @@ export async function loginController(req, res) {
 
     const token = await jwt.sign(
       {
-        id: user.rows[0].id,
+        id: user.rows[0].user_id,
         name: user.rows[0].name,
         username: user.rows[0].username,
         role: user.rows[0].role,
@@ -41,7 +41,7 @@ export async function loginController(req, res) {
       message: "Login Successfull",
       token,
       user: {
-        id: user.rows[0].id,
+        id: user.rows[0].user_id,
         name: user.rows[0].name,
         username: user.rows[0].username,
         role: user.rows[0].role,
@@ -94,7 +94,7 @@ export async function updateUserController(req, res) {
     const {id} = req.params;
     const {name, username, role} = req.body;
 
-    const updateUser = await pool.query(`UPDATE users SET name = $1, username = $2, role = $3 WHERE id = $4 RETURNING *`,[name, username, role, id]);
+    const updateUser = await pool.query(`UPDATE users SET name = $1, username = $2, role = $3 WHERE user_id = $4 RETURNING *`,[name, username, role, id]);
 
     if(updateUser.rows.length == 0) {
       return res.status(404).json({ message: "User not found" });
@@ -117,7 +117,7 @@ export async function deleteUserController(req, res) {
   try {
     const {id} = req.params;
 
-    const deleteUser = await pool.query(`DELETE FROM users WHERE id = $1 RETURNING *`,[id]);
+    const deleteUser = await pool.query(`DELETE FROM users WHERE user_id = $1 RETURNING *`,[id]);
 
     if(deleteUser.rows.length == 0) {
       return res.status(404).json({ message: "User not found" });
