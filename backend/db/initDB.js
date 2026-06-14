@@ -8,7 +8,7 @@ async function initDb() {
 
     await pool.query(`
     CREATE TABLE IF NOT EXISTS users (
-      id SERIAL PRIMARY KEY,
+      user_id SERIAL PRIMARY KEY,
       name TEXT NOT NULL,
       username TEXT UNIQUE NOT NULL,
       password TEXT NOT NULL,
@@ -18,31 +18,48 @@ async function initDb() {
   `);
 
     await pool.query(`
-    CREATE TABLE IF NOT EXISTS students (
-      id SERIAL PRIMARY KEY,
-      name TEXT NOT NULL,
-      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    )
-  `);
-
-    await pool.query(`
     CREATE TABLE IF NOT EXISTS classes (
-      id SERIAL PRIMARY KEY,
+      class_id SERIAL PRIMARY KEY,
       name TEXT NOT NULL
     )
   `);
 
     await pool.query(`
-    CREATE TABLE IF NOT EXISTS subjects (
-      id SERIAL PRIMARY KEY,
+  CREATE TABLE IF NOT EXISTS sections (
+    section_id SERIAL PRIMARY KEY,
+    name TEXT NOT NULL,
+    class_id INTEGER REFERENCES classes(class_id) ON DELETE CASCADE
+  )
+`);
+
+    await pool.query(`
+    CREATE TABLE IF NOT EXISTS students (
+      student_id SERIAL PRIMARY KEY,
       name TEXT NOT NULL,
-      class_id INTEGER REFERENCES classes(id)
+      roll_no TEXT,
+      class_id INTEGER REFERENCES classes(class_id),
+      section_id INTEGER REFERENCES sections(section_id),
+      father_name TEXT,
+      mother_name TEXT,
+      phone TEXT,
+      date_of_birth DATE,
+      address TEXT,
+      created_by TEXT,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  )
+`);
+
+    await pool.query(`
+    CREATE TABLE IF NOT EXISTS subjects (
+      subject_id SERIAL PRIMARY KEY,
+      name TEXT NOT NULL,
+      class_id INTEGER REFERENCES classes(class_id)
     )
   `);
 
     await pool.query(`
     CREATE TABLE IF NOT EXISTS academic_sessions (
-      id SERIAL PRIMARY KEY,
+      session_id SERIAL PRIMARY KEY,
       name TEXT NOT NULL,
       year TEXT NOT NULL,
       start_date DATE,
@@ -52,9 +69,9 @@ async function initDb() {
 
     await pool.query(`
     CREATE TABLE IF NOT EXISTS unit_tests (
-      id SERIAL PRIMARY KEY,
+      test_id SERIAL PRIMARY KEY,
       name TEXT NOT NULL,
-      session_id INTEGER REFERENCES academic_sessions(id),
+      session_id INTEGER REFERENCES academic_sessions(session_id),
       max_marks INTEGER NOT NULL
     )
   `);
@@ -62,11 +79,12 @@ async function initDb() {
     await pool.query(`
     CREATE TABLE IF NOT EXISTS results (
       id SERIAL PRIMARY KEY,
-      student_id INTEGER REFERENCES students(id),
-      class_id INTEGER REFERENCES classes(id),
-      session_id INTEGER REFERENCES academic_sessions(id),
-      unit_test_id INTEGER REFERENCES unit_tests(id),
-      subject_id INTEGER REFERENCES subjects(id),
+      student_id INTEGER REFERENCES students(student_id),
+      class_id INTEGER REFERENCES classes(class_id),
+      section_id INTEGER REFERENCES sections(section_id),
+      session_id INTEGER REFERENCES academic_sessions(session_id),
+      unit_test_id INTEGER REFERENCES unit_tests(test_id),
+      subject_id INTEGER REFERENCES subjects(subject_id),
       marks_obtained INTEGER NOT NULL,
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )
