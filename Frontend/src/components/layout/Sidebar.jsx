@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
+import { useAuthStore } from "../../store/authStore";
 
 import {
   LayoutDashboard,
@@ -21,6 +22,9 @@ import {
 function Sidebar({ isOpen }) {
   const location = useLocation();
 
+  const [userOpen, setUserOpen] = useState(false);
+  const user = useAuthStore((state) => state.user);
+
   const [studentOpen, setStudentOpen] = useState(true);
   const [resultOpen, setResultOpen] = useState(false);
 
@@ -41,6 +45,34 @@ function Sidebar({ isOpen }) {
           title="Dashboard"
           active={location.pathname === "/"}
         />
+        {/* Users - Admin Only */}
+
+        {user?.role === "admin" && (
+          <>
+            <DropdownButton
+              title="Users"
+              icon={<Users size={18} />}
+              open={userOpen}
+              onClick={() => setUserOpen(!userOpen)}
+            />
+
+            {userOpen && (
+              <div className="ml-10 space-y-1">
+                <SubMenuItem
+                  to="/users"
+                  title="Users List"
+                  active={location.pathname === "/users"}
+                />
+
+                <SubMenuItem
+                  to="/users/add"
+                  title="Add User"
+                  active={location.pathname === "/users/add"}
+                />
+              </div>
+            )}
+          </>
+        )}
 
         {/* Students */}
 
