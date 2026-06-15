@@ -106,7 +106,7 @@ function ClassTable() {
             {classes.length > 0 ? (
               classes.map((classItem) => (
                 <tr key={classItem.id} className="border-t">
-                  <td className="p-4">{classItem.id}</td>
+                  <td className="p-4">{classItem.class_id}</td>
 
                   <td className="p-4">{classItem.name}</td>
 
@@ -125,7 +125,7 @@ function ClassTable() {
                       </button>
 
                       <button
-                        onClick={() => handleDelete(classItem.id)}
+                        onClick={() => handleDelete(classItem.class_id)}
                         className="
                           p-2
                           rounded-lg
