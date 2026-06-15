@@ -2,12 +2,15 @@ import pool from "../db/pool.js";
 
 export async function getAllClasses(req, res) {
   try {
-    const classes = await pool.query(`SELECT * FROM classes ORDER BY class_id ASC`);
+    //changed the class_id to id
+    const classes = await pool.query(`SELECT * FROM classes ORDER BY id ASC`);
     res
       .status(200)
       .json({ message: "Classes fetched successfully", classes: classes.rows });
   } catch (error) {
     res.status(500).json({ message: error.message });
+    console.log(error);
+    console.log(error.message);
   }
 }
 
@@ -35,7 +38,8 @@ export async function updateClass(req, res) {
   }
   try {
     const result = await pool.query(
-      `UPDATE classes SET name = $1 WHERE class_id = $2 RETURNING *`,
+      //changed the class_id to id
+      `UPDATE classes SET name = $1 WHERE id = $2 RETURNING *`,
       [name, id],
     );
     if (result.rowCount === 0) {
@@ -51,7 +55,8 @@ export async function deleteClass(req, res) {
   const { id } = req.params;
   try {
     const result = await pool.query(
-      `DELETE FROM classes WHERE class_id = $1 RETURNING *`,
+      //changed the class_id to id
+      `DELETE FROM classes WHERE id = $1 RETURNING *`,
       [id],
     );
     if (result.rowCount === 0) {

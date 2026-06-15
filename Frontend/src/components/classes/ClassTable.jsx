@@ -12,7 +12,6 @@ function ClassTable() {
   const [loading, setLoading] = useState(true);
 
   const [editModal, setEditModal] = useState(false);
-
   const [selectedClass, setSelectedClass] = useState(null);
 
   const [name, setName] = useState("");
@@ -25,7 +24,9 @@ function ClassTable() {
     try {
       const data = await getAllClasses();
 
-      setClasses(data);
+      console.log(data);
+
+      setClasses(data.classes);
     } catch (error) {
       console.log(error);
     } finally {
@@ -43,6 +44,8 @@ function ClassTable() {
 
       fetchClasses();
     } catch (error) {
+      console.log(error);
+
       alert(error.response?.data?.message || "Delete Failed");
     }
   };
@@ -65,6 +68,8 @@ function ClassTable() {
 
       fetchClasses();
     } catch (error) {
+      console.log(error);
+
       alert(error.response?.data?.message || "Update Failed");
     }
   };
@@ -98,41 +103,55 @@ function ClassTable() {
           </thead>
 
           <tbody>
-            {classes.map((classItem) => (
-              <tr key={classItem.id} className="border-t">
-                <td className="p-4">{classItem.id}</td>
+            {classes.length > 0 ? (
+              classes.map((classItem) => (
+                <tr key={classItem.id} className="border-t">
+                  <td className="p-4">{classItem.id}</td>
 
-                <td className="p-4">{classItem.name}</td>
+                  <td className="p-4">{classItem.name}</td>
 
-                <td className="p-4">
-                  <div className="flex justify-center gap-3">
-                    <button
-                      onClick={() => handleEdit(classItem)}
-                      className="
+                  <td className="p-4">
+                    <div className="flex justify-center gap-3">
+                      <button
+                        onClick={() => handleEdit(classItem)}
+                        className="
                           p-2
                           rounded-lg
                           bg-blue-100
                           text-blue-600
                           hover:bg-blue-200
                         ">
-                      <Pencil size={18} />
-                    </button>
+                        <Pencil size={18} />
+                      </button>
 
-                    <button
-                      onClick={() => handleDelete(classItem.id)}
-                      className="
+                      <button
+                        onClick={() => handleDelete(classItem.id)}
+                        className="
                           p-2
                           rounded-lg
                           bg-red-100
                           text-red-600
                           hover:bg-red-200
                         ">
-                      <Trash2 size={18} />
-                    </button>
-                  </div>
+                        <Trash2 size={18} />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td
+                  colSpan="3"
+                  className="
+                    text-center
+                    p-8
+                    text-gray-500
+                  ">
+                  No Classes Found
                 </td>
               </tr>
-            ))}
+            )}
           </tbody>
         </table>
       </div>
