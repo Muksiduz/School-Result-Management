@@ -129,10 +129,10 @@ function Sidebar({ isOpen }) {
         {/* Enrollments */}
 
         <MenuItem
-          to="/enrollments"
+          to="/section"
           icon={<ClipboardList size={18} />}
-          title="Enrollments"
-          active={location.pathname === "/enrollments"}
+          title="section"
+          active={location.pathname === "/section"}
         />
 
         {/* Exams */}

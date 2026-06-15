@@ -4,12 +4,15 @@ import ProtectedRoute from "../../components/auth/ProtectedRoute";
 import ProtectedLayout from "./ProtectedLayout";
 
 import DashboardPage from "../../pages/dashboard/DashboardPage";
+
 import StudentPage from "../../pages/students/StudentPage";
 import AddStudentPage from "../../pages/students/AddStudentPage";
-import SessionsPage from "../../pages/sessions/SessionsPage";
+
+import SessionPage from "../../components/sessions/SessionPage";
 import ClassesPage from "../../pages/classes/ClassesPage";
 import SubjectsPage from "../../pages/subjects/SubjectsPage";
-import EnrollmentsPage from "../../pages/enrollments/EnrollmentsPage";
+// import EnrollmentsPage from "../../pages/enrollments/EnrollmentsPage";
+import SectionPage from "../../components/sections/SectionPage";
 import ExamsPage from "../../pages/exams/ExamsPage";
 import MarksPage from "../../pages/marks/MarksPage";
 import ResultsPage from "../../pages/results/ResultsPage";
@@ -84,7 +87,7 @@ function AppRouter() {
         element={
           <ProtectedRoute>
             <ProtectedLayout>
-              <SessionsPage />
+              <SessionPage />
             </ProtectedLayout>
           </ProtectedRoute>
         }
@@ -113,11 +116,11 @@ function AppRouter() {
       />
 
       <Route
-        path="/enrollments"
+        path="/section"
         element={
           <ProtectedRoute>
             <ProtectedLayout>
-              <EnrollmentsPage />
+              <SectionPage />
             </ProtectedLayout>
           </ProtectedRoute>
         }

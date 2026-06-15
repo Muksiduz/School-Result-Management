@@ -2,11 +2,13 @@ import { useEffect, useState } from "react";
 
 import { createStudent } from "../../services/studentService";
 import { getAllClasses } from "../../services/classService";
+import { getSectionsByClass } from "../../services/sectionService";
 
 function AddStudent() {
   const [loading, setLoading] = useState(false);
 
   const [classes, setClasses] = useState([]);
+  const [sections, setSections] = useState([]);
 
   const [formData, setFormData] = useState({
     name: "",
@@ -18,6 +20,7 @@ function AddStudent() {
     phone: "",
     date_of_birth: "",
     address: "",
+    created_by: "",
   });
 
   useEffect(() => {
@@ -28,8 +31,6 @@ function AddStudent() {
     try {
       const data = await getAllClasses();
 
-      console.log("FULL RESPONSE:", data);
-
       setClasses(data.classes);
     } catch (error) {
       alert(error.response?.data?.message || "Failed To Fetch Classes");
@@ -37,11 +38,29 @@ function AddStudent() {
     }
   };
 
-  const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
+  const handleChange = async (e) => {
+    const { name, value } = e.target;
+
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+
+    if (name === "class_id") {
+      try {
+        setFormData((prev) => ({
+          ...prev,
+          class_id: value,
+          section_id: "",
+        }));
+
+        const data = await getSectionsByClass(value);
+
+        setSections(data);
+      } catch (error) {
+        console.log(error);
+      }
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -68,7 +87,10 @@ function AddStudent() {
         phone: "",
         date_of_birth: "",
         address: "",
+        created_by: "",
       });
+
+      setSections([]);
     } catch (error) {
       console.log(error);
 
@@ -109,27 +131,34 @@ function AddStudent() {
             name="class_id"
             value={formData.class_id}
             onChange={handleChange}
-            className="border p-3 rounded-xl">
+            className="border p-3 rounded-xl"
+            required>
             <option value="">Select Class</option>
-            {console.log(classes)}
 
             {classes?.map((classItem) => (
-              <option key={classItem.id} value={classItem.id}>
+              <option key={classItem.class_id} value={classItem.class_id}>
                 {classItem.name}
               </option>
             ))}
           </select>
 
-          {/* Section ID */}
+          {/* Section Dropdown */}
 
-          {/* <input
-            type="number"
+          <select
             name="section_id"
-            placeholder="Section ID"
             value={formData.section_id}
             onChange={handleChange}
             className="border p-3 rounded-xl"
-          />
+            disabled={!formData.class_id}
+            required>
+            <option value="">Select Section</option>
+
+            {sections?.map((section) => (
+              <option key={section.section_id} value={section.section_id}>
+                {section.name}
+              </option>
+            ))}
+          </select>
 
           <input
             type="text"
@@ -138,16 +167,8 @@ function AddStudent() {
             value={formData.father_name}
             onChange={handleChange}
             className="border p-3 rounded-xl"
-          /> */}
-
-          <input
-            type="text"
-            name="father_name"
-            placeholder="Father Name"
-            value={formData.father_name}
-            onChange={handleChange}
-            className="border p-3 rounded-xl"
           />
+
           <input
             type="text"
             name="mother_name"
