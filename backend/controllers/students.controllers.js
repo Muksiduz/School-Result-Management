@@ -52,10 +52,10 @@ export async function getStudentsByClass(req, res) {
 
 export async function createStudent(req, res) {
   const {
-    //removed section_id
     name,
     roll_no,
     class_id,
+    section_id,
     father_name,
     mother_name,
     phone,
@@ -65,14 +65,13 @@ export async function createStudent(req, res) {
   const created_by = req.user.name;
   try {
     const result = await pool.query(
-      //changed the class_id to id and removed section id and removed createed_by
-      `INSERT INTO students (name, roll_no, class_id,  father_name, mother_name, phone, date_of_birth, address)
+      `INSERT INTO students (name, roll_no, class_id,section_id,  father_name, mother_name, phone, date_of_birth, address,created_by)
        VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) RETURNING *`,
       [
         name,
         roll_no,
         class_id,
-        //        section_id,
+        section_id,
         father_name,
         mother_name,
         phone,
