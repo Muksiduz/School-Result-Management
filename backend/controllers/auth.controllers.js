@@ -12,8 +12,7 @@ export async function loginController(req, res) {
       return res.status(400).json({ message: "All fields are required" });
     }
 
-    const user = await pool.query(
-      //changed the class_id to id
+    const user = await pool.query( 
       `SELECT user_id,name,username,role,password FROM users WHERE username = $1`,
       [username],
     );
@@ -81,7 +80,9 @@ export async function createUserController(req, res) {
 
 export async function getAllUserController(req, res) {
   try {
-    const users = await pool.query(`SELECT id,name,username,role FROM users`);
+    const users = await pool.query(
+      `SELECT user_id,name,username,role FROM users`,
+    );
     res
       .status(200)
       .json({ message: "Users fetched successfully", users: users.rows });
