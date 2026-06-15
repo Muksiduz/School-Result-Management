@@ -13,8 +13,7 @@ export async function loginController(req, res) {
     }
 
     const user = await pool.query(
-      //changed the class_id to id
-      `SELECT id,name,username,role,password FROM users WHERE username = $1`,
+      `SELECT user_id,name,username,role,password FROM users WHERE username = $1`,
       [username],
     );
     if (user.rows.length == 0) {
@@ -81,7 +80,9 @@ export async function createUserController(req, res) {
 
 export async function getAllUserController(req, res) {
   try {
-    const users = await pool.query(`SELECT id,name,username,role FROM users`);
+    const users = await pool.query(
+      `SELECT user_id,name,username,role FROM users`,
+    );
     res
       .status(200)
       .json({ message: "Users fetched successfully", users: users.rows });

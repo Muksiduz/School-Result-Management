@@ -1,116 +1,77 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "../../store/authStore";
 import { loginUser } from "../../services/authService";
-import { useNavigate } from "react-router-dom";
 
 function LoginPage() {
   const navigate = useNavigate();
-
   const login = useAuthStore((state) => state.login);
+
+  const [loading, setLoading] = useState(false);
 
   const [formData, setFormData] = useState({
     username: "",
     password: "",
   });
 
-  const [loading, setLoading] = useState(false);
+  const handleChange = (e) => {
+    setFormData((prev) => ({
+      ...prev,
+      [e.target.name]: e.target.value,
+    }));
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     try {
       setLoading(true);
 
-      const data = await loginUser(formData);
+      const response = await loginUser(formData);
 
-      login(data.user, data.token);
+      console.log("LOGIN RESPONSE:", response);
+
+      login(response.user, response.token);
 
       navigate("/");
     } catch (error) {
       console.error(error);
 
-      alert(error.response?.data?.message || "Login Failed");
+      alert(error?.response?.data?.message || error?.message || "Login Failed");
     } finally {
       setLoading(false);
     }
   };
+
   return (
-    <div
-      className="
-        min-h-screen
-        flex
-        items-center
-        justify-center
-        bg-gray-100
-      ">
+    <div className="min-h-screen flex items-center justify-center bg-gray-100">
       <form
         onSubmit={handleSubmit}
-        className="
-          bg-white
-          p-8
-          rounded-2xl
-          shadow-lg
-          w-[400px]
-        ">
-        <h1
-          className="
-            text-3xl
-            font-bold
-            mb-6
-            text-center
-          ">
-          Login
-        </h1>
+        className="bg-white p-8 rounded-2xl shadow-lg w-[400px]">
+        <h1 className="text-3xl font-bold mb-6 text-center">Login</h1>
 
         <input
+          name="username"
           type="text"
           placeholder="Username"
-          className="
-            w-full
-            border
-            p-3
-            rounded-xl
-            mb-4
-          "
           value={formData.username}
-          onChange={(e) =>
-            setFormData({
-              ...formData,
-              username: e.target.value,
-            })
-          }
+          onChange={handleChange}
+          className="w-full border p-3 rounded-xl mb-4"
         />
 
         <input
+          name="password"
           type="password"
           placeholder="Password"
-          className="
-            w-full
-            border
-            p-3
-            rounded-xl
-            mb-6
-          "
           value={formData.password}
-          onChange={(e) =>
-            setFormData({
-              ...formData,
-              password: e.target.value,
-            })
-          }
+          onChange={handleChange}
+          className="w-full border p-3 rounded-xl mb-6"
         />
 
         <button
           type="submit"
           disabled={loading}
-          className="
-            w-full
-            bg-blue-600
-            text-white
-            p-3
-            rounded-xl
-            hover:bg-blue-700
-            transition
-          ">
+          className="w-full bg-blue-600 text-white p-3 rounded-xl">
           {loading ? "Logging In..." : "Login"}
         </button>
       </form>
