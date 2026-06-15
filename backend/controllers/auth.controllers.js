@@ -14,7 +14,7 @@ export async function loginController(req, res) {
 
     const user = await pool.query(
       //changed the class_id to id
-      `SELECT id,name,username,role,password FROM users WHERE username = $1`,
+      `SELECT user_id,name,username,role,password FROM users WHERE username = $1`,
       [username],
     );
     if (user.rows.length == 0) {
