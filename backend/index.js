@@ -15,6 +15,7 @@ import sessionRouter from "./routes/session.route.js";
 import unitTestRouter from "./routes/unitTest.route.js";
 import studentsRouter from "./routes/students.route.js";
 import dashboardRouter from "./routes/dashboard.route.js";
+import resultRouter from "./routes/result.route.js";
 
 const app = express();
 
@@ -57,6 +58,9 @@ app.use("/api/v1/students", studentsRouter);
 
 //DASHBOARD Routes
 app.use("/api/v1/dashboard", dashboardRouter);
+
+// RUSULTS Routes
+app.use("/api/v1/results", resultRouter);
 
 // STATIC FILES
 app.use(express.static(path.join(__dirname, "../frontend/dist")));

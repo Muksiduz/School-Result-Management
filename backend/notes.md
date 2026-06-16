@@ -52,3 +52,10 @@ PUT - update section - By admin only - name  is required
 
 ### /api/v1/sectons/:id
 DELETE - delete section - BY admin only 
+
+
+## IMP
+POST /api/results — insert marks for a student for all subject at once
+GET /api/results/students?session_id=1&class_id=1&section_id=1 — get distinct students
+GET /api/results/unit-tests?student_id=1&session_id=1 — get unit tests for a student
+GET /api/results/full?student_id=1&session_id=1&unit_test_id=1 — get full result

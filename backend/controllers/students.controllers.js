@@ -50,6 +50,20 @@ export async function getStudentsByClass(req, res) {
   }
 }
 
+export async function getStudentsByClassAndSection(req, res) {
+  try {
+    const result = await pool.query(
+      `SELECT * FROM students 
+         WHERE class_id = $1 AND section_id = $2
+         ORDER BY name`,
+      [req.params.class_id, req.params.section_id],
+    );
+    res.json(result.rows);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+}
+
 export async function createStudent(req, res) {
   const {
     name,
