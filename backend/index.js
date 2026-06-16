@@ -11,9 +11,10 @@ import authRouter from "./routes/auth.route.js";
 import classesRouter from "./routes/classes.route.js";
 import sectionsRouter from "./routes/sections.route.js";
 import subjectsRouter from "./routes/subjects.route.js";
-import sessionRouter from './routes/session.route.js';
-import unitTestRouter from './routes/unitTest.route.js';
-import studentsRouter from './routes/students.route.js'
+import sessionRouter from "./routes/session.route.js";
+import unitTestRouter from "./routes/unitTest.route.js";
+import studentsRouter from "./routes/students.route.js";
+import dashboardRouter from "./routes/dashboard.route.js";
 
 const app = express();
 
@@ -46,14 +47,16 @@ app.use("/api/v1/sections", sectionsRouter);
 app.use("/api/v1/subjects", subjectsRouter);
 
 // ACADEMIC SESSION Routes
-app.use('/api/v1/sessions', sessionRouter);
+app.use("/api/v1/sessions", sessionRouter);
 
 // UNIT TEST Routes
-app.use('/api/v1/unit-test', unitTestRouter);
+app.use("/api/v1/unit-test", unitTestRouter);
 
 // STUDENTS Routes
-app.use('/api/v1/students', studentsRouter)
+app.use("/api/v1/students", studentsRouter);
 
+//DASHBOARD Routes
+app.use("/api/v1/dashboard", dashboardRouter);
 
 // STATIC FILES
 app.use(express.static(path.join(__dirname, "../frontend/dist")));
