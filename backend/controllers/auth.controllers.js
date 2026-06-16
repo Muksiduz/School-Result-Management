@@ -12,7 +12,7 @@ export async function loginController(req, res) {
       return res.status(400).json({ message: "All fields are required" });
     }
 
-    const user = await pool.query(
+    const user = await pool.query( 
       `SELECT user_id,name,username,role,password FROM users WHERE username = $1`,
       [username],
     );
