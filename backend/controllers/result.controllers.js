@@ -1,4 +1,4 @@
-import pool from "../db/pool";
+import pool from "../db/pool.js";
 
 export async function insertResult(req, res) {
     const {
@@ -169,7 +169,7 @@ export async function oneStudentAllSubjects(req, res){
 }
 
 export async function oneSubjectAllStudents(req, res){
-    export const addBulkResults = async (req, res) => {
+   
       try {
         const {
           class_id,
@@ -224,4 +224,3 @@ export async function oneSubjectAllStudents(req, res){
         });
       }
     };
-}
