@@ -1,7 +1,7 @@
 import express from "express";
 import pool from "../db/pool.js";
 
-import { getClassResult, getResultOfSingleStudent, getStudentBySessionClassAndSection, getUnitTest, insertResult, oneStudentAllSubjects, oneSubjectAllStudents } from "../controllers/result.controllers.js";
+import { getClassResult, getResultOfSingleStudent, getStudentBySessionClassAndSection, getUnitTest, insertResult, insertResultOneSubjectAllStudents, oneStudentAllSubjects, oneSubjectAllStudents } from "../controllers/result.controllers.js";
 import { verifyToken } from "../middlewares/verifyToken.js";
 import { isAdminOrTeacher } from "../middlewares/isAdminOrTeachers.js";
 
@@ -21,11 +21,20 @@ router.get("/full", verifyToken, getResultOfSingleStudent);
 
 router.get("class-result", verifyToken, getClassResult)
 
-// One student -> all the subject at once
-router.post('/student', verifyToken, isAdminOrTeacher, oneStudentAllSubjects);
+// // One student -> all the subject at once
+// router.post('/student', verifyToken, isAdminOrTeacher, oneStudentAllSubjects);
 
-// One subject -> all the student's marks at once
-router.post('/subject', verifyToken, isAdminOrTeacher, oneSubjectAllStudents);
+// // One subject -> all the student's marks at once
+// router.post('/subject', verifyToken, isAdminOrTeacher, oneSubjectAllStudents);
+
+
+// POST - bulk insert/update marks for all students for one subject
+router.post(
+  "/enter",
+  verifyToken,
+  isAdminOrTeacher,
+  insertResultOneSubjectAllStudents,
+);
 
 
 

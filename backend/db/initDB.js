@@ -86,7 +86,8 @@ async function initDb() {
       unit_test_id INTEGER REFERENCES unit_tests(test_id),
       subject_id INTEGER REFERENCES subjects(subject_id),
       marks_obtained INTEGER NOT NULL,
-      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      UNIQUE (student_id, unit_test_id, subject_id)
     )
   `);
 
