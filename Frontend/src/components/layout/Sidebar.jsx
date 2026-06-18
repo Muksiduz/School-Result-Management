@@ -155,34 +155,12 @@ function Sidebar({ isOpen }) {
 
         {/* Results */}
 
-        <DropdownButton
+        <MenuItem
+          to="/results"
+          icon={<PencilLine size={18} />}
           title="Results"
-          icon={<BarChart3 size={18} />}
-          open={resultOpen}
-          onClick={() => setResultOpen(!resultOpen)}
+          active={location.pathname === "/results"}
         />
-
-        {resultOpen && (
-          <div className="ml-10 space-y-1">
-            <SubMenuItem
-              to="/results"
-              title="Result List"
-              active={location.pathname === "/results"}
-            />
-
-            <SubMenuItem
-              to="/results/generate"
-              title="Generate Results"
-              active={location.pathname === "/results/generate"}
-            />
-
-            <SubMenuItem
-              to="/reports"
-              title="Reports"
-              active={location.pathname === "/reports"}
-            />
-          </div>
-        )}
 
         {/* Search */}
 

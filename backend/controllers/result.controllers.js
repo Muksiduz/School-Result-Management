@@ -63,13 +63,14 @@ export async function getUnitTest(req, res){
       const result = await pool.query(
         `SELECT DISTINCT ut.test_id, ut.name, ut.max_marks
        FROM results r
-       JOIN unit_tests ut ON r.test_id = ut.test_id
+       JOIN unit_tests ut ON r.unit_test_id = ut.test_id
        WHERE r.student_id=$1 AND r.session_id=$2`,
         [student_id, session_id],
       );
       res.json(result.rows);
     } catch (err) {
       res.status(500).json({ message: err.message });
+      console.log(err);
     }
 }
 
@@ -77,22 +78,24 @@ export async function getResultOfSingleStudent(req, res) {
     const { student_id, session_id, unit_test_id } = req.query;
     try {
       const result = await pool.query(
-        `SELECT r.marks_obtained, s.name as subject_name, ut.max_marks, ut.name as test_name
+        `SELECT r.student_id, st.name as student_name, r.marks_obtained, s.name as subject_name, ut.max_marks, ut.name as test_name
        FROM results r
        JOIN subjects s ON r.subject_id = s.subject_id
-       JOIN unit_tests ut ON r.unit_test_id = ut.unit_test_id
+       JOIN unit_tests ut ON r.unit_test_id = ut.test_id
+       JOIN students st ON r.student_id = st.student_id
        WHERE r.student_id=$1 AND r.session_id=$2 AND r.unit_test_id=$3`,
         [student_id, session_id, unit_test_id],
       );
       res.json(result.rows);
     } catch (err) {
       res.status(500).json({ message: err.message });
+      console.log(err);
     }
 }
 
 
 export async function getClassResult(req, res) {
-    const { session_id, class_id, section_id } = req.query;
+    const { session_id, class_id, section_id, test_id } = req.query;
     try {
       const result = await pool.query(
         `SELECT s.name as student_name, sub.name as subject_name, 
@@ -101,9 +104,9 @@ export async function getClassResult(req, res) {
        JOIN students s ON r.student_id = s.student_id
        JOIN subjects sub ON r.subject_id = sub.subject_id
        JOIN unit_tests ut ON r.unit_test_id = ut.unit_test_id
-       WHERE r.session_id=$1 AND r.class_id=$2 AND r.section_id=$3
+       WHERE r.session_id=$1 AND r.class_id=$2 AND r.section_id=$3 AND r.unit_test_id=$4
        ORDER BY s.name, ut.name, sub.name`,
-        [session_id, class_id, section_id],
+        [session_id, class_id, section_id, test_id],
       );
       res.json(result.rows);
     } catch (err) {
