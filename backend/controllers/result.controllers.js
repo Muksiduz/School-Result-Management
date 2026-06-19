@@ -98,12 +98,12 @@ export async function getClassResult(req, res) {
     const { session_id, class_id, section_id, test_id } = req.query;
     try {
       const result = await pool.query(
-        `SELECT s.name as student_name, sub.name as subject_name, 
+        `SELECT s.student_id ,s.name as student_name, sub.name as subject_name, 
               r.marks_obtained, ut.name as test_name, ut.max_marks
        FROM results r
        JOIN students s ON r.student_id = s.student_id
        JOIN subjects sub ON r.subject_id = sub.subject_id
-       JOIN unit_tests ut ON r.unit_test_id = ut.unit_test_id
+       JOIN unit_tests ut ON r.unit_test_id = ut.test_id
        WHERE r.session_id=$1 AND r.class_id=$2 AND r.section_id=$3 AND r.unit_test_id=$4
        ORDER BY s.name, ut.name, sub.name`,
         [session_id, class_id, section_id, test_id],
@@ -111,6 +111,7 @@ export async function getClassResult(req, res) {
       res.json(result.rows);
     } catch (err) {
       res.status(500).json({ message: err.message });
+      console.log(err)
     }
 }
 

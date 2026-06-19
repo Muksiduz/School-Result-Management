@@ -158,8 +158,17 @@ function Sidebar({ isOpen }) {
         <MenuItem
           to="/results"
           icon={<PencilLine size={18} />}
-          title="Results"
+          title=" Results"
           active={location.pathname === "/results"}
+        />
+
+        {/* class Result */}
+
+        <MenuItem
+          to="/class-results"
+          icon={<PencilLine size={18} />}
+          title="Class Results"
+          active={location.pathname === "/class-results"}
         />
 
         {/* Search */}

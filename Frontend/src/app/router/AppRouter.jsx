@@ -20,6 +20,7 @@ import LoginPage from "../../pages/auth/LoginPage";
 
 import UsersPage from "../../pages/users/GetUsers";
 import AddUserPage from "../../pages/users/CreateUser";
+import ClassResultPage from "../../pages/Class-Result/ClassResultPage";
 function AppRouter() {
   return (
     <Routes>
@@ -157,6 +158,16 @@ function AppRouter() {
             </ProtectedLayout>
           </ProtectedRoute>
         }
+      />
+      <Route
+       path="/class-results"
+       element={
+        <ProtectedRoute>
+          <ProtectedLayout>
+            <ClassResultPage />
+          </ProtectedLayout>
+        </ProtectedRoute>
+       }
       />
     </Routes>
   );
