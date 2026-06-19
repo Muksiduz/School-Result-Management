@@ -19,7 +19,7 @@ router.get("/unit-tests", verifyToken, getUnitTest);
 // GET - full result for a student in a specific unit test
 router.get("/full", verifyToken, getResultOfSingleStudent);
 
-router.get("class-result", verifyToken, getClassResult)
+router.get("/class-result", verifyToken, getClassResult)
 
 // // One student -> all the subject at once
 // router.post('/student', verifyToken, isAdminOrTeacher, oneStudentAllSubjects);

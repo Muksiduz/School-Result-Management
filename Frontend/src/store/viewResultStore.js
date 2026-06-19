@@ -126,23 +126,14 @@ const useViewResultStore = create((set, get) => ({
       set({ fullResult: res.data });
     } catch (err) {
       set({ error: err.message });
+      console.log(err)
     } finally {
       set({ loading: false });
     }
   },
+  
 }));
 
-fetchFullClassResults: async () => {
-    const {selectedSession,selectedClass,selectedSection, selectedUnitTest} = get();
-    set({loading: true, error: null});
-    try {
-        const res = await getWholeClassResult(selectedSession.session_id,selectedClass.class_id,selectedSection.section_id,selectedUnitTest.test_id);
-        set({classResults: res.data});
-    } catch (error) {
-        set({error: error.message});
-    } finally {
-        set({loading: false});
-    }
-};
+
 
 export default useViewResultStore;
