@@ -45,6 +45,7 @@ function StudentsPage() {
     class_id: "",
     section_id: "",
   });
+  console.log("promoteData:", promoteStudent, typeof promoteStudent);
 
   const {
     classes: pclasses,
@@ -165,7 +166,8 @@ function StudentsPage() {
         </div>
         <button
           onClick={() => setShowAddModal(true)}
-          className="flex items-center gap-2 bg-purple-600 hover:bg-purple-700 text-white px-4 py-2.5 rounded-xl text-sm font-medium transition-colors">
+          className="flex items-center gap-2 bg-purple-600 hover:bg-purple-700 text-white px-4 py-2.5 rounded-xl text-sm font-medium transition-colors"
+        >
           <Plus size={16} />
           Add Students
         </button>
@@ -199,7 +201,8 @@ function StudentsPage() {
             <select
               value={selectedClass}
               onChange={(e) => setSelectedClass(e.target.value)}
-              className="text-sm border border-gray-200 rounded-lg px-3 py-2 bg-gray-50 focus:outline-none focus:border-purple-400 focus:ring-2 focus:ring-purple-100">
+              className="text-sm border border-gray-200 rounded-lg px-3 py-2 bg-gray-50 focus:outline-none focus:border-purple-400 focus:ring-2 focus:ring-purple-100"
+            >
               <option value="">All Classes</option>
               {classes?.map((cls) => (
                 <option key={cls.class_id} value={cls.class_id}>
@@ -253,7 +256,8 @@ function StudentsPage() {
               {filteredStudents.map((student) => (
                 <tr
                   key={student.student_id}
-                  className="border-b border-gray-50 hover:bg-purple-50/40 transition-colors">
+                  className="border-b border-gray-50 hover:bg-purple-50/40 transition-colors"
+                >
                   {/* Name */}
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-3">
@@ -312,21 +316,23 @@ function StudentsPage() {
                         <>
                           <button
                             onClick={() => setViewStudent(student)}
-                            className="w-8 h-8 flex items-center justify-center rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-600 border border-blue-100 transition-colors">
+                            className="w-8 h-8 flex items-center justify-center rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-600 border border-blue-100 transition-colors"
+                          >
                             <Eye size={14} />
                           </button>
                           <button
                             onClick={() => handleEdit(student)}
-                            className="w-8 h-8 flex items-center justify-center rounded-lg bg-purple-50 hover:bg-purple-100 text-purple-600 border border-purple-100 transition-colors">
+                            className="w-8 h-8 flex items-center justify-center rounded-lg bg-purple-50 hover:bg-purple-100 text-purple-600 border border-purple-100 transition-colors"
+                          >
                             <Pencil size={14} />
                           </button>
                           <button
                             onClick={() => {
                               setPromoteStudent(student);
-                              setPromoteData({ class_id: "", section_id: "" });
                             }}
                             className="w-8 h-8 flex items-center justify-center rounded-lg bg-green-50 hover:bg-green-100 text-green-600 border border-green-100 transition-colors"
-                            title="Promote Student">
+                            title="Promote Student"
+                          >
                             <ArrowUpCircle size={14} />
                           </button>
                         </>
@@ -355,7 +361,8 @@ function StudentsPage() {
           className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4"
           onClick={(e) =>
             e.target === e.currentTarget && setShowAddModal(false)
-          }>
+          }
+        >
           <div className="bg-white rounded-2xl shadow-xl w-full max-w-xl max-h-[90vh] flex flex-col">
             <AddStudent
               onClose={() => {
@@ -369,14 +376,16 @@ function StudentsPage() {
       {viewStudent && (
         <div
           className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4"
-          onClick={() => setViewStudent(null)}>
+          onClick={() => setViewStudent(null)}
+        >
           <div
             onClick={(e) => e.stopPropagation()}
-            className="bg-white rounded-2xl shadow-xl w-full max-w-2xl flex flex-col max-h-[90vh]">
+            className="bg-white rounded-2xl shadow-xl w-full max-w-2xl flex flex-col max-h-[90vh]"
+          >
             {/* Header */}
             <div className="flex items-start justify-between px-6 pt-6 pb-0">
               <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-full bg-purple-100 text-purple-700 flex items-center justify-center text-lg font-bold flex-shrink-0">
+                <div className="w-12 h-12 rounded-full bg-purple-100 text-purple-700 flex items-center justify-center text-lg font-bold shrink-0">
                   {viewStudent.name
                     ?.split(" ")
                     .map((n) => n[0])
@@ -395,7 +404,8 @@ function StudentsPage() {
               </div>
               <button
                 onClick={() => setViewStudent(null)}
-                className="w-8 h-8 flex items-center justify-center rounded-full border border-gray-200 hover:bg-gray-100 text-gray-400 transition-colors">
+                className="w-8 h-8 flex items-center justify-center rounded-full border border-gray-200 hover:bg-gray-100 text-gray-400 transition-colors"
+              >
                 <X size={16} />
               </button>
             </div>
@@ -423,7 +433,8 @@ function StudentsPage() {
                 ].map((item) => (
                   <div
                     key={item.label}
-                    className="bg-gray-50 rounded-xl px-4 py-3">
+                    className="bg-gray-50 rounded-xl px-4 py-3"
+                  >
                     <p className="text-xs text-gray-400 mb-1">{item.label}</p>
                     <p className="text-sm font-semibold text-gray-700">
                       {item.value || "—"}
@@ -446,7 +457,8 @@ function StudentsPage() {
                 ].map((item) => (
                   <div
                     key={item.label}
-                    className="bg-gray-50 rounded-xl px-4 py-3">
+                    className="bg-gray-50 rounded-xl px-4 py-3"
+                  >
                     <p className="text-xs text-gray-400 mb-1">{item.label}</p>
                     <p className="text-sm font-semibold text-gray-700">
                       {item.value || "—"}
@@ -472,7 +484,8 @@ function StudentsPage() {
             <div className="flex items-center justify-end px-6 py-4 border-t border-gray-100">
               <button
                 onClick={() => setViewStudent(null)}
-                className="flex items-center gap-2 px-5 py-2.5 bg-purple-600 hover:bg-purple-700 text-white text-sm font-medium rounded-xl transition-colors">
+                className="flex items-center gap-2 px-5 py-2.5 bg-purple-600 hover:bg-purple-700 text-white text-sm font-medium rounded-xl transition-colors"
+              >
                 Close
               </button>
             </div>
@@ -482,10 +495,12 @@ function StudentsPage() {
       {editModal && (
         <div
           className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4"
-          onClick={() => setEditModal(false)}>
+          onClick={() => setEditModal(false)}
+        >
           <div
             onClick={(e) => e.stopPropagation()}
-            className="bg-white rounded-2xl shadow-xl w-full max-w-2xl flex flex-col max-h-[90vh]">
+            className="bg-white rounded-2xl shadow-xl w-full max-w-2xl flex flex-col max-h-[90vh]"
+          >
             {/* Header */}
             <div className="flex items-start justify-between px-6 pt-6 pb-0">
               <div>
@@ -498,7 +513,8 @@ function StudentsPage() {
               </div>
               <button
                 onClick={() => setEditModal(false)}
-                className="w-8 h-8 flex items-center justify-center rounded-full border border-gray-200 hover:bg-gray-100 text-gray-400 transition-colors">
+                className="w-8 h-8 flex items-center justify-center rounded-full border border-gray-200 hover:bg-gray-100 text-gray-400 transition-colors"
+              >
                 <X size={16} />
               </button>
             </div>
@@ -561,7 +577,8 @@ function StudentsPage() {
                         console.log(error);
                       }
                     }}
-                    className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm bg-gray-50 focus:outline-none focus:border-purple-400 focus:ring-2 focus:ring-purple-100 transition-all">
+                    className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm bg-gray-50 focus:outline-none focus:border-purple-400 focus:ring-2 focus:ring-purple-100 transition-all"
+                  >
                     <option value="">Select class</option>
 
                     {classes?.map((cls) => (
@@ -583,13 +600,15 @@ function StudentsPage() {
                         section_id: e.target.value,
                       })
                     }
-                    className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm bg-gray-50 focus:outline-none focus:border-purple-400 focus:ring-2 focus:ring-purple-100 transition-all">
+                    className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm bg-gray-50 focus:outline-none focus:border-purple-400 focus:ring-2 focus:ring-purple-100 transition-all"
+                  >
                     <option value="">Select section</option>
 
                     {editSections?.map((sec) => (
                       <option
                         key={sec.section_id}
-                        value={String(sec.section_id)}>
+                        value={String(sec.section_id)}
+                      >
                         {sec.name}
                       </option>
                     ))}
@@ -620,7 +639,8 @@ function StudentsPage() {
                     onChange={(e) =>
                       setEditData({ ...editData, gender: e.target.value })
                     }
-                    className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm bg-gray-50 focus:outline-none focus:border-purple-400 focus:ring-2 focus:ring-purple-100 transition-all">
+                    className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm bg-gray-50 focus:outline-none focus:border-purple-400 focus:ring-2 focus:ring-purple-100 transition-all"
+                  >
                     <option value="">Select gender</option>
                     <option value="Male">Male</option>
                     <option value="Female">Female</option>
@@ -696,12 +716,14 @@ function StudentsPage() {
             <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-gray-100">
               <button
                 onClick={() => setEditModal(false)}
-                className="px-4 py-2.5 text-sm border border-gray-200 rounded-xl text-gray-600 hover:bg-gray-50 transition-colors">
+                className="px-4 py-2.5 text-sm border border-gray-200 rounded-xl text-gray-600 hover:bg-gray-50 transition-colors"
+              >
                 Cancel
               </button>
               <button
                 onClick={handleUpdate}
-                className="flex items-center gap-2 px-5 py-2.5 bg-purple-600 hover:bg-purple-700 text-white text-sm font-medium rounded-xl transition-colors">
+                className="flex items-center gap-2 px-5 py-2.5 bg-purple-600 hover:bg-purple-700 text-white text-sm font-medium rounded-xl transition-colors"
+              >
                 <Save size={15} />
                 Save Changes
               </button>
@@ -713,10 +735,12 @@ function StudentsPage() {
       {promoteStudent && (
         <div
           className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4"
-          onClick={() => setPromoteStudent(null)}>
+          onClick={() => setPromoteStudent(null)}
+        >
           <div
             onClick={(e) => e.stopPropagation()}
-            className="bg-white rounded-2xl shadow-xl w-full max-w-md flex flex-col">
+            className="bg-white rounded-2xl shadow-xl w-full max-w-md flex flex-col"
+          >
             {/* Header */}
             <div className="flex items-start justify-between px-6 pt-6 pb-0">
               <div>
@@ -729,7 +753,8 @@ function StudentsPage() {
               </div>
               <button
                 onClick={() => setPromoteStudent(null)}
-                className="w-8 h-8 flex items-center justify-center rounded-full border border-gray-200 hover:bg-gray-100 text-gray-400 transition-colors">
+                className="w-8 h-8 flex items-center justify-center rounded-full border border-gray-200 hover:bg-gray-100 text-gray-400 transition-colors"
+              >
                 <X size={16} />
               </button>
             </div>
@@ -738,7 +763,7 @@ function StudentsPage() {
             <div className="px-6 py-5">
               {/* Student info pill */}
               <div className="flex items-center gap-3 bg-purple-50 border border-purple-100 rounded-xl px-4 py-3 mb-5">
-                <div className="w-9 h-9 rounded-full bg-purple-100 text-purple-700 flex items-center justify-center text-sm font-bold flex-shrink-0">
+                <div className="w-9 h-9 rounded-full bg-purple-100 text-purple-700 flex items-center justify-center text-sm font-bold shrink-0">
                   {promoteStudent.name
                     ?.split(" ")
                     .map((n) => n[0])
@@ -776,17 +801,18 @@ function StudentsPage() {
                     New Class *
                   </label>
                   <select
-                    value={promoteData.class_id}
-                    onChange={(e) =>
-                      setPromoteData({
-                        ...promoteData,
-                        class_id: e.target.value,
-                        section_id: "",
-                      })
-                    }
-                    className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm bg-gray-50 focus:outline-none focus:border-purple-400 focus:ring-2 focus:ring-purple-100 transition-all">
+                    value={selectedCls?.class_id || ""}
+                    onChange={(e) => {
+                      const c = pclasses.find(
+                        (cls) => cls.class_id === Number(e.target.value),
+                      );
+                      setSelectedcls(c);
+                      console.log("selected class", selectedCls);
+                    }}
+                    className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm bg-gray-50 focus:outline-none focus:border-purple-400 focus:ring-2 focus:ring-purple-100 transition-all"
+                  >
                     <option value="">Select class</option>
-                    {classes?.map((cls) => (
+                    {pclasses.map((cls) => (
                       <option key={cls.class_id} value={cls.class_id}>
                         {cls.name}
                       </option>
@@ -798,15 +824,15 @@ function StudentsPage() {
                     New Section *
                   </label>
                   <select
-                    value={promoteData.section_id}
-                    onChange={(e) =>
-                      setPromoteData({
-                        ...promoteData,
-                        section_id: e.target.value,
-                      })
-                    }
-                    disabled={!promoteData.class_id}
-                    className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm bg-gray-50 focus:outline-none focus:border-purple-400 focus:ring-2 focus:ring-purple-100 transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+                    value={selectedSec?.section_id || ""}
+                    onChange={(e) => {
+                      const s = sections.find(
+                        (sec) => sec.section_id === Number(e.target.value),
+                      );
+                      setSelectedSection(s);
+                    }}
+                    className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm bg-gray-50 focus:outline-none focus:border-purple-400 focus:ring-2 focus:ring-purple-100 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
                     <option value="">Select section</option>
                     {sections?.map((sec) => (
                       <option key={sec.section_id} value={sec.section_id}>
@@ -815,37 +841,40 @@ function StudentsPage() {
                     ))}
                   </select>
                 </div>
-              </div>
-
-              {/* Arrow indicator */}
-              {promoteData.class_id && (
-                <div className="mt-4 flex items-center justify-center gap-3 text-sm">
-                  <span className="bg-gray-100 text-gray-600 px-3 py-1.5 rounded-lg font-medium">
-                    {promoteStudent.class_name}
-                  </span>
-                  <ArrowUpCircle size={18} className="text-purple-400" />
-                  <span className="bg-purple-100 text-purple-700 px-3 py-1.5 rounded-lg font-medium">
-                    {
-                      classes?.find(
-                        (c) =>
-                          String(c.class_id) === String(promoteData.class_id),
-                      )?.name
-                    }
-                  </span>
+                <div>
+                  <label className="block text-xs font-semibold text-gray-500 mb-1.5">
+                    Roll Number 
+                  </label>
+                  <input 
+                   
+                   value={promoteStudent.roll_no} 
+                   onChange={(e)=>{
+                     setPromoteStudent({
+                       ...promoteStudent,
+                       roll_no: e.target.value
+                     })
+                   }}
+                   className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm bg-gray-50 focus:outline-none focus:border-purple-400 focus:ring-2 focus:ring-purple-100 transition-all" />
                 </div>
-              )}
+              </div>
             </div>
 
             {/* Footer */}
             <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-gray-100">
               <button
                 onClick={() => setPromoteStudent(null)}
-                className="px-4 py-2.5 text-sm border border-gray-200 rounded-xl text-gray-600 hover:bg-gray-50 transition-colors">
+                className="px-4 py-2.5 text-sm border border-gray-200 rounded-xl text-gray-600 hover:bg-gray-50 transition-colors"
+              >
                 Cancel
               </button>
               <button
-                disabled={!promoteData.class_id || !promoteData.section_id}
-                className="flex items-center gap-2 px-5 py-2.5 bg-green-600 hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-medium rounded-xl transition-colors">
+                onClick={() => {
+                  promoteStd(promoteStudent, promoteStudent.roll_no);
+                  setPromoteStudent(null);
+                  fetchStudents();
+                }}
+                className="flex items-center gap-2 px-5 py-2.5 bg-green-600 hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-medium rounded-xl transition-colors"
+              >
                 <ArrowUpCircle size={15} />
                 Promote Student
               </button>

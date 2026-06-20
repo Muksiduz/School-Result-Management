@@ -36,10 +36,10 @@ const usePromoteStore = create((set, get) => ({
         set({selectedSection:sec})
     },
 
-    promoteStd: async (students) => {
+    promoteStd: async (students, roll_no) => {
         const {selectedClass, selectedSection} = get();
         try {
-            const res = await promoteStudent(students.student_id,selectedClass.class_id, selectedSection.section_id) 
+            const res = await promoteStudent(students.student_id,selectedClass.class_id, selectedSection.section_id, roll_no); 
         } catch (error) {
            set({ error: error.message }); 
         }

@@ -167,15 +167,27 @@ export async function deleteStudent(req, res) {
 
 export async function promoteStudent(req, res) {
   const { student_id } = req.params;
-  const { class_id, section_id } = req.body;
+  const { class_id, section_id, roll_no } = req.body;
   try {
-    const result = await pool.query(
-      `
+    if(roll_no) {
+      const result = await pool.query(
+        `
+        UPDATE students SET class_id = $1, section_id = $2, roll_no = $3
+        WHERE student_id = $4 RETURNING *
+        `,
+        [class_id, section_id, roll_no, student_id],
+      );
+      return res.status(200).json(result.rows[0]);
+    }else{
+      const result = await pool.query(
+        `
       UPDATE students SET class_id = $1, section_id = $2
       WHERE student_id = $3 RETURNING *
       `,
-      [class_id, section_id, student_id],
-    );
+        [class_id, section_id, student_id],
+      );
+    }
+    
     res.status(200).json(result.rows[0]);
   } catch (error) {
     res.status(500).json({ message: error.message });
