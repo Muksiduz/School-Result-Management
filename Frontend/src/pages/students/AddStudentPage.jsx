@@ -20,7 +20,6 @@ function AddStudent({ onClose }) {
     phone: "",
     date_of_birth: "",
     address: "",
-    created_by: "",
   });
 
   useEffect(() => {
@@ -38,27 +37,42 @@ function AddStudent({ onClose }) {
 
   const handleChange = async (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+
     if (name === "class_id") {
+      setFormData((prev) => ({
+        ...prev,
+        class_id: value,
+        section_id: "",
+      }));
+
       try {
-        setFormData((prev) => ({ ...prev, class_id: value, section_id: "" }));
         const data = await getSectionsByClass(value);
         setSections(data);
       } catch (error) {
         console.log(error);
       }
+
+      return;
     }
+
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     try {
       setLoading(true);
+
       await createStudent({
         ...formData,
         class_id: Number(formData.class_id),
         section_id: Number(formData.section_id),
       });
+
       alert("Student Created Successfully");
       onClose?.();
     } catch (error) {
