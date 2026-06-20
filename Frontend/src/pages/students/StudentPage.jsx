@@ -15,6 +15,7 @@ import {
   Plus,
   UserPlus,
 } from "lucide-react";
+import { Eye } from "lucide-react";
 import { useAuthStore } from "../../store/authStore";
 
 import AddStudent from "./AddStudentPage";
@@ -24,9 +25,11 @@ function StudentsPage() {
   const [classes, setClasses] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedClass, setSelectedClass] = useState("");
-  const [editingId, setEditingId] = useState(null);
+  const [editModal, setEditModal] = useState(false);
   const [editData, setEditData] = useState({});
   const [showAddModal, setShowAddModal] = useState(false);
+
+  const [viewStudent, setViewStudent] = useState(null);
 
   const user = useAuthStore((state) => state.user);
 
@@ -64,33 +67,34 @@ function StudentsPage() {
   };
 
   const handleEdit = (student) => {
-    setEditingId(student.student_id);
+    setEditModal(true);
+
     setEditData({
-      name: student.name,
-      roll_no: student.roll_no,
-      class_id: student.class_id,
-      section_id: student.section_id,
-      father_name: student.father_name,
-      mother_name: student.mother_name,
-      phone: student.phone,
-      date_of_birth: student.date_of_birth,
-      address: student.address,
+      student_id: student.student_id,
+      name: student.name || "",
+      roll_no: student.roll_no || "",
+      class_id: student.class_id || "",
+      section_id: student.section_id || "",
+      father_name: student.father_name || "",
+      mother_name: student.mother_name || "",
+      phone: student.phone || "",
+      date_of_birth: student.date_of_birth?.split("T")[0] || "",
+      address: student.address || "",
     });
   };
-
-  const handleUpdate = async (studentId) => {
+  const handleUpdate = async () => {
     try {
-      await updateStudent(studentId, editData);
-      setEditingId(null);
-      setEditData({});
+      await updateStudent(editData.student_id, editData);
+
       fetchStudents();
+
+      setEditModal(false);
+
       alert("Student Updated Successfully");
     } catch (error) {
       console.log(error);
-      alert(error?.response?.data?.message || "Failed To Update Student");
     }
   };
-
   const filteredStudents = students.filter((student) => {
     const search = searchTerm.toLowerCase();
     const matchesSearch =
@@ -190,6 +194,9 @@ function StudentsPage() {
                   Class
                 </th>
                 <th className="px-4 py-3 text-left text-xs font-semibold text-gray-400 uppercase tracking-wide">
+                  Section
+                </th>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-400 uppercase tracking-wide">
                   Date of Birth
                 </th>
                 <th className="px-4 py-3 text-left text-xs font-semibold text-gray-400 uppercase tracking-wide">
@@ -214,37 +221,17 @@ function StudentsPage() {
                       <div className="w-8 h-8 rounded-full bg-purple-100 text-purple-700 flex items-center justify-center text-xs font-semibold flex-shrink-0">
                         {getInitials(student.name)}
                       </div>
-                      {editingId === student.student_id ? (
-                        <input
-                          value={editData.name || ""}
-                          onChange={(e) =>
-                            setEditData({ ...editData, name: e.target.value })
-                          }
-                          className="border border-gray-200 rounded-lg px-2 py-1 text-sm focus:outline-none focus:border-purple-400 focus:ring-2 focus:ring-purple-100"
-                        />
-                      ) : (
-                        <span className="font-medium text-gray-700">
-                          {student.name}
-                        </span>
-                      )}
+                      <span className="font-medium text-gray-700">
+                        {student.name}
+                      </span>
                     </div>
                   </td>
 
                   {/* Roll */}
                   <td className="px-4 py-3">
-                    {editingId === student.student_id ? (
-                      <input
-                        value={editData.roll_no || ""}
-                        onChange={(e) =>
-                          setEditData({ ...editData, roll_no: e.target.value })
-                        }
-                        className="border border-gray-200 rounded-lg px-2 py-1 text-sm w-20 focus:outline-none focus:border-purple-400 focus:ring-2 focus:ring-purple-100"
-                      />
-                    ) : (
-                      <span className="bg-purple-50 text-purple-700 text-xs font-medium px-2.5 py-1 rounded-md">
-                        #{student.roll_no}
-                      </span>
-                    )}
+                    <span className="bg-purple-50 text-purple-700 text-xs font-medium px-2.5 py-1 rounded-md">
+                      #{student.roll_no}
+                    </span>
                   </td>
 
                   {/* Address */}
@@ -256,6 +243,12 @@ function StudentsPage() {
                   <td className="px-4 py-3">
                     <span className="bg-blue-50 text-blue-700 text-xs font-medium px-2.5 py-1 rounded-md">
                       {student.class_name}
+                    </span>
+                  </td>
+                  {/* Section */}
+                  <td className="px-4 py-3">
+                    <span className="bg-purple-50 text-purple-700 text-xs font-medium px-2.5 py-1 rounded-md">
+                      {student.section_name}
                     </span>
                   </td>
 
@@ -270,53 +263,30 @@ function StudentsPage() {
 
                   {/* Phone */}
                   <td className="px-4 py-3">
-                    {editingId === student.student_id ? (
-                      <input
-                        value={editData.phone || ""}
-                        onChange={(e) =>
-                          setEditData({ ...editData, phone: e.target.value })
-                        }
-                        className="border border-gray-200 rounded-lg px-2 py-1 text-sm w-32 focus:outline-none focus:border-purple-400 focus:ring-2 focus:ring-purple-100"
-                      />
-                    ) : (
-                      <span className="text-gray-600">{student.phone}</span>
-                    )}
+                    <span className="text-gray-600">{student.phone}</span>
                   </td>
 
                   {/* Actions */}
                   {user?.role === "admin" && (
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-2">
-                        {editingId === student.student_id ? (
-                          <>
-                            <button
-                              onClick={() => handleUpdate(student.student_id)}
-                              className="w-8 h-8 flex items-center justify-center rounded-lg bg-green-50 hover:bg-green-100 text-green-600 border border-green-100 transition-colors">
-                              <Save size={14} />
-                            </button>
-                            <button
-                              onClick={() => {
-                                setEditingId(null);
-                                setEditData({});
-                              }}
-                              className="w-8 h-8 flex items-center justify-center rounded-lg bg-gray-50 hover:bg-gray-100 text-gray-500 border border-gray-100 transition-colors">
-                              <X size={14} />
-                            </button>
-                          </>
-                        ) : (
-                          <>
-                            <button
-                              onClick={() => handleEdit(student)}
-                              className="w-8 h-8 flex items-center justify-center rounded-lg bg-purple-50 hover:bg-purple-100 text-purple-600 border border-purple-100 transition-colors">
-                              <Pencil size={14} />
-                            </button>
-                            <button
-                              onClick={() => handleDelete(student.student_id)}
-                              className="w-8 h-8 flex items-center justify-center rounded-lg bg-red-50 hover:bg-red-100 text-red-500 border border-red-100 transition-colors">
-                              <Trash2 size={14} />
-                            </button>
-                          </>
-                        )}
+                        <>
+                          <button
+                            onClick={() => setViewStudent(student)}
+                            className="w-8 h-8 flex items-center justify-center rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-600 border border-blue-100 transition-colors">
+                            <Eye size={14} />
+                          </button>
+                          <button
+                            onClick={() => handleEdit(student)}
+                            className="w-8 h-8 flex items-center justify-center rounded-lg bg-purple-50 hover:bg-purple-100 text-purple-600 border border-purple-100 transition-colors">
+                            <Pencil size={14} />
+                          </button>
+                          <button
+                            onClick={() => handleDelete(student.student_id)}
+                            className="w-8 h-8 flex items-center justify-center rounded-lg bg-red-50 hover:bg-red-100 text-red-500 border border-red-100 transition-colors">
+                            <Trash2 size={14} />
+                          </button>
+                        </>
                       </div>
                     </td>
                   )}
@@ -350,6 +320,178 @@ function StudentsPage() {
                 fetchStudents();
               }}
             />
+          </div>
+        </div>
+      )}
+      {viewStudent && (
+        <div
+          className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center"
+          onClick={() => setViewStudent(null)}>
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="bg-white rounded-2xl w-full max-w-2xl p-6">
+            <h2 className="text-2xl font-bold mb-6">Student Details</h2>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <strong>Name:</strong> {viewStudent.name}
+              </div>
+
+              <div>
+                <strong>Roll No:</strong> {viewStudent.roll_no}
+              </div>
+
+              <div>
+                <strong>Class:</strong> {viewStudent.class_name}
+              </div>
+
+              <div>
+                <strong>Section:</strong> {viewStudent.section_name}
+              </div>
+
+              <div>
+                <strong>Father:</strong> {viewStudent.father_name}
+              </div>
+
+              <div>
+                <strong>Mother:</strong> {viewStudent.mother_name}
+              </div>
+
+              <div>
+                <strong>Phone:</strong> {viewStudent.phone}
+              </div>
+
+              <div>
+                <strong>DOB:</strong> {viewStudent.date_of_birth?.split("T")[0]}
+              </div>
+
+              <div className="col-span-2">
+                <strong>Address:</strong> {viewStudent.address}
+              </div>
+
+              <div>
+                <strong>Created By:</strong> {viewStudent.created_by}
+              </div>
+            </div>
+
+            <div className="flex justify-end mt-6">
+              <button
+                onClick={() => setViewStudent(null)}
+                className="bg-purple-600 text-white px-5 py-2 rounded-xl">
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {editModal && (
+        <div
+          className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center"
+          onClick={() => setEditModal(false)}>
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="bg-white rounded-2xl w-full max-w-3xl p-6">
+            <h2 className="text-2xl font-bold mb-6">Edit Student</h2>
+
+            <div className="grid grid-cols-2 gap-4">
+              <input
+                value={editData.name}
+                onChange={(e) =>
+                  setEditData({
+                    ...editData,
+                    name: e.target.value,
+                  })
+                }
+                placeholder="Student Name"
+                className="border p-3 rounded-xl"
+              />
+
+              <input
+                value={editData.roll_no}
+                onChange={(e) =>
+                  setEditData({
+                    ...editData,
+                    roll_no: e.target.value,
+                  })
+                }
+                placeholder="Roll Number"
+                className="border p-3 rounded-xl"
+              />
+
+              <input
+                value={editData.father_name}
+                onChange={(e) =>
+                  setEditData({
+                    ...editData,
+                    father_name: e.target.value,
+                  })
+                }
+                placeholder="Father Name"
+                className="border p-3 rounded-xl"
+              />
+
+              <input
+                value={editData.mother_name}
+                onChange={(e) =>
+                  setEditData({
+                    ...editData,
+                    mother_name: e.target.value,
+                  })
+                }
+                placeholder="Mother Name"
+                className="border p-3 rounded-xl"
+              />
+
+              <input
+                value={editData.phone}
+                onChange={(e) =>
+                  setEditData({
+                    ...editData,
+                    phone: e.target.value,
+                  })
+                }
+                placeholder="Phone"
+                className="border p-3 rounded-xl"
+              />
+
+              <input
+                type="date"
+                value={editData.date_of_birth}
+                onChange={(e) =>
+                  setEditData({
+                    ...editData,
+                    date_of_birth: e.target.value,
+                  })
+                }
+                className="border p-3 rounded-xl"
+              />
+
+              <textarea
+                value={editData.address}
+                onChange={(e) =>
+                  setEditData({
+                    ...editData,
+                    address: e.target.value,
+                  })
+                }
+                placeholder="Address"
+                className="col-span-2 border p-3 rounded-xl"
+              />
+            </div>
+
+            <div className="flex justify-end gap-3 mt-6">
+              <button
+                onClick={() => setEditModal(false)}
+                className="px-5 py-2 border rounded-xl">
+                Cancel
+              </button>
+
+              <button
+                onClick={handleUpdate}
+                className="bg-purple-600 text-white px-5 py-2 rounded-xl">
+                Save Changes
+              </button>
+            </div>
           </div>
         </div>
       )}
