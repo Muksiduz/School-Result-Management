@@ -37,15 +37,23 @@ async function initDb() {
       student_id SERIAL PRIMARY KEY,
       name TEXT NOT NULL,
       roll_no TEXT,
+      
       class_id INTEGER REFERENCES classes(class_id),
       section_id INTEGER REFERENCES sections(section_id),
+
       father_name TEXT,
       mother_name TEXT,
-      phone TEXT,
+      phone VARCHAR(20),
+      gender VARCHAR(10) CHECK (gender IN ('Male', 'Female', 'Other')),
       date_of_birth DATE,
       address TEXT,
+
       created_by TEXT,
-      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+      UNIQUE(class_id, section_id, roll_no)
   )
 `);
 

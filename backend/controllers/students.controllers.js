@@ -75,11 +75,20 @@ export async function createStudent(req, res) {
     phone,
     date_of_birth,
     address,
+    gender,
   } = req.body;
+
   const created_by = req.user.name;
+
+  if (!["Male", "Female", "Other"].includes(gender)) {
+    return res.status(400).json({
+      message: "Invalid gender",
+    });
+  }
+
   try {
     const result = await pool.query(
-      `INSERT INTO students (name, roll_no, class_id,section_id,  father_name, mother_name, phone, date_of_birth, address,created_by)
+      `INSERT INTO students (name, roll_no, class_id,section_id,  father_name, mother_name, phone, date_of_birth, address,created_by,gender)
        VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) RETURNING *`,
       [
         name,
@@ -92,6 +101,7 @@ export async function createStudent(req, res) {
         date_of_birth,
         address,
         created_by,
+        gender,
       ],
     );
     res.status(201).json(result.rows[0]);
@@ -152,5 +162,23 @@ export async function deleteStudent(req, res) {
   } catch (err) {
     res.status(500).json({ message: err.message });
     console.log(err);
+  }
+}
+
+export async function promoteStudent(req, res) {
+  const { student_id } = req.params;
+  const { class_id, section_id } = req.body;
+  try {
+    const result = await pool.query(
+      `
+      UPDATE students SET class_id = $1, section_id = $2
+      WHERE student_id = $3 RETURNING *
+      `,
+      [class_id, section_id, student_id],
+    );
+    res.status(200).json(result.rows[0]);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+    console.log(error);
   }
 }

@@ -14,10 +14,13 @@ import {
   X,
   Plus,
   UserPlus,
+  ArrowUpRight,
+  ChevronDown,
 } from "lucide-react";
 import { useAuthStore } from "../../store/authStore";
 
 import AddStudent from "./AddStudentPage";
+import usePromoteStore from "../../store/PromoteStore";
 
 function StudentsPage() {
   const [students, setStudents] = useState([]);
@@ -27,8 +30,25 @@ function StudentsPage() {
   const [editingId, setEditingId] = useState(null);
   const [editData, setEditData] = useState({});
   const [showAddModal, setShowAddModal] = useState(false);
+  const [promoteButtonClick, setPromoteButtonClick] = useState(null);
 
   const user = useAuthStore((state) => state.user);
+
+  const {
+    classes: pclasses,
+    sections,
+    selectedClass: selectedCls,
+    selectedSection: selectedSec,
+    initialfetch,
+    setSelectedClass: setSelectedcls,
+    setSelectedSection,
+    promoteStd,
+  } = usePromoteStore();
+
+  useEffect(() => {
+    initialfetch();
+    console.log("Class:", pclasses);
+  }, []);
 
   const fetchStudents = async () => {
     try {
@@ -122,7 +142,8 @@ function StudentsPage() {
         </div>
         <button
           onClick={() => setShowAddModal(true)}
-          className="flex items-center gap-2 bg-purple-600 hover:bg-purple-700 text-white px-4 py-2.5 rounded-xl text-sm font-medium transition-colors">
+          className="flex items-center gap-2 bg-purple-600 hover:bg-purple-700 text-white px-4 py-2.5 rounded-xl text-sm font-medium transition-colors"
+        >
           <Plus size={16} />
           Add Students
         </button>
@@ -156,7 +177,8 @@ function StudentsPage() {
             <select
               value={selectedClass}
               onChange={(e) => setSelectedClass(e.target.value)}
-              className="text-sm border border-gray-200 rounded-lg px-3 py-2 bg-gray-50 focus:outline-none focus:border-purple-400 focus:ring-2 focus:ring-purple-100">
+              className="text-sm border border-gray-200 rounded-lg px-3 py-2 bg-gray-50 focus:outline-none focus:border-purple-400 focus:ring-2 focus:ring-purple-100"
+            >
               <option value="">All Classes</option>
               {classes?.map((cls) => (
                 <option key={cls.class_id} value={cls.class_id}>
@@ -173,7 +195,7 @@ function StudentsPage() {
         </div>
 
         {/* Table */}
-        <div className="overflow-x-auto">
+        <div className="overflow-visible">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-gray-100">
@@ -207,7 +229,8 @@ function StudentsPage() {
               {filteredStudents.map((student) => (
                 <tr
                   key={student.student_id}
-                  className="border-b border-gray-50 hover:bg-purple-50/40 transition-colors">
+                  className="border-b border-gray-50 hover:bg-purple-50/40 transition-colors"
+                >
                   {/* Name */}
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-3">
@@ -291,7 +314,8 @@ function StudentsPage() {
                           <>
                             <button
                               onClick={() => handleUpdate(student.student_id)}
-                              className="w-8 h-8 flex items-center justify-center rounded-lg bg-green-50 hover:bg-green-100 text-green-600 border border-green-100 transition-colors">
+                              className="w-8 h-8 flex items-center justify-center rounded-lg bg-green-50 hover:bg-green-100 text-green-600 border border-green-100 transition-colors"
+                            >
                               <Save size={14} />
                             </button>
                             <button
@@ -299,7 +323,8 @@ function StudentsPage() {
                                 setEditingId(null);
                                 setEditData({});
                               }}
-                              className="w-8 h-8 flex items-center justify-center rounded-lg bg-gray-50 hover:bg-gray-100 text-gray-500 border border-gray-100 transition-colors">
+                              className="w-8 h-8 flex items-center justify-center rounded-lg bg-gray-50 hover:bg-gray-100 text-gray-500 border border-gray-100 transition-colors"
+                            >
                               <X size={14} />
                             </button>
                           </>
@@ -307,14 +332,147 @@ function StudentsPage() {
                           <>
                             <button
                               onClick={() => handleEdit(student)}
-                              className="w-8 h-8 flex items-center justify-center rounded-lg bg-purple-50 hover:bg-purple-100 text-purple-600 border border-purple-100 transition-colors">
+                              className="w-8 h-8 flex items-center justify-center rounded-lg bg-purple-50 hover:bg-purple-100 text-purple-600 border border-purple-100 transition-colors"
+                            >
                               <Pencil size={14} />
                             </button>
-                            <button
-                              onClick={() => handleDelete(student.student_id)}
-                              className="w-8 h-8 flex items-center justify-center rounded-lg bg-red-50 hover:bg-red-100 text-red-500 border border-red-100 transition-colors">
-                              <Trash2 size={14} />
-                            </button>
+                            <div className="relative inline-flex items-center gap-2">
+                              {/* Delete Button */}
+                              <button
+                                onClick={() => handleDelete(student.student_id)}
+                                className="w-8 h-8 flex items-center justify-center rounded-lg bg-red-50 hover:bg-red-100 text-red-500 border border-red-100 transition-colors"
+                              >
+                                <Trash2 size={14} />
+                              </button>
+
+                              {/* Promote Button */}
+                              <button
+                                onClick={() => {
+                                  setPromoteButtonClick(student.student_id);
+                                }}
+                                className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium border transition-all ${
+                                  promoteButtonClick
+                                    ? "bg-blue-600 text-white border-blue-600"
+                                    : "bg-white text-blue-600 border-blue-200 hover:bg-blue-50"
+                                }`}
+                              >
+                                <ArrowUpRight size={14} />
+                                Promote
+                                <ChevronDown
+                                  size={14}
+                                  className={`transition-transform ${promoteButtonClick ? "rotate-180" : ""}`}
+                                />
+                              </button>
+
+                              {/* Promote Popup */}
+                              {promoteButtonClick === student.student_id && (
+                                <div className="absolute top-full  right-0 mt-2 w-64 bg-white rounded-xl shadow-lg border border-gray-200 p-4 z-50">
+                                  {/* Popup Header */}
+                                  <div className="flex items-center justify-between mb-3">
+                                    <h4 className="text-sm font-semibold text-gray-900">
+                                      Promote Student
+                                    </h4>
+                                    <button
+                                      onClick={() =>
+                                        setPromoteButtonClick(null)
+                                      }
+                                      className="w-6 h-6 flex items-center justify-center rounded-md hover:bg-gray-100 text-gray-400 transition-colors"
+                                    >
+                                      <X size={14} />
+                                    </button>
+                                  </div>
+
+                                  {/* Student Info */}
+                                  <div className="mb-3 p-2 bg-gray-50 rounded-lg">
+                                    <p className="text-xs text-gray-500">
+                                      Promoting
+                                    </p>
+                                    <p className="text-sm font-medium text-gray-900">
+                                      {student.name}
+                                    </p>
+                                    <p className="text-xs text-gray-400">
+                                      ID: {student.student_id}
+                                    </p>
+                                  </div>
+
+                                  {/* Class Select */}
+                                  <div className="space-y-1.5 mb-3">
+                                    <label className="text-xs font-medium text-gray-600">
+                                      New Class
+                                    </label>
+                                    <select
+                                      className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                                      value={selectedCls?.class_id || ""}
+                                      onChange={(e) => {
+                                        const c = pclasses.find(
+                                          (c) => c.class_id == e.target.value,
+                                        );
+                                        setSelectedcls(c);
+                                      }}
+                                    >
+                                      <option value="">Select Class</option>
+                                      {pclasses.map((s) => (
+                                        <option
+                                          key={s.class_id}
+                                          value={s.class_id}
+                                        >
+                                          {s.name}
+                                        </option>
+                                      ))}
+                                    </select>
+                                  </div>
+
+                                  {/* Section Select */}
+                                  <div className="space-y-1.5 mb-4">
+                                    <label className="text-xs font-medium text-gray-600">
+                                      New Section
+                                    </label>
+                                    <select
+                                      className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                                      value={selectedSec?.section_id || ""}
+                                      onChange={(e) => {
+                                        const c = sections.find(
+                                          (c) => c.section_id == e.target.value,
+                                        );
+                                        setSelectedSection(c);
+                                      }}
+                                    >
+                                      <option value="">Select Section</option>
+                                      {sections.map((s) => (
+                                        <option
+                                          key={s.section_id}
+                                          value={s.section_id}
+                                        >
+                                          {s.name}
+                                        </option>
+                                      ))}
+                                    </select>
+                                  </div>
+
+                                  {/* Action Buttons */}
+                                  <div className="flex gap-2">
+                                    <button
+                                      onClick={() =>
+                                        setPromoteButtonClick(null)
+                                      }
+                                      className="flex-1 px-3 py-2 rounded-lg text-sm font-medium text-gray-600 bg-gray-100 hover:bg-gray-200 transition-colors"
+                                    >
+                                      Cancel
+                                    </button>
+                                    <button
+                                      onClick={() => {
+                                        promoteStd(student);
+                                        setPromoteButtonClick(null);
+                                        fetchStudents();
+                                      }}
+                                      className="flex-1 px-3 py-2 rounded-lg text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 transition-colors"
+                                    >
+                                      Save
+                                    </button>
+                                  </div>
+                                </div>
+                              )}
+                            </div>
                           </>
                         )}
                       </div>
@@ -342,7 +500,8 @@ function StudentsPage() {
           className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4"
           onClick={(e) =>
             e.target === e.currentTarget && setShowAddModal(false)
-          }>
+          }
+        >
           <div className="bg-white rounded-2xl shadow-xl w-full max-w-xl max-h-[90vh] flex flex-col">
             <AddStudent
               onClose={() => {
