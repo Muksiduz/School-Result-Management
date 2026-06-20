@@ -20,7 +20,7 @@ async function initDb() {
     await pool.query(`
     CREATE TABLE IF NOT EXISTS classes (
       class_id SERIAL PRIMARY KEY,
-      name TEXT NOT NULL
+      name TEXT NOT NULL UNIQUE
     )
   `);
 
@@ -28,7 +28,8 @@ async function initDb() {
   CREATE TABLE IF NOT EXISTS sections (
     section_id SERIAL PRIMARY KEY,
     name TEXT NOT NULL,
-    class_id INTEGER REFERENCES classes(class_id) ON DELETE CASCADE
+    class_id INTEGER REFERENCES classes(class_id) ON DELETE CASCADE,
+    UNIQUE(class_id, name)
   )
 `);
 
@@ -36,7 +37,7 @@ async function initDb() {
     CREATE TABLE IF NOT EXISTS students (
       student_id SERIAL PRIMARY KEY,
       name TEXT NOT NULL,
-      roll_no TEXT,
+      roll_no VARCHAR(20) NOT NULL,
       
       class_id INTEGER REFERENCES classes(class_id),
       section_id INTEGER REFERENCES sections(section_id),
@@ -61,7 +62,8 @@ async function initDb() {
     CREATE TABLE IF NOT EXISTS subjects (
       subject_id SERIAL PRIMARY KEY,
       name TEXT NOT NULL,
-      class_id INTEGER REFERENCES classes(class_id)
+      class_id INTEGER REFERENCES classes(class_id),
+      UNIQUE(class_id, name)
     )
   `);
 
@@ -80,7 +82,8 @@ async function initDb() {
       test_id SERIAL PRIMARY KEY,
       name TEXT NOT NULL,
       session_id INTEGER REFERENCES academic_sessions(session_id),
-      max_marks INTEGER NOT NULL
+      max_marks INTEGER NOT NULL,
+      UNIQUE(session_id, name)
     )
   `);
 
@@ -93,8 +96,11 @@ async function initDb() {
       session_id INTEGER REFERENCES academic_sessions(session_id),
       unit_test_id INTEGER REFERENCES unit_tests(test_id),
       subject_id INTEGER REFERENCES subjects(subject_id),
+
       marks_obtained INTEGER NOT NULL,
+
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
       UNIQUE (student_id, unit_test_id, subject_id)
     )
   `);
