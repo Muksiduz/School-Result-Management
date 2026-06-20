@@ -115,7 +115,7 @@ function ClassTable() {
               {classes.length > 0 ? (
                 classes.map((classItem) => (
                   <tr
-                    key={classItem.id}
+                    key={classItem.class_id}
                     className="border-b border-gray-50 hover:bg-purple-50/40 transition-colors">
                     <td className="px-6 py-3">
                       <span className="bg-gray-100 text-gray-500 text-xs font-medium px-2.5 py-1 rounded-md">
