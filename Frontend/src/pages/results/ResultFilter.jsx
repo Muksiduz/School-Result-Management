@@ -139,7 +139,7 @@ function ResultFilter() {
             </p>
           </div>
 
-          <div className="bg-gradient-to-r from-purple-600 to-violet-600 text-white rounded-2xl px-6 py-4 shadow-lg min-w-[180px]">
+          <div className="bg-linear-to-r from-purple-600 to-violet-600 text-white rounded-2xl px-6 py-4 shadow-lg min-w-45">
             <p className="text-purple-100 text-sm">Total Students</p>
 
             <h2 className="text-3xl font-bold">{students.length}</h2>
@@ -234,7 +234,7 @@ function ResultFilter() {
             disabled={
               !selectedSession || !selectedClass || !selectedSection || loading
             }
-            className="bg-gradient-to-r from-purple-600 to-violet-700 hover:opacity-90 disabled:bg-gray-300 disabled:cursor-not-allowed text-white px-6 py-2.5 rounded-lg font-semibold shadow-sm hover:shadow-md transition-all flex items-center gap-2">
+            className="bg-linear-to-r from-purple-600 to-violet-700 hover:opacity-90 disabled:bg-gray-300 disabled:cursor-not-allowed text-white px-6 py-2.5 rounded-lg font-semibold shadow-sm hover:shadow-md transition-all flex items-center gap-2">
             {loading ? (
               <>
                 <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
@@ -278,7 +278,7 @@ function ResultFilter() {
         {error && (
           <div className="mb-6 bg-red-50 border border-red-200 rounded-xl p-4 flex items-center gap-3">
             <svg
-              className="w-5 h-5 text-red-500 flex-shrink-0"
+              className="w-5 h-5 text-red-500 shrink-0"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24">
@@ -318,7 +318,7 @@ function ResultFilter() {
                   key={student.student_id}
                   className="p-4 hover:bg-blue-50 transition-colors flex items-center justify-between">
                   <div className="flex items-center gap-4">
-                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 text-white flex items-center justify-center text-sm font-bold shadow-sm">
+                    <div className="w-10 h-10 rounded-full bg-linear-to-br from-blue-500 to-blue-600 text-white flex items-center justify-center text-sm font-bold shadow-sm">
                       {student.name
                         ?.split(" ")
                         .map((n) => n[0])
@@ -477,7 +477,7 @@ function ResultFilter() {
             <div className="bg-white rounded-3xl border border-purple-100 shadow-SM p-6">
               <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                 <div className="flex items-center gap-4">
-                  <div className="w-16 h-16 rounded-full bg-gradient-to-br from-blue-600 to-indigo-600 text-white flex items-center justify-center text-2xl font-bold shadow-lg">
+                  <div className="w-16 h-16 rounded-full bg-linear-to-br from-blue-600 to-indigo-600 text-white flex items-center justify-center text-2xl font-bold shadow-lg">
                     {arrangedResult.student_name
                       ?.split(" ")
                       .map((n) => n[0])

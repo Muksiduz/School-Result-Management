@@ -317,7 +317,7 @@ const ClassResultPage = () => {
         {error && (
           <div className="mb-6 bg-red-50 border border-red-200 rounded-xl p-4 flex items-center gap-3">
             <svg
-              className="w-5 h-5 text-red-500 flex-shrink-0"
+              className="w-5 h-5 text-red-500 shrink-0"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -371,18 +371,18 @@ const ClassResultPage = () => {
                     {allSubjects.map((subject) => (
                       <th
                         key={subject}
-                        className="text-center px-4 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider min-w-[120px]"
+                        className="text-center px-4 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider min-w-30"
                       >
                         {subject}
                       </th>
                     ))}
-                    <th className="text-center px-4 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider min-w-[100px]">
+                    <th className="text-center px-4 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider min-w-25">
                       Total
                     </th>
-                    <th className="text-center px-4 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider min-w-[100px]">
+                    <th className="text-center px-4 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider min-w-25">
                       %
                     </th>
-                    <th className="text-center px-4 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider min-w-[80px]">
+                    <th className="text-center px-4 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider min-w-20">
                       Grade
                     </th>
                   </tr>
@@ -398,7 +398,7 @@ const ClassResultPage = () => {
                         {/* Student Name */}
                         <td className="px-4 py-3 sticky left-0 bg-white hover:bg-blue-50 z-10 border-r border-gray-100">
                           <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 text-white flex items-center justify-center text-xs font-bold shadow-sm flex-shrink-0">
+                            <div className="w-8 h-8 rounded-full bg-linear-to-br from-blue-500 to-blue-600 text-white flex items-center justify-center text-xs font-bold shadow-sm shrink-0">
                               {student.student_name
                                 ?.split(" ")
                                 .map((n) => n[0])

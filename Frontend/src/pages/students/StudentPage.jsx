@@ -211,7 +211,7 @@ function StudentsPage() {
                   {/* Name */}
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-full bg-purple-100 text-purple-700 flex items-center justify-center text-xs font-semibold flex-shrink-0">
+                      <div className="w-8 h-8 rounded-full bg-purple-100 text-purple-700 flex items-center justify-center text-xs font-semibold shrink-0">
                         {getInitials(student.name)}
                       </div>
                       {editingId === student.student_id ? (
