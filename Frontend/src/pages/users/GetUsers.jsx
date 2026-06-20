@@ -141,7 +141,7 @@ function GetUsers() {
                   className="border-b border-gray-50 hover:bg-purple-50/40 transition-colors">
                   <td className="px-6 py-3">
                     <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-full bg-purple-100 text-purple-700 flex items-center justify-center text-xs font-semibold flex-shrink-0">
+                      <div className="w-8 h-8 rounded-full bg-purple-100 text-purple-700 flex items-center justify-center text-xs font-semibold shrink-0">
                         {getInitials(user.name)}
                       </div>
                       <span className="font-medium text-gray-700">
@@ -168,7 +168,7 @@ function GetUsers() {
                         <Pencil size={14} />
                       </button>
                       <button
-                        onClick={() => handleDelete(user.id)}
+                        onClick={() => handleDelete(user.user_id)}
                         className="w-8 h-8 flex items-center justify-center rounded-lg bg-red-50 hover:bg-red-100 text-red-500 border border-red-100 transition-colors"
                         title="Delete User">
                         <Trash2 size={14} />

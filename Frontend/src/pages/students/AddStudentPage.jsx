@@ -219,7 +219,7 @@ function AddStudent({ onClose }) {
                 placeholder="Full residential address"
                 value={formData.address}
                 onChange={handleChange}
-                className={`${inputClass} min-h-[80px] resize-none`}
+                className={`${inputClass} min-h-20 resize-none`}
               />
             </div>
           </div>

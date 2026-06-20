@@ -140,6 +140,7 @@ export async function updateStudent(req, res) {
 }
 
 export async function deleteStudent(req, res) {
+  console.log(req.params.id);
   try {
     const result = await pool.query(
       `DELETE FROM students WHERE student_id=$1 RETURNING *`,
@@ -150,5 +151,6 @@ export async function deleteStudent(req, res) {
     res.json({ message: "Student deleted" });
   } catch (err) {
     res.status(500).json({ message: err.message });
+    console.log(err);
   }
 }

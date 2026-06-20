@@ -123,6 +123,7 @@ export async function updateUserController(req, res) {
 export async function deleteUserController(req, res) {
   try {
     const { id } = req.params;
+    console.log(id);
 
     const deleteUser = await pool.query(
       `DELETE FROM users WHERE user_id = $1 RETURNING *`,
@@ -140,5 +141,6 @@ export async function deleteUserController(req, res) {
       message: "Server error",
       error: error.message,
     });
+    console.log(error);
   }
 }

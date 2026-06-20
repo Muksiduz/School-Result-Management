@@ -47,7 +47,7 @@ function LoginPage() {
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
       <form
         onSubmit={handleSubmit}
-        className="bg-white p-8 rounded-2xl shadow-lg w-[400px]">
+        className="bg-white p-8 rounded-2xl shadow-lg w-100">
         <h1 className="text-3xl font-bold mb-6 text-center">Login</h1>
 
         <input
