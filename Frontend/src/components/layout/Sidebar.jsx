@@ -124,30 +124,6 @@ function Sidebar({ isOpen }) {
           title="Class Results"
           active={location.pathname === "/class-results"}
         />
-
-        {/* Search & History */}
-        <MenuItem
-          to="/history"
-          icon={<Search size={17} />}
-          title="Search & History"
-          active={location.pathname === "/history"}
-        />
-
-        {/* Backup */}
-        <MenuItem
-          to="/backup"
-          icon={<DatabaseBackup size={17} />}
-          title="Backup & Restore"
-          active={location.pathname === "/backup"}
-        />
-
-        {/* Settings */}
-        <MenuItem
-          to="/settings"
-          icon={<Settings size={17} />}
-          title="Settings"
-          active={location.pathname === "/settings"}
-        />
       </nav>
     </aside>
   );
