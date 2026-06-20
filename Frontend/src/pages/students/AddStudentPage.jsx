@@ -14,6 +14,7 @@ function AddStudent({ onClose }) {
     roll_no: "",
     class_id: "",
     section_id: "",
+    gender: "",
     father_name: "",
     mother_name: "",
     phone: "",
@@ -167,6 +168,25 @@ function AddStudent({ onClose }) {
                 onChange={handleChange}
                 className={inputClass}
               />
+            </div>
+            {/* gender  */}
+            <div>
+              <label className={labelClass}>Gender *</label>
+
+              <select
+                name="gender"
+                value={formData.gender}
+                onChange={handleChange}
+                className={inputClass}
+                required>
+                <option value="">Select Gender</option>
+
+                <option value="Male">Male</option>
+
+                <option value="Female">Female</option>
+
+                <option value="Other">Other</option>
+              </select>
             </div>
             <div>
               <label className={labelClass}>Phone Number</label>

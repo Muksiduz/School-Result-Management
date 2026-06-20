@@ -2,6 +2,9 @@ import { useEffect, useState } from "react";
 import useMarksEntryStore from "../../store/marksEntryStore";
 import useViewResultStore from "../../store/viewResultStore";
 
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
+
 function ResultFilter() {
   const {
     selectedSession,
@@ -125,6 +128,235 @@ function ResultFilter() {
     return "bg-red-500";
   };
 
+  // export pdf function
+  const handleExportPDF = () => {
+    if (!arrangedResult) return;
+
+    const doc = new jsPDF();
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const gradeInfo = getGrade(Number(arrangedResult.percentage));
+
+    // ==========================
+    // HEADER BACKGROUND
+    // ==========================
+    doc.setFillColor(109, 40, 217);
+    doc.rect(0, 0, pageWidth, 42, "F");
+
+    // Subtle accent strip
+    doc.setFillColor(139, 92, 246);
+    doc.rect(0, 38, pageWidth, 4, "F");
+
+    // School name
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(20);
+    doc.setFont("helvetica", "bold");
+    doc.text("ABC PUBLIC SCHOOL", pageWidth / 2, 16, { align: "center" });
+
+    // Subtitle
+    doc.setFontSize(10);
+    doc.setFont("helvetica", "normal");
+    doc.setTextColor(221, 214, 254);
+    doc.text("Student Academic Report Card", pageWidth / 2, 27, {
+      align: "center",
+    });
+
+    // Generated date in header
+    doc.setFontSize(8);
+    doc.setTextColor(196, 181, 253);
+    doc.text(
+      `Generated: ${new Date().toLocaleDateString("en-IN", { day: "2-digit", month: "long", year: "numeric" })}`,
+      pageWidth / 2,
+      35,
+      { align: "center" },
+    );
+
+    // ==========================
+    // STUDENT INFO CARD
+    // ==========================
+    doc.setFillColor(250, 248, 255);
+    doc.setDrawColor(221, 214, 254);
+    doc.setLineWidth(0.5);
+    doc.roundedRect(10, 50, 190, 40, 4, 4, "FD");
+
+    // Left column
+    doc.setTextColor(109, 40, 217);
+    doc.setFontSize(8);
+    doc.setFont("helvetica", "bold");
+    doc.text("STUDENT NAME", 16, 60);
+    doc.setTextColor(30, 30, 30);
+    doc.setFontSize(11);
+    doc.setFont("helvetica", "bold");
+    doc.text(arrangedResult.student_name, 16, 68);
+
+    doc.setTextColor(109, 40, 217);
+    doc.setFontSize(8);
+    doc.setFont("helvetica", "bold");
+    doc.text("STUDENT ID", 16, 78);
+    doc.setTextColor(80, 80, 80);
+    doc.setFontSize(10);
+    doc.setFont("helvetica", "normal");
+    doc.text(`#${arrangedResult.student_id}`, 16, 85);
+
+    // Divider line in card
+    doc.setDrawColor(221, 214, 254);
+    doc.setLineWidth(0.3);
+    doc.line(105, 54, 105, 86);
+
+    // Right column
+    doc.setTextColor(109, 40, 217);
+    doc.setFontSize(8);
+    doc.setFont("helvetica", "bold");
+    doc.text("EXAM", 112, 60);
+    doc.setTextColor(30, 30, 30);
+    doc.setFontSize(10);
+    doc.setFont("helvetica", "normal");
+    doc.text(arrangedResult.test_name, 112, 68);
+
+    doc.setTextColor(109, 40, 217);
+    doc.setFontSize(8);
+    doc.setFont("helvetica", "bold");
+    doc.text("OVERALL GRADE", 112, 78);
+    doc.setTextColor(30, 30, 30);
+    doc.setFontSize(14);
+    doc.setFont("helvetica", "bold");
+    doc.text(gradeInfo.grade, 112, 87);
+
+    // ==========================
+    // SECTION LABEL
+    // ==========================
+    doc.setFontSize(9);
+    doc.setFont("helvetica", "bold");
+    doc.setTextColor(109, 40, 217);
+    doc.text("SUBJECT-WISE PERFORMANCE", 10, 103);
+
+    doc.setDrawColor(221, 214, 254);
+    doc.setLineWidth(0.4);
+    doc.line(10, 106, 200, 106);
+
+    // ==========================
+    // SUBJECT TABLE
+    // ==========================
+    autoTable(doc, {
+      startY: 110,
+      head: [["Subject", "Marks Obtained", "Max Marks", "Percentage", "Grade"]],
+      body: arrangedResult.subjects.map((subject) => [
+        subject.subject_name,
+        subject.marks_obtained,
+        subject.max_marks,
+        `${subject.percentage}%`,
+        getGrade(Number(subject.percentage)).grade,
+      ]),
+      theme: "grid",
+      headStyles: {
+        fillColor: [109, 40, 217],
+        textColor: [255, 255, 255],
+        halign: "center",
+        fontStyle: "bold",
+        fontSize: 9,
+        cellPadding: 5,
+      },
+      bodyStyles: {
+        halign: "center",
+        fontSize: 9,
+        textColor: [40, 40, 40],
+        cellPadding: 4,
+      },
+      alternateRowStyles: {
+        fillColor: [250, 248, 255],
+      },
+      columnStyles: {
+        0: { halign: "left", cellWidth: 60 },
+      },
+    });
+
+    // ==========================
+    // SUMMARY CARD
+    // ==========================
+    const finalY = doc.lastAutoTable.finalY + 12;
+
+    doc.setFillColor(109, 40, 217);
+    doc.roundedRect(10, finalY, 190, 8, 2, 2, "F");
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(9);
+    doc.setFont("helvetica", "bold");
+    doc.text("RESULT SUMMARY", pageWidth / 2, finalY + 5.5, {
+      align: "center",
+    });
+
+    doc.setFillColor(250, 248, 255);
+    doc.setDrawColor(221, 214, 254);
+    doc.setLineWidth(0.5);
+    doc.roundedRect(10, finalY + 8, 190, 28, 2, 2, "FD");
+
+    // Summary row
+    const summaryY = finalY + 20;
+    const cols = [
+      { label: "Total Marks", value: `${arrangedResult.total_marks}` },
+      { label: "Maximum Marks", value: `${arrangedResult.total_max_marks}` },
+      { label: "Percentage", value: `${arrangedResult.percentage}%` },
+      { label: "Final Grade", value: gradeInfo.grade },
+    ];
+
+    const colWidth = 190 / cols.length;
+
+    cols.forEach((col, i) => {
+      const x = 10 + i * colWidth + colWidth / 2;
+
+      doc.setTextColor(109, 40, 217);
+      doc.setFontSize(7);
+      doc.setFont("helvetica", "bold");
+      doc.text(col.label.toUpperCase(), x, summaryY - 6, { align: "center" });
+
+      doc.setTextColor(30, 30, 30);
+      doc.setFontSize(12);
+      doc.setFont("helvetica", "bold");
+      doc.text(col.value, x, summaryY + 2, { align: "center" });
+
+      // Vertical divider between columns
+      if (i < cols.length - 1) {
+        doc.setDrawColor(221, 214, 254);
+        doc.setLineWidth(0.3);
+        doc.line(
+          10 + (i + 1) * colWidth,
+          finalY + 10,
+          10 + (i + 1) * colWidth,
+          finalY + 34,
+        );
+      }
+    });
+
+    // ==========================
+    // SIGNATURE
+    // ==========================
+    const signY = finalY + 52;
+
+    doc.setDrawColor(180, 180, 180);
+    doc.setLineWidth(0.5);
+    doc.line(140, signY, 195, signY);
+
+    doc.setFontSize(8);
+    doc.setFont("helvetica", "normal");
+    doc.setTextColor(120, 120, 120);
+    doc.text("Principal Signature", 167, signY + 6, { align: "center" });
+
+    // ==========================
+    // FOOTER
+    // ==========================
+    doc.setFillColor(109, 40, 217);
+    doc.rect(0, 282, pageWidth, 15, "F");
+
+    doc.setFontSize(8);
+    doc.setFont("helvetica", "normal");
+    doc.setTextColor(196, 181, 253);
+    doc.text("This is a computer generated report card.", pageWidth / 2, 291, {
+      align: "center",
+    });
+
+    // ==========================
+    // SAVE
+    // ==========================
+    doc.save(`${arrangedResult.student_name}-ReportCard.pdf`);
+  };
   return (
     <div className="p-6 min-h-screen">
       <div>
@@ -473,7 +705,20 @@ function ResultFilter() {
               </svg>
               Back to Unit Tests
             </button>
+            {/* export button */}
+            <div className="flex justify-between">
+              <button
+                onClick={() => setViewMode("tests")}
+                className="text-gray-600 hover:text-gray-900 flex items-center gap-2 text-sm font-medium">
+                Back to Unit Tests
+              </button>
 
+              <button
+                onClick={handleExportPDF}
+                className="bg-purple-600 text-white px-4 py-2 rounded-xl hover:bg-purple-700">
+                Export PDF
+              </button>
+            </div>
             <div className="bg-white rounded-3xl border border-purple-100 shadow-SM p-6">
               <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                 <div className="flex items-center gap-4">

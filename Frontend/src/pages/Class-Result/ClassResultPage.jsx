@@ -1,6 +1,9 @@
 import React, { useEffect, useMemo } from "react";
 import useViewClassResultStore from "../../store/viewClassResultStore";
 
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
+
 const ClassResultPage = () => {
   const {
     sessions,
@@ -135,6 +138,182 @@ const ClassResultPage = () => {
   const selectClass =
     "w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm bg-gray-50 focus:outline-none focus:border-purple-400 focus:ring-2 focus:ring-purple-100 transition-all";
   const labelClass = "block text-xs font-semibold text-gray-500 mb-1.5";
+
+  const handleExportClassPDF = () => {
+    if (arrangedResults.length === 0) {
+      alert("No Results Found");
+      return;
+    }
+
+    const doc = new jsPDF("landscape");
+
+    const pageWidth = doc.internal.pageSize.getWidth();
+
+    // =====================
+    // HEADER
+    // =====================
+
+    doc.setFillColor(109, 40, 217);
+    doc.rect(0, 0, pageWidth, 30, "F");
+
+    doc.setTextColor(255, 255, 255);
+
+    doc.setFontSize(22);
+    doc.setFont("helvetica", "bold");
+
+    doc.text("ABC PUBLIC SCHOOL", pageWidth / 2, 13, { align: "center" });
+
+    doc.setFontSize(10);
+
+    doc.text("Class Result Sheet", pageWidth / 2, 22, { align: "center" });
+
+    // =====================
+    // INFO SECTION
+    // =====================
+
+    doc.setTextColor(0);
+
+    doc.setFontSize(11);
+
+    doc.text(`Session: ${selectedSession?.name || "-"}`, 14, 42);
+
+    doc.text(`Class: ${selectedClass?.name || "-"}`, 14, 50);
+
+    doc.text(`Section: ${selectedSection?.name || "-"}`, 14, 58);
+
+    doc.text(`Unit Test: ${selectedUnitTest?.name || "-"}`, 120, 42);
+
+    doc.text(`Students: ${arrangedResults.length}`, 120, 50);
+
+    doc.text(`Generated: ${new Date().toLocaleDateString()}`, 120, 58);
+
+    // =====================
+    // SUBJECTS
+    // =====================
+
+    const subjects = allSubjects;
+
+    const tableHead = [
+      ["Rank", "Student Name", ...subjects, "Total", "%", "Grade"],
+    ];
+
+    const rankedStudents = [...arrangedResults].sort(
+      (a, b) => Number(b.overall_percentage) - Number(a.overall_percentage),
+    );
+
+    const tableBody = rankedStudents.map((student, index) => [
+      index + 1,
+
+      student.student_name,
+
+      ...subjects.map((subject) => {
+        const subjectData = student.subjects.find(
+          (s) => s.subject_name === subject,
+        );
+
+        return subjectData ? subjectData.marks_obtained : "-";
+      }),
+
+      student.total_marks_obtained,
+
+      `${student.overall_percentage}%`,
+
+      student.grade.grade,
+    ]);
+
+    autoTable(doc, {
+      startY: 70,
+
+      head: tableHead,
+
+      body: tableBody,
+
+      theme: "grid",
+
+      headStyles: {
+        fillColor: [109, 40, 217],
+        textColor: [255, 255, 255],
+        halign: "center",
+      },
+
+      bodyStyles: {
+        halign: "center",
+      },
+
+      alternateRowStyles: {
+        fillColor: [248, 250, 252],
+      },
+    });
+
+    // =====================
+    // SUMMARY
+    // =====================
+
+    const finalY = doc.lastAutoTable.finalY + 15;
+
+    const passCount = rankedStudents.filter(
+      (s) => Number(s.overall_percentage) >= 40,
+    ).length;
+
+    const failCount = rankedStudents.filter(
+      (s) => Number(s.overall_percentage) < 40,
+    ).length;
+
+    const avg =
+      rankedStudents.reduce(
+        (acc, curr) => acc + Number(curr.overall_percentage),
+        0,
+      ) / rankedStudents.length;
+
+    doc.setFont("helvetica", "bold");
+
+    doc.text(`Total Students: ${rankedStudents.length}`, 14, finalY);
+
+    doc.text(`Passed: ${passCount}`, 80, finalY);
+
+    doc.text(`Failed: ${failCount}`, 130, finalY);
+
+    doc.text(`Class Average: ${avg.toFixed(2)}%`, 180, finalY);
+
+    // =====================
+    // TOPPER
+    // =====================
+
+    const topper = rankedStudents[0];
+
+    doc.text(
+      `Topper: ${topper.student_name} (${topper.overall_percentage}%)`,
+      14,
+      finalY + 12,
+    );
+
+    // =====================
+    // SIGNATURE
+    // =====================
+
+    doc.line(pageWidth - 80, finalY + 25, pageWidth - 20, finalY + 25);
+
+    doc.text("Principal Signature", pageWidth - 72, finalY + 33);
+
+    // =====================
+    // FOOTER
+    // =====================
+
+    doc.setFontSize(9);
+
+    doc.setTextColor(120);
+
+    doc.text(
+      "This is a computer generated class result sheet.",
+      pageWidth / 2,
+      doc.internal.pageSize.height - 8,
+      { align: "center" },
+    );
+
+    doc.save(
+      `${selectedClass?.name || "Class"}-${selectedUnitTest?.name || "Result"}.pdf`,
+    );
+  };
 
   return (
     <div className="p-6 min-h-screen">
@@ -283,9 +462,26 @@ const ClassResultPage = () => {
                 subjects
               </p>
             </div>
-            <span className="bg-purple-100 text-purple-700 text-xs font-medium px-3 py-1.5 rounded-lg">
-              Total: {arrangedResults.length}
-            </span>
+            <div>
+              <span className="bg-purple-100 text-purple-700 text-xs font-medium px-3 py-1.5 rounded-lg">
+                Total: {arrangedResults.length}
+              </span>
+              <button
+                onClick={handleExportClassPDF}
+                disabled={arrangedResults.length === 0}
+                className="
+    ml-3
+    px-5
+    py-2.5
+    bg-green-600
+    hover:bg-green-700
+    text-white
+    rounded-xl
+    disabled:opacity-50
+  ">
+                Export PDF
+              </button>
+            </div>
           </div>
 
           <div className="overflow-x-auto">
