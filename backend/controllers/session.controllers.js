@@ -53,7 +53,7 @@ export async function updateSession(req, res) {
 export async function deleteSession(req, res) {
   try {
     const result = await pool.query(
-      `DELETE FROM academic_sessions WHERE id=$1 RETURNING *`,
+      `DELETE FROM academic_sessions WHERE session_id=$1 RETURNING *`,
       [req.params.id],
     );
     if (result.rows.length === 0)

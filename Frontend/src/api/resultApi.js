@@ -34,5 +34,5 @@ export const getWholeClassResult = (session_id, class_id, section_id, test_id) =
     params: { session_id, class_id, section_id, test_id },
   });
 
-export const promoteStudent = (student_id, class_id, section_id) =>
-  api.patch(`/students/${student_id}/promote`, { class_id, section_id });
+export const promoteStudent = (student_id, class_id, section_id, roll_no) =>
+  api.patch(`/students/${student_id}/promote`, { class_id, section_id, roll_no });
