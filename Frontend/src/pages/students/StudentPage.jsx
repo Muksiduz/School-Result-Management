@@ -14,11 +14,14 @@ import {
   X,
   Plus,
   UserPlus,
+  ArrowUpRight,
+  ChevronDown,
 } from "lucide-react";
 import { Eye } from "lucide-react";
 import { useAuthStore } from "../../store/authStore";
 
 import AddStudent from "./AddStudentPage";
+import usePromoteStore from "../../store/PromoteStore";
 
 function StudentsPage() {
   const [students, setStudents] = useState([]);
@@ -28,10 +31,27 @@ function StudentsPage() {
   const [editModal, setEditModal] = useState(false);
   const [editData, setEditData] = useState({});
   const [showAddModal, setShowAddModal] = useState(false);
+  const [promoteButtonClick, setPromoteButtonClick] = useState(null);
 
   const [viewStudent, setViewStudent] = useState(null);
 
   const user = useAuthStore((state) => state.user);
+
+  const {
+    classes: pclasses,
+    sections,
+    selectedClass: selectedCls,
+    selectedSection: selectedSec,
+    initialfetch,
+    setSelectedClass: setSelectedcls,
+    setSelectedSection,
+    promoteStd,
+  } = usePromoteStore();
+
+  useEffect(() => {
+    initialfetch();
+    console.log("Class:", pclasses);
+  }, []);
 
   const fetchStudents = async () => {
     try {
@@ -126,7 +146,8 @@ function StudentsPage() {
         </div>
         <button
           onClick={() => setShowAddModal(true)}
-          className="flex items-center gap-2 bg-purple-600 hover:bg-purple-700 text-white px-4 py-2.5 rounded-xl text-sm font-medium transition-colors">
+          className="flex items-center gap-2 bg-purple-600 hover:bg-purple-700 text-white px-4 py-2.5 rounded-xl text-sm font-medium transition-colors"
+        >
           <Plus size={16} />
           Add Students
         </button>
@@ -160,7 +181,8 @@ function StudentsPage() {
             <select
               value={selectedClass}
               onChange={(e) => setSelectedClass(e.target.value)}
-              className="text-sm border border-gray-200 rounded-lg px-3 py-2 bg-gray-50 focus:outline-none focus:border-purple-400 focus:ring-2 focus:ring-purple-100">
+              className="text-sm border border-gray-200 rounded-lg px-3 py-2 bg-gray-50 focus:outline-none focus:border-purple-400 focus:ring-2 focus:ring-purple-100"
+            >
               <option value="">All Classes</option>
               {classes?.map((cls) => (
                 <option key={cls.class_id} value={cls.class_id}>
@@ -177,7 +199,7 @@ function StudentsPage() {
         </div>
 
         {/* Table */}
-        <div className="overflow-x-auto">
+        <div className="overflow-visible">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-gray-100">
@@ -214,7 +236,8 @@ function StudentsPage() {
               {filteredStudents.map((student) => (
                 <tr
                   key={student.student_id}
-                  className="border-b border-gray-50 hover:bg-purple-50/40 transition-colors">
+                  className="border-b border-gray-50 hover:bg-purple-50/40 transition-colors"
+                >
                   {/* Name */}
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-3">
@@ -312,7 +335,8 @@ function StudentsPage() {
           className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4"
           onClick={(e) =>
             e.target === e.currentTarget && setShowAddModal(false)
-          }>
+          }
+        >
           <div className="bg-white rounded-2xl shadow-xl w-full max-w-xl max-h-[90vh] flex flex-col">
             <AddStudent
               onClose={() => {
