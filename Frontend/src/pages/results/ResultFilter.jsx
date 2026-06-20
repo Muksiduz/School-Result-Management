@@ -371,10 +371,10 @@ function ResultFilter() {
             </p>
           </div>
 
-          <div className="bg-linear-to-r from-purple-600 to-violet-600 text-white rounded-2xl px-6 py-4 shadow-lg min-w-45">
+          <div className="bg-linear-to-r from-purple-600 to-violet-600   bg-purple-600 hover:bg-purple-700 text-white px-4 py-2.5 rounded-xl text-sm font-medium transition-colors shadow-lg min-w-45">
             <p className="text-purple-100 text-sm">Total Students</p>
 
-            <h2 className="text-3xl font-bold">{students.length}</h2>
+            <h2 className="text-3xl font-bold ">{students.length}</h2>
           </div>
         </div>
         <div className="bg-white rounded-3xl border border-purple-100 shadow-SM p-6 mb-6">
