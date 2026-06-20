@@ -74,6 +74,8 @@ const ClassResultPage = () => {
     }));
   }, [results]);
 
+  console.log(arrangedResults);
+
   // Get grade based on percentage
   function getGrade(percentage) {
     if (percentage >= 90)
@@ -355,7 +357,9 @@ const ClassResultPage = () => {
                   {arrangedResults[0]?.test_name || "Class Result"}
                 </h3>
                 <p className="text-sm text-gray-500 mt-0.5">
-                  {arrangedResults.length} students • {allSubjects.length}{" "}
+                  <span>{selectedClass.name} • {""}</span>
+                  <span>{selectedSection.name} • {""}</span>
+                  {arrangedResults.length}  students • {allSubjects.length}{" "}
                   subjects
                 </p>
               </div>
