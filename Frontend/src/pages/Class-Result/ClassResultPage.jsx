@@ -38,6 +38,7 @@ const ClassResultPage = () => {
         studentMap.set(studentId, {
           student_id: item.student_id,
           student_name: item.student_name,
+          roll_no:item.roll_number,
           test_name: item.test_name,
           subjects: [],
           total_marks_obtained: 0,
@@ -68,6 +69,8 @@ const ClassResultPage = () => {
       ),
     }));
   }, [results]);
+
+  console.log(arrangedResults)
 
   function getGrade(percentage) {
     if (percentage >= 90)
@@ -515,7 +518,8 @@ const ClassResultPage = () => {
                   return (
                     <tr
                       key={student.student_id}
-                      className="border-b border-gray-50 hover:bg-purple-50/30 transition-colors">
+                      className="border-b border-gray-50 hover:bg-purple-50/30 transition-colors"
+                    >
                       {/* Student */}
                       <td className="px-4 py-3 sticky left-0 bg-white z-10 border-r border-gray-50">
                         <div className="flex items-center gap-3">
@@ -534,6 +538,9 @@ const ClassResultPage = () => {
                             <p className="text-xs text-gray-400">
                               ID: {student.student_id}
                             </p>
+                            <p className="text-xs text-gray-400">
+                              Roll Number: {student.roll_no}
+                            </p>
                           </div>
                         </div>
                       </td>
@@ -546,12 +553,14 @@ const ClassResultPage = () => {
                         return (
                           <td
                             key={subjectName}
-                            className="px-4 py-3 text-center">
+                            className="px-4 py-3 text-center"
+                          >
                             {subject ? (
                               <div className="space-y-1">
                                 <div>
                                   <span
-                                    className={`text-sm font-semibold ${Number(subject.percentage) >= 40 ? "text-gray-700" : "text-red-500"}`}>
+                                    className={`text-sm font-semibold ${Number(subject.percentage) >= 40 ? "text-gray-700" : "text-red-500"}`}
+                                  >
                                     {subject.marks_obtained}
                                   </span>
                                   <span className="text-xs text-gray-400">
@@ -590,7 +599,8 @@ const ClassResultPage = () => {
                       <td className="px-4 py-3 text-center">
                         <div className="space-y-1">
                           <span
-                            className={`text-sm font-semibold ${gradeInfo.color}`}>
+                            className={`text-sm font-semibold ${gradeInfo.color}`}
+                          >
                             {student.overall_percentage}%
                           </span>
                           <div className="w-full bg-gray-100 rounded-full h-1.5">
@@ -607,7 +617,8 @@ const ClassResultPage = () => {
                       {/* Grade */}
                       <td className="px-4 py-3 text-center">
                         <span
-                          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold border ${gradeInfo.bg} ${gradeInfo.color} ${gradeInfo.border}`}>
+                          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold border ${gradeInfo.bg} ${gradeInfo.color} ${gradeInfo.border}`}
+                        >
                           {gradeInfo.grade}
                         </span>
                       </td>

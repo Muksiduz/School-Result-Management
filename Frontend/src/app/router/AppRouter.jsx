@@ -21,6 +21,7 @@ import LoginPage from "../../pages/auth/LoginPage";
 import UsersPage from "../../pages/users/GetUsers";
 import AddUserPage from "../../pages/users/CreateUser";
 import ClassResultPage from "../../pages/Class-Result/ClassResultPage";
+import EnterMarksAll from "../../pages/MarksInsert/EnterMarksAll";
 function AppRouter() {
   return (
     <Routes>
@@ -143,7 +144,8 @@ function AppRouter() {
         element={
           <ProtectedRoute>
             <ProtectedLayout>
-              <MarksPage />
+              {/* <MarksPage /> */}
+              <EnterMarksAll />
             </ProtectedLayout>
           </ProtectedRoute>
         }
