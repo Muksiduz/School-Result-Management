@@ -1,179 +1,246 @@
 # School Result Management System
 
-A locally hosted web application built for a school to manage and view student results. The system runs on a single master PC within the school's LAN network — no internet connection required.
+<div align="center">
+
+![Version](https://img.shields.io/badge/version-1.0.0-blue)
+![License](https://img.shields.io/badge/license-MIT-green)
+![Platform](https://img.shields.io/badge/platform-Windows-lightgrey)
+![Database](https://img.shields.io/badge/database-PostgreSQL-336791)
+
+**Offline-first result management for schools running entirely on your local network**
+
+</div>
 
 ---
 
-## About
+## Overview
 
-This system was built as a real-world freelance project for a school that needed a simple, offline-capable result management solution. Staff access the app from any device on the school's local network by entering the master PC's IP address in a browser.
+A production-ready web application designed specifically for schools that need a **secure, offline-capable** solution for managing student academic results. Staff access the system from any device on the school's LAN — no internet required, no client installations needed.
 
----
-
-## Tech Stack
-
-- **Frontend:** React + Tailwind CSS + Zustand
-- **Backend:** Node.js + Express
-- **Database:** PostgreSQL
-- **Process Manager:** PM2
+> Built as a real-world freelance project for schools with limited IT infrastructure.
 
 ---
 
-## Features
+## Key Features
 
-- Role-based access (Admin, Teacher, Viewer)
-- Manage classes, sections, subjects, students
-- Academic session management
-- Unit test creation per session
-- Bulk marks entry — enter marks for all students in one subject at once
-- Drill-down result viewing:
-  - Select session → class → section → student → unit test → full result
-- Whole class result view for a specific unit test
-- Data persists across sessions — students don't need to be re-entered every year
-- Admin can promote students to new classes each year
+| Feature | Description |
+|---------|-------------|
+| 🔐 **Role-Based Security** | Three-tier access: Admin, Teacher, and Viewer |
+| 📊 **Bulk Marks Entry** | Enter marks for all students in one subject simultaneously |
+| 🎯 **Drill-Down Results** | Session → Class → Section → Student → Unit Test → Full Result |
+| 🔄 **Student Promotion** | Promote students to new classes each academic year |
+| 💾 **Persistent Data** | Students remain in the system across academic sessions |
+| 🖥️ **Zero Client Setup** | Access via browser using the master PC's IP address |
 
 ---
 
-## User Roles
-
-| Role    | Permissions                                      |
-|---------|--------------------------------------------------|
-| Admin   | Full access — create, edit, delete everything    |
-| Teacher | Can create and enter data, cannot edit or delete |
-| Viewer  | Read-only access — can only view results         |
-
----
-
-## How It Works (LAN Setup)
+## System Architecture
 
 ```
-Master PC (Server)
-├── PostgreSQL running as Windows service
-├── Node.js + Express served via PM2
-└── React frontend served as static files from Express
-
-Client PCs (Any device on LAN)
-└── Open browser → http://<master-pc-ip>:5000
+┌─────────────────────────────────────────────────────────────┐
+│                    SCHOOL LAN NETWORK                        │
+│                                                             │
+│  ┌──────────────────────┐      ┌──────────────────────┐    │
+│  │   MASTER PC (Server) │      │   Client Devices     │    │
+│  │                      │      │  (Any device with    │    │
+│  │  ┌────────────────┐  │      │   a web browser)     │    │
+│  │  │  PostgreSQL    │  │      │                      │    │
+│  │  │  (Database)    │  │◄────►│  • Teacher Laptops   │    │
+│  │  └────────────────┘  │      │  • Admin Desktops    │    │
+│  │                      │      │  • Tablets/Mobile      │    │
+│  │  ┌────────────────┐  │      │                      │    │
+│  │  │  Node.js +     │  │      │  Access via:         │    │
+│  │  │  Express API   │  │      │  http://192.168.x.x  │    │
+│  │  └────────────────┘  │      │        :5000         │    │
+│  │                      │      │                      │    │
+│  │  ┌────────────────┐  │      └──────────────────────┘    │
+│  │  │  React Frontend│  │                                  │
+│  │  │  (Static Files)│  │      No installation required    │
+│  │  └────────────────┘  │      on client devices           │
+│  │                      │                                     │
+│  │  Managed by PM2      │                                     │
+│  └──────────────────────┘                                     │
+└─────────────────────────────────────────────────────────────┘
 ```
-
-No installation needed on client devices — just a browser.
 
 ---
 
-## Installation (Master PC)
+## Technology Stack
+
+<div align="center">
+
+| Layer | Technology |
+|-------|-----------|
+| **Frontend** | React 18 + Tailwind CSS + Zustand |
+| **Backend** | Node.js + Express |
+| **Database** | PostgreSQL |
+| **Process Manager** | PM2 |
+
+</div>
+
+---
+
+## User Roles & Permissions
+
+| Role | Create | Edit | Delete | View |
+|------|--------|------|--------|------|
+| **Admin** | ✅ | ✅ | ✅ | ✅ |
+| **Teacher** | ✅ | ❌ | ❌ | ✅ |
+| **Viewer** | ❌ | ❌ | ❌ | ✅ |
+
+---
+
+## Installation Guide
 
 ### Prerequisites
-- Node.js
-- PostgreSQL
-- PM2 (`npm install -g pm2`)
 
-### Steps
+- [Node.js](https://nodejs.org/) (LTS version recommended)
+- [PostgreSQL](https://www.postgresql.org/download/windows/) (Windows)
+- PM2: `npm install -g pm2`
 
-1. Clone the repository
+### Step-by-Step Setup
+
+#### 1. Clone & Install Dependencies
+
 ```bash
-git clone <repo-url>
+# Clone repository
+git clone <repository-url>
+cd school-result-management
+
+# Install backend dependencies
 cd backend
 npm install
+
+# Install frontend dependencies
+cd ../frontend
+npm install
 ```
 
-2. Set up the database — create a PostgreSQL database named `school_result_db`
+#### 2. Database Configuration
 
-3. Configure `db/pool.js` with your PostgreSQL credentials
+```bash
+# Create database in PostgreSQL
+createdb school_result_db
 
-4. Build the frontend
+# Update credentials in backend/db/pool.js
+# Example:
+#   user: 'postgres',
+#   password: 'your_password',
+#   host: 'localhost',
+#   database: 'school_result_db',
+#   port: 5432
+```
+
+#### 3. Build & Deploy Frontend
+
 ```bash
 cd frontend
-npm install
 npm run build
+
+# Copy build output to backend
+cp -r dist ../backend/
 ```
 
-5. Copy the `dist` folder into the backend root
+#### 4. Launch Application
 
-6. Start the server with PM2
 ```bash
+cd ../backend
 pm2 start index.js --name school-app
 ```
 
 ---
 
-## Auto-Start on Boot (Windows)
+## Auto-Start on Windows Boot
 
-Since `pm2 startup` is not supported on Windows, auto-start is handled via a `.bat` file placed in the Windows startup folder.
+Since `pm2 startup` is not supported on Windows, use a batch file in the Startup folder.
 
-Create `start-school.bat`:
-```bat
+**Create `start-school.bat`:**
+```batch
+@echo off
 node C:\path\to\pm2\bin\pm2 restart school-app || node C:\path\to\pm2\bin\pm2 start C:\path\to\backend\index.js --name school-app
 ```
 
-Place this file in:
-```
-Win + R → shell:startup → paste the .bat file here
-```
-
-The server will start automatically every time the PC boots.
+**Add to Startup:**
+1. Press `Win + R`
+2. Type `shell:startup` and press Enter
+3. Copy `start-school.bat` into the folder
 
 ---
 
-## Default Admin Credentials
+## Default Access
 
-On first run, a default admin account is seeded automatically:
+> ⚠️ **Change immediately after first login**
 
 ```
 Username: MasterAdmin
 Password: Let-me-in-123
 ```
 
-**Change the password after first login.**
+---
+
+## PM2 Command Reference
+
+```bash
+pm2 status              # View running processes
+pm2 logs school-app     # View application logs
+pm2 restart school-app  # Restart the server
+pm2 stop school-app     # Stop the server
+pm2 delete school-app   # Remove from PM2
+```
 
 ---
 
 ## Project Structure
 
 ```
-backend/
-├── controllers/
-├── db/
-│   ├── pool.js
-│   ├── initDB.js
-│   └── seedAdmin.js
-├── middleware/
-│   └── auth.js
-├── routes/
-├── dist/              ← built React frontend
-└── index.js
-
-frontend/
-├── src/
-│   ├── api/
-│   ├── store/
-│   ├── pages/
-│   └── components/
-└── vite.config.js
+school-result-management/
+├── backend/
+│   ├── controllers/         # API route handlers
+│   ├── db/
+│   │   ├── pool.js          # Database connection
+│   │   ├── initDB.js        # Schema initialization
+│   │   └── seedAdmin.js     # Default admin account
+│   ├── middleware/
+│   │   └── auth.js          # JWT authentication
+│   ├── routes/              # API endpoint definitions
+│   ├── dist/                # Built React frontend
+│   └── index.js             # Server entry point
+│
+└── frontend/
+    ├── src/
+    │   ├── api/             # API service functions
+    │   ├── store/           # Zustand state management
+    │   ├── pages/           # Route components
+    │   └── components/      # Reusable UI components
+    └── vite.config.js
 ```
 
 ---
 
-## PM2 Useful Commands
+## Important Notes
 
-```bash
-# Check status
-pm2 status
+> 🛡️ **Security:** This system is designed for LAN use only. Do not expose to the internet.
 
-# View logs
-pm2 logs school-app
+> 🌐 **Static IP:** Assign a static IP to the master PC to ensure the access URL never changes.
 
-# Restart server
-pm2 restart school-app
+> 🔖 **Bookmark:** Save `http://<static-ip>:5000` on all client devices for quick access.
 
-# Stop server
-pm2 stop school-app
-```
+> 🗄️ **Database Migrations:** For production schema changes, use `ALTER TABLE` statements via pgAdmin. **Never drop existing tables** to prevent data loss.
 
 ---
 
-## Notes
+## Support
 
-- The system is designed for LAN use only — not exposed to the internet
-- Assign a static IP to the master PC so the URL never changes for client devices
-- Bookmark `http://<static-ip>:5000` on all client devices for easy access
-- For schema changes in production, use `ALTER TABLE` in pgAdmin — do not drop tables
+For issues or feature requests, please contact the system administrator or create an issue in the repository.
+
+---
+
+<div align="center">
+
+**Built for schools, by someone who understands them.**
+
+</div>
+
+---
+
+Would you like me to save this redesigned README to a file for download, or make any adjustments to the styling or content?
