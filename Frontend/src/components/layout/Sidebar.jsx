@@ -5,18 +5,15 @@ import { useAuthStore } from "../../store/authStore";
 import {
   LayoutDashboard,
   Users,
-  Calendar,
+  GraduationCap,
+  CalendarDays,
   School,
   BookOpen,
+  Layers,
   ClipboardList,
-  FileText,
   PencilLine,
-  BarChart3,
-  Search,
-  DatabaseBackup,
-  Settings,
-  ChevronDown,
-  ChevronRight,
+  FileBarChart,
+  Trophy,
 } from "lucide-react";
 
 function Sidebar({ isOpen }) {
@@ -34,6 +31,7 @@ function Sidebar({ isOpen }) {
     <aside className="w-64 bg-white border-r border-gray-100 overflow-y-auto">
       <nav className="p-3 space-y-0.5">
         {/* Dashboard */}
+
         <MenuItem
           to="/"
           icon={<LayoutDashboard size={17} />}
@@ -41,35 +39,28 @@ function Sidebar({ isOpen }) {
           active={location.pathname === "/"}
         />
 
-        {/* Users - Admin Only */}
+        {/* Users */}
+
         {user?.role === "admin" && (
-          <>
-            <MenuItem
-              to="/users"
-              icon={<Users size={17} />}
-              title="Users List"
-              active={location.pathname === "/users"}
-            />
-          </>
+          <MenuItem
+            to="/users"
+            icon={<Users size={17} />}
+            title="Users"
+            active={location.pathname === "/users"}
+          />
         )}
 
-        {/* Students */}
-        <MenuItem
-          to="/students"
-          icon={<Users size={17} />}
-          title="Student List"
-          active={location.pathname === "/students"}
-        />
+        {/* Academic Session */}
 
-        {/* Sessions */}
         <MenuItem
           to="/sessions"
-          icon={<Calendar size={17} />}
-          title="Sessions"
+          icon={<CalendarDays size={17} />}
+          title="Academic Sessions"
           active={location.pathname === "/sessions"}
         />
 
         {/* Classes */}
+
         <MenuItem
           to="/classes"
           icon={<School size={17} />}
@@ -77,7 +68,17 @@ function Sidebar({ isOpen }) {
           active={location.pathname === "/classes"}
         />
 
+        {/* Sections */}
+
+        <MenuItem
+          to="/section"
+          icon={<Layers size={17} />}
+          title="Sections"
+          active={location.pathname === "/section"}
+        />
+
         {/* Subjects */}
+
         <MenuItem
           to="/subjects"
           icon={<BookOpen size={17} />}
@@ -85,20 +86,22 @@ function Sidebar({ isOpen }) {
           active={location.pathname === "/subjects"}
         />
 
-        {/* Section */}
-        <MenuItem
-          to="/section"
-          icon={<ClipboardList size={17} />}
-          title="Section"
-          active={location.pathname === "/section"}
-        />
-
         {/* Exams */}
+
         <MenuItem
           to="/exams"
-          icon={<FileText size={17} />}
+          icon={<ClipboardList size={17} />}
           title="Exams"
           active={location.pathname === "/exams"}
+        />
+
+        {/* Students */}
+
+        <MenuItem
+          to="/students"
+          icon={<GraduationCap size={17} />}
+          title="Students"
+          active={location.pathname === "/students"}
         />
 
         {/* Marks */}
@@ -111,18 +114,20 @@ function Sidebar({ isOpen }) {
         />
 
         {/* Results */}
+
         <MenuItem
           to="/results"
-          icon={<PencilLine size={17} />}
-          title="Results"
+          icon={<FileBarChart size={17} />}
+          title="Student Results"
           active={location.pathname === "/results"}
         />
 
         {/* Class Results */}
+
         <MenuItem
           to="/class-results"
-          icon={<PencilLine size={17} />}
-          title="Class Results"
+          icon={<Trophy size={17} />}
+          title="Class Performance"
           active={location.pathname === "/class-results"}
         />
       </nav>

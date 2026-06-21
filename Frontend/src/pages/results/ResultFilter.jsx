@@ -5,6 +5,8 @@ import useViewResultStore from "../../store/viewResultStore";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 
+import { Pencil, Save, X } from "lucide-react";
+
 function ResultFilter() {
   const {
     selectedSession,
@@ -29,6 +31,16 @@ function ResultFilter() {
   const { sessions, classes, fetchInitialData } = useMarksEntryStore();
 
   const [viewMode, setViewMode] = useState("students");
+
+  // for edit marks modal
+  const [editModal, setEditModal] = useState(false);
+
+  const [editMark, setEditMark] = useState({
+    subject_id: "",
+    subject_name: "",
+    marks_obtained: "",
+    max_marks: "",
+  });
 
   useEffect(() => {
     fetchInitialData();
@@ -357,6 +369,24 @@ function ResultFilter() {
     // ==========================
     doc.save(`${arrangedResult.student_name}-ReportCard.pdf`);
   };
+
+  // handle update function is here
+  const handleUpdateMark = async () => {
+    try {
+      await api.put(`/marks/${editMark.subject_id}`, {
+        marks_obtained: Number(editMark.marks_obtained),
+      });
+
+      alert("Marks Updated");
+
+      setEditModal(false);
+
+      fetchFullResult(selectedUnitTest);
+    } catch (error) {
+      console.log(error);
+      alert("Failed To Update Marks");
+    }
+  };
   return (
     <div className="p-6 min-h-screen">
       <div>
@@ -593,6 +623,7 @@ function ResultFilter() {
           </div>
         )}
 
+        {/* for unit tests  */}
         {viewMode === "tests" && unitTests.length > 0 && (
           <div className="bg-white rounded-3xl border border-purple-100 shadow-SM overflow-hidden mb-6">
             <div className="px-6 py-4 border-b border-gray-200 bg-gray-50 flex items-center justify-between">
@@ -688,28 +719,23 @@ function ResultFilter() {
 
         {viewMode === "result" && arrangedResult && (
           <div className="space-y-6">
-            <button
-              onClick={() => setViewMode("tests")}
-              className="text-gray-600 hover:text-gray-900 flex items-center gap-2 text-sm font-medium transition-colors">
-              <svg
-                className="w-4 h-4"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24">
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M15 19l-7-7 7-7"
-                />
-              </svg>
-              Back to Unit Tests
-            </button>
             {/* export button */}
             <div className="flex justify-between">
               <button
                 onClick={() => setViewMode("tests")}
                 className="text-gray-600 hover:text-gray-900 flex items-center gap-2 text-sm font-medium">
+                <svg
+                  className="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24">
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M15 19l-7-7 7-7"
+                  />
+                </svg>
                 Back to Unit Tests
               </button>
 
@@ -841,6 +867,7 @@ function ResultFilter() {
                       <th className="text-center px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider">
                         Status
                       </th>
+                      <th className="text-center px-6 py-3">Action</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-100">
@@ -891,6 +918,38 @@ function ResultFilter() {
                               className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${subjGrade.bg} ${subjGrade.color} border ${subjGrade.border}`}>
                               {subjGrade.grade}
                             </span>
+                          </td>
+                          <td className="px-6 py-4 text-center">
+                            <button
+                              onClick={() => {
+                                setEditMark({
+                                  subject_id: subject.subject_id,
+                                  subject_name: subject.subject_name,
+                                  marks_obtained: subject.marks_obtained,
+                                  max_marks: subject.max_marks,
+                                });
+
+                                setEditModal(true);
+                              }}
+                              className="
+    inline-flex
+    items-center
+    gap-2
+    px-3
+    py-2
+    rounded-xl
+    bg-purple-50
+    text-purple-700
+    hover:bg-purple-100
+    transition-all
+    border
+    border-purple-200
+    font-medium
+    text-sm
+  ">
+                              <Pencil size={14} />
+                              Edit
+                            </button>
                           </td>
                         </tr>
                       );
@@ -1019,6 +1078,173 @@ function ResultFilter() {
           </div>
         )}
       </div>
+      {/* edit modal is here  */}
+      {editModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+          <div className="bg-white w-full max-w-lg rounded-3xl shadow-2xl overflow-hidden">
+            {/* Header */}
+
+            <div className="bg-gradient-to-r from-purple-600 to-violet-600 p-6 text-white">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h2 className="text-2xl font-bold">Edit Student Marks</h2>
+
+                  <p className="text-purple-100 text-sm mt-1">
+                    Update marks for this subject
+                  </p>
+                </div>
+
+                <button
+                  onClick={() => setEditModal(false)}
+                  className="
+              w-10
+              h-10
+              rounded-xl
+              bg-white/10
+              hover:bg-white/20
+              flex
+              items-center
+              justify-center
+            ">
+                  <X size={18} />
+                </button>
+              </div>
+            </div>
+
+            {/* Body */}
+
+            <div className="p-6 space-y-5">
+              <div>
+                <label className="text-sm font-medium text-gray-500 block mb-2">
+                  Subject
+                </label>
+
+                <input
+                  value={editMark.subject_name}
+                  disabled
+                  className="
+              w-full
+              border
+              border-gray-200
+              rounded-xl
+              p-3
+              bg-gray-50
+              text-gray-700
+            "
+                />
+              </div>
+
+              <div>
+                <label className="text-sm font-medium text-gray-500 block mb-2">
+                  Marks Obtained
+                </label>
+
+                <input
+                  type="number"
+                  value={editMark.marks_obtained}
+                  onChange={(e) =>
+                    setEditMark({
+                      ...editMark,
+                      marks_obtained: e.target.value,
+                    })
+                  }
+                  className="
+              w-full
+              border
+              border-purple-200
+              rounded-xl
+              p-3
+              focus:outline-none
+              focus:ring-2
+              focus:ring-purple-200
+              focus:border-purple-500
+            "
+                />
+              </div>
+
+              <div>
+                <label className="text-sm font-medium text-gray-500 block mb-2">
+                  Maximum Marks
+                </label>
+
+                <input
+                  value={editMark.max_marks}
+                  disabled
+                  className="
+              w-full
+              border
+              border-gray-200
+              rounded-xl
+              p-3
+              bg-gray-50
+              text-gray-700
+            "
+                />
+              </div>
+
+              {/* Preview */}
+
+              <div className="bg-purple-50 border border-purple-100 rounded-2xl p-4">
+                <p className="text-xs uppercase tracking-wide text-purple-500 mb-2">
+                  Preview
+                </p>
+
+                <div className="flex justify-between items-center">
+                  <span className="font-medium text-gray-700">Percentage</span>
+
+                  <span className="text-lg font-bold text-purple-700">
+                    {editMark.max_marks
+                      ? (
+                          (Number(editMark.marks_obtained || 0) /
+                            Number(editMark.max_marks)) *
+                          100
+                        ).toFixed(1)
+                      : 0}
+                    %
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Footer */}
+
+            <div className="flex justify-end gap-3 px-6 py-4 border-t bg-gray-50">
+              <button
+                onClick={() => setEditModal(false)}
+                className="
+            px-5
+            py-2.5
+            rounded-xl
+            border
+            border-gray-200
+            text-gray-700
+            hover:bg-gray-100
+          ">
+                Cancel
+              </button>
+
+              <button
+                onClick={handleUpdateMark}
+                className="
+            flex
+            items-center
+            gap-2
+            px-5
+            py-2.5
+            rounded-xl
+            bg-purple-600
+            hover:bg-purple-700
+            text-white
+            font-medium
+            shadow-lg
+          ">
+                <Save size={16} />
+                Save Changes
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

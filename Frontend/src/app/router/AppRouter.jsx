@@ -160,14 +160,14 @@ function AppRouter() {
         }
       />
       <Route
-       path="/class-results"
-       element={
-        <ProtectedRoute>
-          <ProtectedLayout>
-            <ClassResultPage />
-          </ProtectedLayout>
-        </ProtectedRoute>
-       }
+        path="/class-results"
+        element={
+          <ProtectedRoute>
+            <ProtectedLayout>
+              <ClassResultPage />
+            </ProtectedLayout>
+          </ProtectedRoute>
+        }
       />
     </Routes>
   );
