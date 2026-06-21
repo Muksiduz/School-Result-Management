@@ -4,6 +4,7 @@ import pool from "../db/pool.js";
 import { getClassResult, getResultOfSingleStudent, getStudentBySessionClassAndSection, getUnitTest, insertResult, insertResultOneSubjectAllStudents, oneStudentAllSubjects, oneSubjectAllStudents } from "../controllers/result.controllers.js";
 import { verifyToken } from "../middlewares/verifyToken.js";
 import { isAdminOrTeacher } from "../middlewares/isAdminOrTeachers.js";
+import { isAdmin } from "../middlewares/isAdmin.js";
 
 const router = express.Router();
 
@@ -35,6 +36,24 @@ router.post(
   isAdminOrTeacher,
   insertResultOneSubjectAllStudents,
 );
+
+// PATCH - update single student mark
+router.patch("/update-mark", verifyToken, isAdmin, async (req, res) => {
+  const { student_id, unit_test_id, subject_id, marks_obtained } = req.body;
+  try {
+    const result = await pool.query(
+      `UPDATE results SET marks_obtained=$1
+       WHERE student_id=$2 AND unit_test_id=$3 AND subject_id=$4
+       RETURNING *`,
+      [marks_obtained, student_id, unit_test_id, subject_id]
+    );
+    if (result.rows.length === 0)
+      return res.status(404).json({ message: "Result not found" });
+    res.json(result.rows[0]);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
 
 
 

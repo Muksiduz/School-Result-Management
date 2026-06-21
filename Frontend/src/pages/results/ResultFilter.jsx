@@ -6,6 +6,7 @@ import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 
 import { Pencil, Save, X } from "lucide-react";
+import api from "../../utils/axios";
 
 function ResultFilter() {
   const {
@@ -37,10 +38,15 @@ function ResultFilter() {
 
   const [editMark, setEditMark] = useState({
     subject_id: "",
+    student_id: "",
+    unit_test_id: "",
     subject_name: "",
     marks_obtained: "",
     max_marks: "",
   });
+
+  console.log("edit",editMark)
+ 
 
   useEffect(() => {
     fetchInitialData();
@@ -77,6 +83,9 @@ function ResultFilter() {
           ).toFixed(2),
         }
       : null;
+
+       console.log(arrangedResult);
+       console.log(fullResult);
 
   const getGrade = (percentage) => {
     if (percentage >= 90)
@@ -373,7 +382,10 @@ function ResultFilter() {
   // handle update function is here
   const handleUpdateMark = async () => {
     try {
-      await api.put(`/marks/${editMark.subject_id}`, {
+      await api.patch(`/results/update-mark`, {
+        student_id: editMark.student_id,
+        unit_test_id: editMark.unit_test_id,
+        subject_id: editMark.subject_id,
         marks_obtained: Number(editMark.marks_obtained),
       });
 
@@ -883,7 +895,7 @@ function ResultFilter() {
                                 {subject.subject_name?.charAt(0)?.toUpperCase()}
                               </div>
                               <span className="text-sm font-medium text-gray-900">
-                                {subject.subject_name}
+                                {subject.subject_name}{subject.subject_id}
                               </span>
                             </div>
                           </td>
@@ -923,6 +935,8 @@ function ResultFilter() {
                             <button
                               onClick={() => {
                                 setEditMark({
+                                  student_id: selectedStudent.student_id,
+                                  unit_test_id:selectedUnitTest.test_id,
                                   subject_id: subject.subject_id,
                                   subject_name: subject.subject_name,
                                   marks_obtained: subject.marks_obtained,
@@ -1022,7 +1036,7 @@ function ResultFilter() {
           </div>
         )}
 
-        {viewMode === "students" &&
+       {viewMode === "students" &&
           students.length === 0 &&
           !loading &&
           selectedSession &&
