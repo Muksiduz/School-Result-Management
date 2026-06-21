@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { use, useEffect, useState } from "react";
 import {
   getAllSections,
   createSection,
@@ -15,6 +15,7 @@ import {
   Search,
   ClipboardList,
 } from "lucide-react";
+import { useAuthStore } from "../../store/authStore";
 
 function SectionPage() {
   const [sections, setSections] = useState([]);
@@ -25,6 +26,8 @@ function SectionPage() {
   const [editName, setEditName] = useState("");
   const [showForm, setShowForm] = useState(false);
   const [formData, setFormData] = useState({ name: "", class_id: "" });
+
+  const user = useAuthStore((state) => state.user);
 
   const fetchSections = async () => {
     try {
@@ -115,12 +118,14 @@ function SectionPage() {
             Section Management
           </h1>
         </div>
-        <button
-          onClick={() => setShowForm(true)}
-          className="flex items-center gap-2 bg-purple-600 hover:bg-purple-700 text-white px-4 py-2.5 rounded-xl text-sm font-medium transition-colors">
-          <Plus size={16} />
-          Add Section
-        </button>
+        {user.role === "admin" && (
+          <button
+            onClick={() => setShowForm(true)}
+            className="flex items-center gap-2 bg-purple-600 hover:bg-purple-700 text-white px-4 py-2.5 rounded-xl text-sm font-medium transition-colors">
+            <Plus size={16} />
+            Add Section
+          </button>
+        )}
       </div>
 
       {/* Table Card */}
@@ -162,9 +167,11 @@ function SectionPage() {
                 <th className="px-6 py-3 text-left text-xs font-semibold text-gray-400 uppercase tracking-wide">
                   Class
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-semibold text-gray-400 uppercase tracking-wide">
-                  Actions
-                </th>
+                {user.role === "admin" && (
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-400 uppercase tracking-wide">
+                    Actions
+                  </th>
+                )}
               </tr>
             </thead>
             <tbody>
@@ -201,38 +208,40 @@ function SectionPage() {
                     </span>
                   </td>
                   <td className="px-6 py-3">
-                    <div className="flex items-center gap-2">
-                      {editingId === section.section_id ? (
-                        <>
-                          <button
-                            onClick={handleUpdate}
-                            className="w-8 h-8 flex items-center justify-center rounded-lg bg-green-50 hover:bg-green-100 text-green-600 border border-green-100 transition-colors">
-                            <Save size={14} />
-                          </button>
-                          <button
-                            onClick={() => {
-                              setEditingId(null);
-                              setEditName("");
-                            }}
-                            className="w-8 h-8 flex items-center justify-center rounded-lg bg-gray-50 hover:bg-gray-100 text-gray-500 border border-gray-100 transition-colors">
-                            <X size={14} />
-                          </button>
-                        </>
-                      ) : (
-                        <>
-                          <button
-                            onClick={() => handleEdit(section)}
-                            className="w-8 h-8 flex items-center justify-center rounded-lg bg-purple-50 hover:bg-purple-100 text-purple-600 border border-purple-100 transition-colors">
-                            <Pencil size={14} />
-                          </button>
-                          <button
-                            onClick={() => handleDelete(section.section_id)}
-                            className="w-8 h-8 flex items-center justify-center rounded-lg bg-red-50 hover:bg-red-100 text-red-500 border border-red-100 transition-colors">
-                            <Trash2 size={14} />
-                          </button>
-                        </>
-                      )}
-                    </div>
+                    {user.role === "admin" && (
+                      <div className="flex items-center gap-2">
+                        {editingId === section.section_id ? (
+                          <>
+                            <button
+                              onClick={handleUpdate}
+                              className="w-8 h-8 flex items-center justify-center rounded-lg bg-green-50 hover:bg-green-100 text-green-600 border border-green-100 transition-colors">
+                              <Save size={14} />
+                            </button>
+                            <button
+                              onClick={() => {
+                                setEditingId(null);
+                                setEditName("");
+                              }}
+                              className="w-8 h-8 flex items-center justify-center rounded-lg bg-gray-50 hover:bg-gray-100 text-gray-500 border border-gray-100 transition-colors">
+                              <X size={14} />
+                            </button>
+                          </>
+                        ) : (
+                          <>
+                            <button
+                              onClick={() => handleEdit(section)}
+                              className="w-8 h-8 flex items-center justify-center rounded-lg bg-purple-50 hover:bg-purple-100 text-purple-600 border border-purple-100 transition-colors">
+                              <Pencil size={14} />
+                            </button>
+                            <button
+                              onClick={() => handleDelete(section.section_id)}
+                              className="w-8 h-8 flex items-center justify-center rounded-lg bg-red-50 hover:bg-red-100 text-red-500 border border-red-100 transition-colors">
+                              <Trash2 size={14} />
+                            </button>
+                          </>
+                        )}
+                      </div>
+                    )}
                   </td>
                 </tr>
               ))}

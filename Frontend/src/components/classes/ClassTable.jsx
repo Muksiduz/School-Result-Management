@@ -7,6 +7,8 @@ import {
 } from "../../services/classService";
 import ClassForm from "./ClassForm";
 
+import { useAuthStore } from "../../store/authStore";
+
 function ClassTable() {
   const [classes, setClasses] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -14,6 +16,8 @@ function ClassTable() {
   const [addModal, setAddModal] = useState(false);
   const [selectedClass, setSelectedClass] = useState(null);
   const [name, setName] = useState("");
+
+  const user = useAuthStore((state) => state.user);
 
   useEffect(() => {
     fetchClasses();
@@ -76,12 +80,14 @@ function ClassTable() {
           <p className="text-sm text-gray-400 mb-1">Home / Classes</p>
           <h1 className="text-2xl font-semibold text-gray-800">Classes</h1>
         </div>
-        <button
-          onClick={() => setAddModal(true)}
-          className="flex items-center gap-2 bg-purple-600 hover:bg-purple-700 text-white px-4 py-2.5 rounded-xl text-sm font-medium transition-colors">
-          <School size={16} />
-          Add Class
-        </button>
+        {user.role === "admin" && (
+          <button
+            onClick={() => setAddModal(true)}
+            className="flex items-center gap-2 bg-purple-600 hover:bg-purple-700 text-white px-4 py-2.5 rounded-xl text-sm font-medium transition-colors">
+            <School size={16} />
+            Add Class
+          </button>
+        )}
       </div>
 
       {/* Table Card */}
@@ -105,9 +111,11 @@ function ClassTable() {
                 <th className="px-6 py-3 text-left text-xs font-semibold text-gray-400 uppercase tracking-wide">
                   Class Name
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-semibold text-gray-400 uppercase tracking-wide">
-                  Actions
-                </th>
+                {user.role === "admin" && (
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-400 uppercase tracking-wide">
+                    Actions
+                  </th>
+                )}
               </tr>
             </thead>
 
@@ -135,18 +143,20 @@ function ClassTable() {
                     </td>
 
                     <td className="px-6 py-3">
-                      <div className="flex items-center gap-2">
-                        <button
-                          onClick={() => handleEdit(classItem)}
-                          className="w-8 h-8 flex items-center justify-center rounded-lg bg-purple-50 hover:bg-purple-100 text-purple-600 border border-purple-100 transition-colors">
-                          <Pencil size={14} />
-                        </button>
-                        <button
-                          onClick={() => handleDelete(classItem.class_id)}
-                          className="w-8 h-8 flex items-center justify-center rounded-lg bg-red-50 hover:bg-red-100 text-red-500 border border-red-100 transition-colors">
-                          <Trash2 size={14} />
-                        </button>
-                      </div>
+                      {user.role === "admin" && (
+                        <div className="flex items-center gap-2">
+                          <button
+                            onClick={() => handleEdit(classItem)}
+                            className="w-8 h-8 flex items-center justify-center rounded-lg bg-purple-50 hover:bg-purple-100 text-purple-600 border border-purple-100 transition-colors">
+                            <Pencil size={14} />
+                          </button>
+                          <button
+                            onClick={() => handleDelete(classItem.class_id)}
+                            className="w-8 h-8 flex items-center justify-center rounded-lg bg-red-50 hover:bg-red-100 text-red-500 border border-red-100 transition-colors">
+                            <Trash2 size={14} />
+                          </button>
+                        </div>
+                      )}
                     </td>
                   </tr>
                 ))

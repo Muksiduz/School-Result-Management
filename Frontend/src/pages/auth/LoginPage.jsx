@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "../../store/authStore";
 import { loginUser } from "../../services/authService";
+import { School, GraduationCap, ClipboardList, Users } from "lucide-react";
 
 function LoginPage() {
   const navigate = useNavigate();
@@ -44,151 +45,136 @@ function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 flex">
-      {/* Left Side */}
-      <div className="hidden lg:flex flex-1 relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-700" />
+    <div className="min-h-screen bg-purple-50 flex">
+      {/* Left Panel */}
+      <div className="hidden lg:flex flex-col flex-1 bg-purple-600 relative overflow-hidden p-14 justify-between">
+        {/* Background decoration circles */}
+        <div className="absolute top-0 right-0 w-72 h-72 bg-purple-500 rounded-full -translate-y-1/2 translate-x-1/2 opacity-50" />
+        <div className="absolute bottom-0 left-0 w-96 h-96 bg-purple-700 rounded-full translate-y-1/2 -translate-x-1/2 opacity-40" />
+        <div className="absolute top-1/2 right-12 w-40 h-40 bg-purple-400 rounded-full opacity-20" />
 
-        <div className="absolute top-20 left-20 w-72 h-72 bg-white/10 rounded-full blur-3xl" />
-        <div className="absolute bottom-20 right-20 w-96 h-96 bg-cyan-400/20 rounded-full blur-3xl" />
-
-        <div className="relative z-10 flex flex-col justify-center px-20 text-white max-w-2xl">
-          <div className="mb-8">
-            <div className="w-14 h-14 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center text-2xl font-bold">
-              S
-            </div>
+        {/* Logo */}
+        <div className="relative z-10 flex items-center gap-3">
+          <div className="w-9 h-9 bg-white rounded-xl flex items-center justify-center">
+            <School size={18} className="text-purple-600" />
           </div>
+          <span className="text-white font-semibold text-lg">Exademy</span>
+        </div>
 
-          <h1 className="text-6xl font-bold leading-tight">
-            School
+        {/* Main content */}
+        <div className="relative z-10">
+          <h1 className="text-5xl font-bold text-white leading-tight mb-5">
+            School Result
             <br />
             Management
             <br />
             System
           </h1>
-
-          <p className="mt-6 text-lg text-white/80 leading-relaxed">
-            Manage students, classes, exams, attendance and reports from a
-            single modern dashboard.
+          <p className="text-purple-200 text-base leading-relaxed max-w-sm mb-10">
+            Manage students, classes, exams, and results from a single modern
+            dashboard.
           </p>
 
-          <div className="mt-12 space-y-4">
-            <div className="flex items-center gap-3">
-              <div className="h-2 w-2 rounded-full bg-green-400" />
-              Student Management
-            </div>
-
-            <div className="flex items-center gap-3">
-              <div className="h-2 w-2 rounded-full bg-green-400" />
-              Exam & Result Processing
-            </div>
-
-            <div className="flex items-center gap-3">
-              <div className="h-2 w-2 rounded-full bg-green-400" />
-              Attendance Tracking
-            </div>
+          {/* Feature list */}
+          <div className="space-y-4">
+            {[
+              { icon: Users, label: "Student Management" },
+              { icon: ClipboardList, label: "Exam & Result Processing" },
+              { icon: GraduationCap, label: "Academic Session Tracking" },
+            ].map((item) => {
+              const Icon = item.icon;
+              return (
+                <div key={item.label} className="flex items-center gap-3">
+                  <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <Icon size={15} className="text-white" />
+                  </div>
+                  <span className="text-white/90 text-sm font-medium">
+                    {item.label}
+                  </span>
+                </div>
+              );
+            })}
           </div>
+        </div>
+
+        {/* Bottom tagline */}
+        <div className="relative z-10">
+          <p className="text-purple-300 text-xs">
+            © 2026 ia Academy · Secure Academic ERP
+          </p>
         </div>
       </div>
 
-      {/* Right Side */}
-      <div className="flex-1 flex items-center justify-center p-6 bg-slate-950">
-        <div className="w-full max-w-md">
-          <div className="bg-white/5 backdrop-blur-2xl border border-white/10 rounded-3xl p-8 shadow-2xl">
-            <div className="mb-8">
-              <h2 className="text-3xl font-bold text-white">Welcome Back</h2>
+      {/* Right Panel */}
+      <div className="flex-1 flex items-center justify-center p-6 bg-purple-50">
+        <div className="w-full max-w-sm">
+          {/* Mobile logo */}
+          <div className="flex items-center gap-2 mb-8 lg:hidden">
+            <div className="w-8 h-8 bg-purple-600 rounded-xl flex items-center justify-center">
+              <School size={16} className="text-white" />
+            </div>
+            <span className="text-gray-800 font-semibold">Exademy</span>
+          </div>
 
-              <p className="text-slate-400 mt-2">Sign in to continue</p>
+          {/* Card */}
+          <div className="bg-white rounded-2xl border border-purple-100 shadow-sm p-8">
+            {/* Header */}
+            <div className="mb-7">
+              <div className="w-11 h-11 bg-purple-100 rounded-xl flex items-center justify-center mb-4">
+                <School size={20} className="text-purple-600" />
+              </div>
+              <h2 className="text-xl font-semibold text-gray-800">
+                Welcome back
+              </h2>
+              <p className="text-sm text-gray-400 mt-1">
+                Sign in to your account to continue
+              </p>
             </div>
 
-            <form onSubmit={handleSubmit}>
-              <div className="space-y-5">
-                <div>
-                  <label className="block text-sm font-medium text-slate-300 mb-2">
-                    Username
-                  </label>
-
-                  <input
-                    name="username"
-                    type="text"
-                    placeholder="Enter username"
-                    value={formData.username}
-                    onChange={handleChange}
-                    className="
-                    w-full
-                    bg-white/5
-                    border
-                    border-white/10
-                    rounded-2xl
-                    px-4
-                    py-3
-                    text-white
-                    placeholder:text-slate-500
-                    focus:outline-none
-                    focus:ring-2
-                    focus:ring-blue-500
-                    focus:border-transparent
-                  "
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-slate-300 mb-2">
-                    Password
-                  </label>
-
-                  <input
-                    name="password"
-                    type="password"
-                    placeholder="Enter password"
-                    value={formData.password}
-                    onChange={handleChange}
-                    className="
-                    w-full
-                    bg-white/5
-                    border
-                    border-white/10
-                    rounded-2xl
-                    px-4
-                    py-3
-                    text-white
-                    placeholder:text-slate-500
-                    focus:outline-none
-                    focus:ring-2
-                    focus:ring-blue-500
-                    focus:border-transparent
-                  "
-                  />
-                </div>
-
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="
-                  w-full
-                  py-3.5
-                  rounded-2xl
-                  font-semibold
-                  text-white
-                  bg-gradient-to-r
-                  from-blue-600
-                  to-indigo-600
-                  hover:from-blue-700
-                  hover:to-indigo-700
-                  transition-all
-                  disabled:opacity-70
-                  disabled:cursor-not-allowed
-                  shadow-lg
-                  shadow-blue-500/25
-                ">
-                  {loading ? "Logging In..." : "Login"}
-                </button>
+            {/* Form */}
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div>
+                <label className="block text-xs font-semibold text-gray-500 mb-1.5">
+                  Username
+                </label>
+                <input
+                  name="username"
+                  type="text"
+                  placeholder="Enter your username"
+                  value={formData.username}
+                  onChange={handleChange}
+                  className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm bg-gray-50 text-gray-800 placeholder:text-gray-300 focus:outline-none focus:border-purple-400 focus:ring-2 focus:ring-purple-100 transition-all"
+                  required
+                />
               </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-gray-500 mb-1.5">
+                  Password
+                </label>
+                <input
+                  name="password"
+                  type="password"
+                  placeholder="Enter your password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm bg-gray-50 text-gray-800 placeholder:text-gray-300 focus:outline-none focus:border-purple-400 focus:ring-2 focus:ring-purple-100 transition-all"
+                  required
+                />
+              </div>
+
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full py-2.5 rounded-xl font-medium text-sm text-white bg-purple-600 hover:bg-purple-700 disabled:opacity-60 disabled:cursor-not-allowed transition-colors mt-2">
+                {loading ? "Signing in..." : "Sign In"}
+              </button>
             </form>
 
-            <div className="mt-8 pt-6 border-t border-white/10">
-              <p className="text-sm text-slate-500 text-center">
-                Secure access to your dashboard
+            {/* Footer */}
+            <div className="mt-6 pt-5 border-t border-gray-100 text-center">
+              <p className="text-xs text-gray-400">
+                Secure access · School Result Management System
               </p>
             </div>
           </div>

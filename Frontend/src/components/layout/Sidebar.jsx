@@ -102,6 +102,7 @@ function Sidebar({ isOpen }) {
         />
 
         {/* Marks */}
+
         <MenuItem
           to="/marks"
           icon={<PencilLine size={17} />}

@@ -35,12 +35,12 @@ export async function getDashboardData(req, res) {
     `);
 
     // Current Session
-    const currentSession = await pool.query(`
-      SELECT *
-      FROM academic_sessions
-      ORDER BY session_id DESC
-      LIMIT 1
-    `);
+    const currentSessionResult = await pool.query(`
+  SELECT *
+  FROM academic_sessions
+  WHERE CURRENT_DATE BETWEEN start_date AND end_date
+  LIMIT 1
+`);
 
     // Students Per Class
     const classWiseStudents = await pool.query(`
@@ -77,7 +77,10 @@ export async function getDashboardData(req, res) {
 
       totalExams: Number(exams.rows[0].total),
 
-      currentSession: currentSession.rows[0] || null,
+      currentSession:
+        currentSessionResult.rows.length > 0
+          ? currentSessionResult.rows[0]
+          : null,
 
       classWiseStudents: classWiseStudents.rows,
 
