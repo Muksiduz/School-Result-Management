@@ -5,7 +5,7 @@ import useViewResultStore from "../../store/viewResultStore";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 
-import { Pencil, Save, X } from "lucide-react";
+import { Feather, Pencil, Save, X } from "lucide-react";
 import api from "../../utils/axios";
 
 function ResultFilter() {
@@ -52,12 +52,18 @@ function ResultFilter() {
     fetchInitialData();
   }, []);
 
+  console.log("Students:",students)
+
   const arrangedResult =
     fullResult?.length > 0
       ? {
           student_id: fullResult[0]?.student_id,
           student_name: fullResult[0]?.student_name,
           test_name: fullResult[0]?.test_name,
+          class_name: fullResult[0]?.class_name,
+          section_name: fullResult[0]?.section_name,
+          Father_name: fullResult[0]?.father_name,
+          roll_no: fullResult[0]?.roll_no,
           subjects: fullResult.map((r) => ({
             subject_id: r.subject_id,
             subject_name: r.subject_name,
@@ -84,7 +90,7 @@ function ResultFilter() {
         }
       : null;
 
-       console.log(arrangedResult);
+       console.log("Arrange Result::",arrangedResult);
        console.log(fullResult);
 
   const getGrade = (percentage) => {
@@ -425,7 +431,8 @@ function ResultFilter() {
               className="w-5 h-5 text-purple-700"
               fill="none"
               stroke="currentColor"
-              viewBox="0 0 24 24">
+              viewBox="0 0 24 24"
+            >
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -449,7 +456,8 @@ function ResultFilter() {
                     (s) => s.session_id == e.target.value,
                   );
                   setSelectedSession(s);
-                }}>
+                }}
+              >
                 <option value="">Select Session</option>
                 {sessions.map((s) => (
                   <option key={s.session_id} value={s.session_id}>
@@ -467,7 +475,8 @@ function ResultFilter() {
                 onChange={(e) => {
                   const c = classes.find((c) => c.class_id == e.target.value);
                   setSelectedClass(c);
-                }}>
+                }}
+              >
                 <option value="">Select Class</option>
                 {classes.map((c) => (
                   <option key={c.class_id} value={c.class_id}>
@@ -489,7 +498,8 @@ function ResultFilter() {
                     (s) => s.section_id == e.target.value,
                   );
                   setSelectedSection(s);
-                }}>
+                }}
+              >
                 <option value="">Select Section</option>
                 {sections.map((s) => (
                   <option key={s.section_id} value={s.section_id}>
@@ -508,7 +518,8 @@ function ResultFilter() {
             disabled={
               !selectedSession || !selectedClass || !selectedSection || loading
             }
-            className="bg-linear-to-r from-purple-600 to-violet-700 hover:opacity-90 disabled:bg-gray-300 disabled:cursor-not-allowed text-white px-6 py-2.5 rounded-lg font-semibold shadow-sm hover:shadow-md transition-all flex items-center gap-2">
+            className="bg-linear-to-r from-purple-600 to-violet-700 hover:opacity-90 disabled:bg-gray-300 disabled:cursor-not-allowed text-white px-6 py-2.5 rounded-lg font-semibold shadow-sm hover:shadow-md transition-all flex items-center gap-2"
+          >
             {loading ? (
               <>
                 <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
@@ -535,7 +546,8 @@ function ResultFilter() {
                   className="w-4 h-4"
                   fill="none"
                   stroke="currentColor"
-                  viewBox="0 0 24 24">
+                  viewBox="0 0 24 24"
+                >
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
@@ -555,7 +567,8 @@ function ResultFilter() {
               className="w-5 h-5 text-red-500 shrink-0"
               fill="none"
               stroke="currentColor"
-              viewBox="0 0 24 24">
+              viewBox="0 0 24 24"
+            >
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -575,7 +588,8 @@ function ResultFilter() {
                   className="w-5 h-5 text-purple-700"
                   fill="none"
                   stroke="currentColor"
-                  viewBox="0 0 24 24">
+                  viewBox="0 0 24 24"
+                >
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
@@ -590,7 +604,8 @@ function ResultFilter() {
               {students.map((student) => (
                 <div
                   key={student.student_id}
-                  className="p-4 hover:bg-blue-50 transition-colors flex items-center justify-between">
+                  className="p-4 hover:bg-blue-50 transition-colors flex items-center justify-between"
+                >
                   <div className="flex items-center gap-4">
                     <div className="w-10 h-10 rounded-full bg-linear-to-br from-blue-500 to-blue-600 text-white flex items-center justify-center text-sm font-bold shadow-sm">
                       {student.name
@@ -607,6 +622,9 @@ function ResultFilter() {
                       <p className="text-xs text-gray-500">
                         ID: {student.student_id}
                       </p>
+                      <p className="text-xs text-gray-500">
+                        ID: {student.roll_no || ""}
+                      </p>
                     </div>
                   </div>
                   <button
@@ -614,13 +632,15 @@ function ResultFilter() {
                       fetchUnitTests(student);
                       setViewMode("tests");
                     }}
-                    className="text-purple-700 hover:text-blue-700 hover:bg-purple-100 px-4 py-2 rounded-lg text-sm font-medium transition-all flex items-center gap-1">
+                    className="text-purple-700 hover:text-blue-700 hover:bg-purple-100 px-4 py-2 rounded-lg text-sm font-medium transition-all flex items-center gap-1"
+                  >
                     View Tests
                     <svg
                       className="w-4 h-4"
                       fill="none"
                       stroke="currentColor"
-                      viewBox="0 0 24 24">
+                      viewBox="0 0 24 24"
+                    >
                       <path
                         strokeLinecap="round"
                         strokeLinejoin="round"
@@ -644,7 +664,8 @@ function ResultFilter() {
                   className="w-5 h-5 text-purple-600"
                   fill="none"
                   stroke="currentColor"
-                  viewBox="0 0 24 24">
+                  viewBox="0 0 24 24"
+                >
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
@@ -656,12 +677,14 @@ function ResultFilter() {
               </h3>
               <button
                 onClick={() => setViewMode("students")}
-                className="text-sm text-gray-500 hover:text-gray-700 flex items-center gap-1">
+                className="text-sm text-gray-500 hover:text-gray-700 flex items-center gap-1"
+              >
                 <svg
                   className="w-4 h-4"
                   fill="none"
                   stroke="currentColor"
-                  viewBox="0 0 24 24">
+                  viewBox="0 0 24 24"
+                >
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
@@ -680,7 +703,8 @@ function ResultFilter() {
                   onClick={() => {
                     fetchFullResult(test);
                     setViewMode("result");
-                  }}>
+                  }}
+                >
                   <div className="flex items-start justify-between mb-2">
                     <div>
                       <h4 className="font-semibold text-gray-900 group-hover:text-purple-700 transition-colors">
@@ -695,7 +719,8 @@ function ResultFilter() {
                         className="w-4 h-4"
                         fill="none"
                         stroke="currentColor"
-                        viewBox="0 0 24 24">
+                        viewBox="0 0 24 24"
+                      >
                         <path
                           strokeLinecap="round"
                           strokeLinejoin="round"
@@ -711,7 +736,8 @@ function ResultFilter() {
                         className="w-4 h-4 text-amber-500"
                         fill="none"
                         stroke="currentColor"
-                        viewBox="0 0 24 24">
+                        viewBox="0 0 24 24"
+                      >
                         <path
                           strokeLinecap="round"
                           strokeLinejoin="round"
@@ -735,12 +761,14 @@ function ResultFilter() {
             <div className="flex justify-between">
               <button
                 onClick={() => setViewMode("tests")}
-                className="text-gray-600 hover:text-gray-900 flex items-center gap-2 text-sm font-medium">
+                className="text-gray-600 hover:text-gray-900 flex items-center gap-2 text-sm font-medium"
+              >
                 <svg
                   className="w-4 h-4"
                   fill="none"
                   stroke="currentColor"
-                  viewBox="0 0 24 24">
+                  viewBox="0 0 24 24"
+                >
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
@@ -753,7 +781,8 @@ function ResultFilter() {
 
               <button
                 onClick={handleExportPDF}
-                className="bg-purple-600 text-white px-4 py-2 rounded-xl hover:bg-purple-700">
+                className="bg-purple-600 text-white px-4 py-2 rounded-xl hover:bg-purple-700"
+              >
                 Export PDF
               </button>
             </div>
@@ -785,7 +814,8 @@ function ResultFilter() {
 
                 {gradeInfo && (
                   <div
-                    className={`px-6 py-3 rounded-xl border-2 ${gradeInfo.border} ${gradeInfo.bg} text-center`}>
+                    className={`px-6 py-3 rounded-xl border-2 ${gradeInfo.border} ${gradeInfo.bg} text-center`}
+                  >
                     <p className="text-xs font-medium text-gray-600 uppercase tracking-wider mb-1">
                       Overall Grade
                     </p>
@@ -846,7 +876,8 @@ function ResultFilter() {
                     className="w-5 h-5 text-indigo-600"
                     fill="none"
                     stroke="currentColor"
-                    viewBox="0 0 24 24">
+                    viewBox="0 0 24 24"
+                  >
                     <path
                       strokeLinecap="round"
                       strokeLinejoin="round"
@@ -888,14 +919,16 @@ function ResultFilter() {
                       return (
                         <tr
                           key={index}
-                          className="hover:bg-purple-50 transition-colors">
+                          className="hover:bg-purple-50 transition-colors"
+                        >
                           <td className="px-6 py-4">
                             <div className="flex items-center gap-3">
                               <div className="w-8 h-8 rounded-lg bg-indigo-100 text-indigo-600 flex items-center justify-center text-xs font-bold">
                                 {subject.subject_name?.charAt(0)?.toUpperCase()}
                               </div>
                               <span className="text-sm font-medium text-gray-900">
-                                {subject.subject_name}{subject.subject_id}
+                                {subject.subject_name}
+                                {subject.subject_id}
                               </span>
                             </div>
                           </td>
@@ -911,7 +944,8 @@ function ResultFilter() {
                           </td>
                           <td className="px-6 py-4 text-center">
                             <span
-                              className={`text-sm font-semibold ${subjGrade.color}`}>
+                              className={`text-sm font-semibold ${subjGrade.color}`}
+                            >
                               {subject.percentage}%
                             </span>
                           </td>
@@ -927,7 +961,8 @@ function ResultFilter() {
                           </td>
                           <td className="px-6 py-4 text-center">
                             <span
-                              className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${subjGrade.bg} ${subjGrade.color} border ${subjGrade.border}`}>
+                              className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${subjGrade.bg} ${subjGrade.color} border ${subjGrade.border}`}
+                            >
                               {subjGrade.grade}
                             </span>
                           </td>
@@ -936,7 +971,7 @@ function ResultFilter() {
                               onClick={() => {
                                 setEditMark({
                                   student_id: selectedStudent.student_id,
-                                  unit_test_id:selectedUnitTest.test_id,
+                                  unit_test_id: selectedUnitTest.test_id,
                                   subject_id: subject.subject_id,
                                   subject_name: subject.subject_name,
                                   marks_obtained: subject.marks_obtained,
@@ -960,7 +995,8 @@ function ResultFilter() {
     border-purple-200
     font-medium
     text-sm
-  ">
+  "
+                            >
                               <Pencil size={14} />
                               Edit
                             </button>
@@ -995,7 +1031,8 @@ function ResultFilter() {
                       </td>
                       <td className="px-6 py-4 text-center">
                         <span
-                          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold ${gradeInfo?.bg} ${gradeInfo?.color} border ${gradeInfo?.border}`}>
+                          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold ${gradeInfo?.bg} ${gradeInfo?.color} border ${gradeInfo?.border}`}
+                        >
                           {gradeInfo?.grade}
                         </span>
                       </td>
@@ -1015,7 +1052,8 @@ function ResultFilter() {
                   return (
                     <div
                       key={idx}
-                      className={`p-4 rounded-lg border ${subjGrade.border} ${subjGrade.bg}`}>
+                      className={`p-4 rounded-lg border ${subjGrade.border} ${subjGrade.bg}`}
+                    >
                       <p className="text-xs font-medium text-gray-600 mb-1">
                         {subject.subject_name}
                       </p>
@@ -1024,7 +1062,8 @@ function ResultFilter() {
                           {subject.marks_obtained}/{subject.max_marks}
                         </span>
                         <span
-                          className={`text-sm font-bold ${subjGrade.color}`}>
+                          className={`text-sm font-bold ${subjGrade.color}`}
+                        >
                           {subjGrade.grade}
                         </span>
                       </div>
@@ -1036,7 +1075,7 @@ function ResultFilter() {
           </div>
         )}
 
-       {viewMode === "students" &&
+        {viewMode === "students" &&
           students.length === 0 &&
           !loading &&
           selectedSession &&
@@ -1048,7 +1087,8 @@ function ResultFilter() {
                   className="w-8 h-8 text-gray-400"
                   fill="none"
                   stroke="currentColor"
-                  viewBox="0 0 24 24">
+                  viewBox="0 0 24 24"
+                >
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
@@ -1074,7 +1114,8 @@ function ResultFilter() {
                 className="w-8 h-8 text-gray-400"
                 fill="none"
                 stroke="currentColor"
-                viewBox="0 0 24 24">
+                viewBox="0 0 24 24"
+              >
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -1119,7 +1160,8 @@ function ResultFilter() {
               flex
               items-center
               justify-center
-            ">
+            "
+                >
                   <X size={18} />
                 </button>
               </div>
@@ -1233,7 +1275,8 @@ function ResultFilter() {
             border-gray-200
             text-gray-700
             hover:bg-gray-100
-          ">
+          "
+              >
                 Cancel
               </button>
 
@@ -1251,7 +1294,8 @@ function ResultFilter() {
             text-white
             font-medium
             shadow-lg
-          ">
+          "
+              >
                 <Save size={16} />
                 Save Changes
               </button>
