@@ -78,7 +78,7 @@ export async function getResultOfSingleStudent(req, res) {
     const { student_id, session_id, unit_test_id } = req.query;
     try {
       const result = await pool.query(
-        `SELECT r.student_id, st.name as student_name, r.marks_obtained, s.name as subject_name, ut.max_marks, ut.name as test_name
+        `SELECT r.student_id, st.name as student_name, r.marks_obtained,s.subject_id, s.name as subject_name, ut.max_marks, ut.name as test_name
        FROM results r
        JOIN subjects s ON r.subject_id = s.subject_id
        JOIN unit_tests ut ON r.unit_test_id = ut.test_id
