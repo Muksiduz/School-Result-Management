@@ -32,6 +32,7 @@ const ClassResultPage = () => {
   const arrangedResults = useMemo(() => {
     if (!results || results.length === 0) return [];
     const studentMap = new Map();
+
     results.forEach((item) => {
       const studentId = item.student_id;
       if (!studentMap.has(studentId)) {
@@ -39,6 +40,9 @@ const ClassResultPage = () => {
           student_id: item.student_id,
           student_name: item.student_name,
           test_name: item.test_name,
+
+          //changed
+          roll_number: item.roll_number,
           subjects: [],
           total_marks_obtained: 0,
           total_max_marks: 0,
@@ -160,64 +164,31 @@ const ClassResultPage = () => {
     }
 
     const doc = new jsPDF("landscape");
-
     const pageWidth = doc.internal.pageSize.getWidth();
-
-    // =====================
-    // HEADER
-    // =====================
-
-    doc.setFillColor(109, 40, 217);
-    doc.rect(0, 0, pageWidth, 30, "F");
-
-    doc.setTextColor(255, 255, 255);
-
-    doc.setFontSize(22);
-    doc.setFont("helvetica", "bold");
-
-    doc.text("TARANGAJHAR HIGH SCHOOL", pageWidth / 2, 13, { align: "center" });
-
-    doc.setFontSize(10);
-
-    doc.text("Class Result Sheet", pageWidth / 2, 22, { align: "center" });
-
-    // =====================
-    // INFO SECTION
-    // =====================
-
-    doc.setTextColor(0);
-
-    doc.setFontSize(11);
-
-    doc.text(`Session: ${selectedSession?.name || "-"}`, 14, 42);
-
-    doc.text(`Class: ${selectedClass?.name || "-"}`, 14, 50);
-
-    doc.text(`Section: ${selectedSection?.name || "-"}`, 14, 58);
-
-    doc.text(`Unit Test: ${selectedUnitTest?.name || "-"}`, 120, 42);
-
-    doc.text(`Students: ${arrangedResults.length}`, 120, 50);
-
-    doc.text(`Generated: ${new Date().toLocaleDateString()}`, 120, 58);
-
-    // =====================
-    // SUBJECTS
-    // =====================
+    const pageHeight = doc.internal.pageSize.getHeight();
 
     const subjects = allSubjects;
-
-    const tableHead = [
-      ["Rank", "Student Name", ...subjects, "Total", "%", "Grade", "Result"],
-    ];
 
     const rankedStudents = [...arrangedResults].sort(
       (a, b) => Number(b.overall_percentage) - Number(a.overall_percentage),
     );
 
+    const tableHead = [
+      [
+        "Rank",
+        "Roll No",
+        "Student Name",
+        ...subjects,
+        "Total",
+        "Percentage",
+        "Grade",
+        "Result",
+      ],
+    ];
+
     const tableBody = rankedStudents.map((student, index) => [
       index + 1,
-
+      student.roll_number || "-",
       student.student_name,
 
       ...subjects.map((subject) => {
@@ -229,29 +200,53 @@ const ClassResultPage = () => {
       }),
 
       student.total_marks_obtained,
-
       `${student.overall_percentage}%`,
-
       student.grade.grade,
-
       student.isFailed ? "FAIL" : "PASS",
     ]);
 
     autoTable(doc, {
-      startY: 70,
+      startY: 40,
 
       head: tableHead,
 
       body: tableBody,
 
       theme: "grid",
-      didParseCell: function (data) {
+
+      margin: {
+        top: 40,
+      },
+
+      didDrawPage: () => {
+        // =========================
+        // HEADER ON EVERY PAGE
+        // =========================
+
+        doc.setFillColor(109, 40, 217);
+        doc.rect(0, 0, pageWidth, 30, "F");
+
+        doc.setTextColor(255, 255, 255);
+
+        doc.setFontSize(22);
+        doc.setFont("helvetica", "bold");
+
+        doc.text("TARANGAJHAR HIGH SCHOOL", pageWidth / 2, 13, {
+          align: "center",
+        });
+
+        doc.setFontSize(10);
+
+        doc.text("Class Result Sheet", pageWidth / 2, 22, { align: "center" });
+      },
+
+      didParseCell: (data) => {
         if (data.section === "body") {
           const student = rankedStudents[data.row.index];
 
           if (student.isFailed) {
-            data.cell.styles.fillColor = [254, 226, 226]; // light red
-            data.cell.styles.textColor = [185, 28, 28]; // dark red
+            data.cell.styles.fillColor = [254, 226, 226];
+            data.cell.styles.textColor = [185, 28, 28];
           }
         }
       },
@@ -260,22 +255,29 @@ const ClassResultPage = () => {
         fillColor: [109, 40, 217],
         textColor: [255, 255, 255],
         halign: "center",
+        fontStyle: "bold",
       },
 
       bodyStyles: {
         halign: "center",
+        fontSize: 8,
       },
 
       alternateRowStyles: {
         fillColor: [248, 250, 252],
       },
+
+      columnStyles: {
+        2: {
+          halign: "left",
+          cellWidth: 40,
+        },
+      },
     });
 
-    // =====================
-    // SUMMARY
-    // =====================
-
-    const finalY = doc.lastAutoTable.finalY + 15;
+    // =========================
+    // SUMMARY CALCULATIONS
+    // =========================
 
     const passCount = rankedStudents.filter((s) => !s.isFailed).length;
 
@@ -290,57 +292,91 @@ const ClassResultPage = () => {
     const totalMaxMarks =
       rankedStudents.length > 0 ? rankedStudents[0].total_max_marks : 0;
 
-    doc.setFont("helvetica", "bold");
-
-    //need to check this one
-    doc.text(`Maximum Marks: ${totalMaxMarks}`, 14, finalY);
-
-    doc.text(`Total Students: ${rankedStudents.length}`, 80, finalY);
-
-    doc.text(`Passed: ${passCount}`, 160, finalY);
-
-    doc.text(`Failed: ${failCount}`, 220, finalY);
-
-    // =====================
-    // TOPPER
-    // =====================
-
     const topper = rankedStudents[0];
 
-    doc.text(
-      `Topper: ${topper.student_name} (${topper.overall_percentage}%)`,
-      14,
-      finalY + 12,
-    );
+    // =========================
+    // SUMMARY PAGE
+    // =========================
 
-    // =====================
+    doc.addPage();
+
+    doc.setFillColor(109, 40, 217);
+    doc.rect(0, 0, pageWidth, 30, "F");
+
+    doc.setTextColor(255, 255, 255);
+
+    doc.setFontSize(22);
+    doc.setFont("helvetica", "bold");
+
+    doc.text("TARANGAJHAR HIGH SCHOOL", pageWidth / 2, 13, { align: "center" });
+
+    doc.setFontSize(10);
+
+    doc.text("Class Result Summary", pageWidth / 2, 22, { align: "center" });
+
+    doc.setTextColor(0);
+
+    doc.setFontSize(16);
+    doc.text("Class Summary", 14, 50);
+
+    doc.setFontSize(11);
+
+    doc.text(`Session: ${selectedSession?.name || "-"}`, 14, 70);
+
+    doc.text(`Class: ${selectedClass?.name || "-"}`, 14, 80);
+
+    doc.text(`Section: ${selectedSection?.name || "-"}`, 14, 90);
+
+    doc.text(`Unit Test: ${selectedUnitTest?.name || "-"}`, 14, 100);
+
+    doc.text(`Generated: ${new Date().toLocaleDateString()}`, 14, 110);
+
+    doc.setFont("helvetica", "bold");
+
+    doc.text(`Total Students : ${rankedStudents.length}`, 14, 130);
+
+    doc.text(`Passed Students : ${passCount}`, 14, 145);
+
+    doc.text(`Failed Students : ${failCount}`, 14, 160);
+
+    doc.text(`Maximum Marks : ${totalMaxMarks}`, 14, 175);
+
+    doc.text(`Class Average : ${avg.toFixed(2)}%`, 14, 190);
+
+    doc.text(`Top Performer : ${topper.student_name}`, 14, 205);
+
+    doc.text(`Top Score : ${topper.overall_percentage}%`, 14, 220);
+
+    // =========================
     // SIGNATURE
-    // =====================
+    // =========================
 
-    doc.line(pageWidth - 80, finalY + 25, pageWidth - 20, finalY + 25);
+    doc.line(pageWidth - 90, pageHeight - 50, pageWidth - 20, pageHeight - 50);
 
-    doc.text("Principal Signature", pageWidth - 72, finalY + 33);
+    doc.text("Principal Signature", pageWidth - 80, pageHeight - 40);
 
-    // =====================
-    // FOOTER
-    // =====================
+    // =========================
+    // PAGE NUMBERS
+    // =========================
 
-    doc.setFontSize(9);
+    const totalPages = doc.internal.getNumberOfPages();
 
-    doc.setTextColor(120);
+    for (let i = 1; i <= totalPages; i++) {
+      doc.setPage(i);
 
-    doc.text(
-      "This is a computer generated class result sheet.",
-      pageWidth / 2,
-      doc.internal.pageSize.height - 8,
-      { align: "center" },
-    );
+      doc.setFontSize(9);
+
+      doc.setTextColor(120);
+
+      doc.text(`Page ${i} of ${totalPages}`, pageWidth - 35, pageHeight - 8);
+    }
 
     doc.save(
-      `${selectedClass?.name || "Class"}-${selectedUnitTest?.name || "Result"}.pdf`,
+      `${selectedClass?.name || "Class"}-${
+        selectedUnitTest?.name || "Result"
+      }.pdf`,
     );
   };
-
   return (
     <div className="p-6 min-h-screen">
       {/* Header */}
@@ -557,9 +593,14 @@ const ClassResultPage = () => {
                             <p className="font-medium text-gray-700 whitespace-nowrap">
                               {student.student_name}
                             </p>
-                            <p className="text-xs text-gray-400">
-                              ID: {student.student_id}
-                            </p>
+                            <div className="flex justify-start gap-10">
+                              <p className="text-xs text-purple-600 font-medium">
+                                Roll No: {student.roll_number || "-"}
+                              </p>
+                              <p className="text-xs text-purple-600 font-medium">
+                                Student ID: {student.student_id || "-"}
+                              </p>
+                            </div>
                           </div>
                         </div>
                       </td>

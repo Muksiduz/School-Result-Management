@@ -224,6 +224,9 @@ function StudentsPage() {
             <thead>
               <tr className="border-b border-gray-100">
                 <th className="px-4 py-3 text-left text-xs font-semibold text-gray-400 uppercase tracking-wide">
+                  Student ID
+                </th>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-400 uppercase tracking-wide">
                   Students Name
                 </th>
                 <th className="px-4 py-3 text-left text-xs font-semibold text-gray-400 uppercase tracking-wide">
@@ -257,15 +260,25 @@ function StudentsPage() {
                 <tr
                   key={student.student_id}
                   className="border-b border-gray-50 hover:bg-purple-50/40 transition-colors">
-                  {/* Name */}
                   <td className="px-4 py-3">
-                    <div className="flex items-center gap-3">
+                    <span className="bg-purple-50 text-purple-700 text-xs font-medium px-2.5 py-1 rounded-md">
+                      #{student.student_id}
+                    </span>
+                  </td>
+                  {/* Name */}
+                  <td className="px-4 py-3 min-w-[180px] max-w-[220px]">
+                    <div className="flex items-center gap-2">
                       <div className="w-8 h-8 rounded-full bg-purple-100 text-purple-700 flex items-center justify-center text-xs font-semibold shrink-0">
                         {getInitials(student.name)}
                       </div>
-                      <span className="font-medium text-gray-700">
-                        {student.name}
-                      </span>
+
+                      <div className="min-w-0">
+                        <p
+                          className="font-medium text-gray-700 truncate"
+                          title={student.name}>
+                          {student.name}
+                        </p>
+                      </div>
                     </div>
                   </td>
 
@@ -277,25 +290,28 @@ function StudentsPage() {
                   </td>
 
                   {/* Address */}
-                  <td className="px-4 py-3 text-gray-500">
-                    {student.address || "—"}
+                  <td className="px-4 py-3 max-w-[220px]">
+                    <div
+                      className="text-gray-500 line-clamp-2"
+                      title={student.address}>
+                      {student.address || "—"}
+                    </div>
                   </td>
-
                   {/* Class */}
-                  <td className="px-4 py-3">
-                    <span className="bg-blue-50 text-blue-700 text-xs font-medium px-2.5 py-1 rounded-md">
+                  <td className="px-4 py-3 whitespace-nowrap">
+                    <span className="inline-flex items-center bg-blue-50 text-blue-700 text-xs font-medium px-3 py-1 rounded-full">
                       {student.class_name}
                     </span>
                   </td>
                   {/* Section */}
-                  <td className="px-4 py-3">
-                    <span className="bg-purple-50 text-purple-700 text-xs font-medium px-2.5 py-1 rounded-md">
+                  <td className="px-4 py-3 whitespace-nowrap">
+                    <span className="inline-flex items-center bg-purple-50 text-purple-700 text-xs font-medium px-3 py-1 rounded-full">
                       {student.section_name}
                     </span>
                   </td>
 
                   {/* DOB */}
-                  <td className="px-4 py-3 text-gray-500">
+                  <td className="px-4 py-3 whitespace-nowrap text-gray-500 text-sm">
                     {student.date_of_birth
                       ? new Date(student.date_of_birth).toLocaleDateString(
                           "en-GB",
@@ -304,8 +320,8 @@ function StudentsPage() {
                   </td>
 
                   {/* Phone */}
-                  <td className="px-4 py-3">
-                    <span className="text-gray-600">{student.phone}</span>
+                  <td className="px-4 py-3 whitespace-nowrap text-gray-600 text-sm">
+                    {student.phone || "—"}
                   </td>
 
                   {/* Actions */}

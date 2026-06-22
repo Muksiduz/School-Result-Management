@@ -1,8 +1,13 @@
-import {create} from 'zustand';
-import { getClasses, getSectionsByClass, getSessions, getUnitTestsBySession, getWholeClassResult } from '../api/resultApi';
+import { create } from "zustand";
+import {
+  getClasses,
+  getSectionsByClass,
+  getSessions,
+  getUnitTestsBySession,
+  getWholeClassResult,
+} from "../api/resultApi";
 
-
- const useViewClassResultStore = create((set, get) => ({
+const useViewClassResultStore = create((set, get) => ({
   sessions: [],
   classes: [],
   sections: [],
@@ -32,7 +37,7 @@ import { getClasses, getSectionsByClass, getSessions, getUnitTestsBySession, get
     set({ selectedSession: session, selectedUnitTest: null, unitTest: [] });
     try {
       const res = await getUnitTestsBySession(session.session_id);
-      console.log(res)
+      // console.log(res)
       set({ unitTest: res.data });
     } catch (error) {
       set({ error: error.message });
@@ -42,7 +47,7 @@ import { getClasses, getSectionsByClass, getSessions, getUnitTestsBySession, get
     set({ selectedClass: cls, selectedSection: null, sections: [] });
     try {
       const res = await getSectionsByClass(cls.class_id);
-      console.log(res)
+      // console.log(res)
       set({ sections: res.data });
     } catch (error) {
       set({ error: error.message });
@@ -72,12 +77,11 @@ import { getClasses, getSectionsByClass, getSessions, getUnitTestsBySession, get
       set({ results: res.data });
     } catch (error) {
       set({ error: error.message });
-      console.log(error)
+      // console.log(error)
     } finally {
       set({ loading: false });
     }
   },
 }));
-
 
 export default useViewClassResultStore;

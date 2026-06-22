@@ -745,9 +745,14 @@ function ResultFilter() {
                       <h4 className="text-sm font-semibold text-gray-900">
                         {student.name}
                       </h4>
-                      <p className="text-xs text-gray-500 mt-1">
-                        Roll No: {student.roll_no || "-"}
-                      </p>
+                      <div className="flex justify-start gap-8">
+                        <p className="text-xs text-gray-500 mt-1">
+                          Student ID: #{student.student_id || "-"}
+                        </p>
+                        <p className="text-xs text-gray-500 mt-1">
+                          Roll No: {student.roll_no || "-"}
+                        </p>
+                      </div>
                     </div>
                   </div>
                   <button

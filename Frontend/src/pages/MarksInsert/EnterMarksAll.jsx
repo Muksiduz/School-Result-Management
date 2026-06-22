@@ -300,9 +300,14 @@ export default function EnterMarksAll() {
                         }`}>
                         {student.name}
                       </p>
-                      <p className="text-xs text-gray-400">
-                        Roll #{student.roll_no}
-                      </p>
+                      <div className="flex justify-start gap-8">
+                        <p className="text-xs text-gray-400">
+                          Student ID : #{student.student_id}
+                        </p>
+                        <p className="text-xs text-gray-400">
+                          Roll No : {student.roll_no}
+                        </p>
+                      </div>
                     </div>
                     {isSelected && (
                       <div className="w-1.5 h-1.5 rounded-full bg-purple-500 flex-shrink-0" />
