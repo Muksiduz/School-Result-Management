@@ -177,6 +177,7 @@ const ClassResultPage = () => {
       [
         "Rank",
         "Roll No",
+        "ID",
         "Student Name",
         ...subjects,
         "Total",
@@ -189,6 +190,7 @@ const ClassResultPage = () => {
     const tableBody = rankedStudents.map((student, index) => [
       index + 1,
       student.roll_number || "-",
+      student.student_id,
       student.student_name,
 
       ...subjects.map((subject) => {
