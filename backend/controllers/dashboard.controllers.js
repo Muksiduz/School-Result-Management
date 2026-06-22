@@ -57,14 +57,20 @@ export async function getDashboardData(req, res) {
 
     // Recent Students
     const recentStudents = await pool.query(`
-      SELECT
-        student_id,
-        name,
-        roll_no
-      FROM students
-      ORDER BY student_id DESC
-      LIMIT 5
-    `);
+  SELECT
+    s.student_id,
+    s.name,
+    s.roll_no,
+    c.name AS class_name,
+    sec.name AS section_name
+  FROM students s
+  LEFT JOIN classes c
+    ON s.class_id = c.class_id
+  LEFT JOIN sections sec
+    ON s.section_id = sec.section_id
+  ORDER BY s.student_id DESC
+  LIMIT 5
+`);
 
     res.status(200).json({
       totalStudents: Number(students.rows[0].total),

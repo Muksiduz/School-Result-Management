@@ -9,6 +9,7 @@ import {
 import { useAuthStore } from "../../store/authStore";
 
 import { Plus, Search, Pencil, Trash2, Save, X, Calendar } from "lucide-react";
+import { toast } from "react-hot-toast";
 
 function SessionPage() {
   const user = useAuthStore((state) => state.user);
@@ -58,9 +59,9 @@ function SessionPage() {
       setFormData({ name: "", year: "", start_date: "", end_date: "" });
       await fetchSessions();
       setShowForm(false);
-      alert("Session Created Successfully");
+      toast.success("Session Created Successfully");
     } catch (error) {
-      alert(error?.response?.data?.message || "Failed To Create Session");
+      toast.error(error?.response?.data?.message || "Failed To Create Session");
     } finally {
       setLoading(false);
     }
@@ -82,9 +83,9 @@ function SessionPage() {
       setEditingId(null);
       setEditData({ name: "", year: "", start_date: "", end_date: "" });
       await fetchSessions();
-      alert("Session Updated Successfully");
+      toast.success("Session Updated Successfully");
     } catch (error) {
-      alert(error?.response?.data?.message || "Failed To Update Session");
+      toast.error(error?.response?.data?.message || "Failed To Update Session");
     }
   };
 
@@ -93,9 +94,9 @@ function SessionPage() {
     try {
       await deleteSession(id);
       await fetchSessions();
-      alert("Session Deleted Successfully");
+      toast.success("Session Deleted Successfully");
     } catch (error) {
-      alert(error?.response?.data?.message || "Failed To Delete Session");
+      toast.error(error?.response?.data?.message || "Failed To Delete Session");
     }
   };
 

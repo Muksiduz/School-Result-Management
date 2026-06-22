@@ -3,6 +3,7 @@ import { createStudent } from "../../services/studentService";
 import { getAllClasses } from "../../services/classService";
 import { getSectionsByClass } from "../../services/sectionService";
 import { X, UserPlus } from "lucide-react";
+import toast from "react-hot-toast";
 
 function AddStudent({ onClose }) {
   const [loading, setLoading] = useState(false);
@@ -73,10 +74,12 @@ function AddStudent({ onClose }) {
         section_id: Number(formData.section_id),
       });
 
-      alert("Student Created Successfully");
+      toast.success("Student registered successfully 🎓");
       onClose?.();
     } catch (error) {
-      alert(error.response?.data?.message || "Failed To Create Student");
+      toast.error(
+        error.response?.data?.message || "Failed to register student",
+      );
     } finally {
       setLoading(false);
     }
@@ -207,9 +210,16 @@ function AddStudent({ onClose }) {
               <input
                 type="text"
                 name="phone"
-                placeholder="+91 00000 00000"
+                placeholder="9876543210"
                 value={formData.phone}
-                onChange={handleChange}
+                onChange={(e) => {
+                  const value = e.target.value.replace(/\D/g, "");
+                  setFormData((prev) => ({
+                    ...prev,
+                    phone: value,
+                  }));
+                }}
+                maxLength={10}
                 className={inputClass}
               />
             </div>

@@ -346,6 +346,7 @@ function DashboardPage() {
                     <td className="px-6 py-3">
                       <span className="bg-blue-50 text-blue-700 text-xs font-medium px-2.5 py-1 rounded-md">
                         {student.class_name || "—"}
+                        {/* {console.log(student)} */}
                       </span>
                     </td>
                   </tr>

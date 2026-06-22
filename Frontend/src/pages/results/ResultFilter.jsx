@@ -36,6 +36,15 @@ function ResultFilter() {
   // for edit marks modal
   const [editModal, setEditModal] = useState(false);
 
+  //for filter roll no
+  const [rollFilter, setRollFilter] = useState("");
+  const filteredStudents = students.filter((student) =>
+    student.roll_no
+      ?.toString()
+      .toLowerCase()
+      .includes(rollFilter.toLowerCase()),
+  );
+
   const [editMark, setEditMark] = useState({
     subject_id: "",
     student_id: "",
@@ -45,14 +54,11 @@ function ResultFilter() {
     max_marks: "",
   });
 
-  console.log("edit",editMark)
- 
-
   useEffect(() => {
     fetchInitialData();
   }, []);
 
-  console.log("Students:",students)
+  console.log("Students:", students);
 
   const arrangedResult =
     fullResult?.length > 0
@@ -90,8 +96,16 @@ function ResultFilter() {
         }
       : null;
 
-       console.log("Arrange Result::",arrangedResult);
-       console.log(fullResult);
+  //  console.log("Arrange Result::",arrangedResult);
+  //  console.log(fullResult);
+  const failedSubjects =
+    arrangedResult?.subjects?.filter(
+      (subject) => Number(subject.marks_obtained) < 30,
+    ) || [];
+
+  const isFailed = failedSubjects.length > 0;
+
+  const resultStatus = isFailed ? "FAIL" : "PASS";
 
   const getGrade = (percentage) => {
     if (percentage >= 90)
@@ -145,7 +159,14 @@ function ResultFilter() {
   };
 
   const gradeInfo = arrangedResult
-    ? getGrade(Number(arrangedResult.percentage))
+    ? isFailed
+      ? {
+          grade: "F",
+          color: "text-red-600",
+          bg: "bg-red-50",
+          border: "border-red-200",
+        }
+      : getGrade(Number(arrangedResult.percentage))
     : null;
 
   const getProgressColor = (percentage) => {
@@ -161,117 +182,171 @@ function ResultFilter() {
 
     const doc = new jsPDF();
     const pageWidth = doc.internal.pageSize.getWidth();
+    const pageHeight = doc.internal.pageSize.getHeight();
     const gradeInfo = getGrade(Number(arrangedResult.percentage));
 
-    // ==========================
-    // HEADER BACKGROUND
-    // ==========================
+    // ============================================================
+    // PAGE BORDER
+    // ============================================================
+    doc.setDrawColor(109, 40, 217);
+    doc.setLineWidth(1.5);
+    doc.rect(6, 6, pageWidth - 12, pageHeight - 12);
+
+    doc.setDrawColor(196, 181, 253);
+    doc.setLineWidth(0.4);
+    doc.rect(9, 9, pageWidth - 18, pageHeight - 18);
+
+    // ============================================================
+    // HEADER
+    // ============================================================
     doc.setFillColor(109, 40, 217);
-    doc.rect(0, 0, pageWidth, 42, "F");
+    doc.rect(6, 6, pageWidth - 12, 40, "F");
 
-    // Subtle accent strip
-    doc.setFillColor(139, 92, 246);
-    doc.rect(0, 38, pageWidth, 4, "F");
+    // Generated date — top right
+    doc.setFontSize(7);
+    doc.setFont("helvetica", "normal");
+    doc.setTextColor(196, 181, 253);
+    doc.text(
+      `Date: ${new Date().toLocaleDateString("en-IN", {
+        day: "2-digit",
+        month: "long",
+        year: "numeric",
+      })}`,
+      pageWidth - 12,
+      12,
+      { align: "right" },
+    );
 
-    // School name
+    // School name — centered
     doc.setTextColor(255, 255, 255);
     doc.setFontSize(20);
     doc.setFont("helvetica", "bold");
-    doc.text("ABC PUBLIC SCHOOL", pageWidth / 2, 16, { align: "center" });
+    doc.text("TARANGAJHAR HIGH SCHOOL", pageWidth / 2, 24, { align: "center" });
 
-    // Subtitle
+    // Thin divider
+    doc.setDrawColor(196, 181, 253);
+    doc.setLineWidth(0.3);
+    doc.line(20, 30, pageWidth - 20, 30);
+
+    // Report card label
     doc.setFontSize(10);
-    doc.setFont("helvetica", "normal");
+    doc.setFont("helvetica", "bold");
     doc.setTextColor(221, 214, 254);
-    doc.text("Student Academic Report Card", pageWidth / 2, 27, {
+    doc.text("STUDENT ACADEMIC REPORT CARD", pageWidth / 2, 39, {
       align: "center",
     });
 
-    // Generated date in header
-    doc.setFontSize(8);
-    doc.setTextColor(196, 181, 253);
-    doc.text(
-      `Generated: ${new Date().toLocaleDateString("en-IN", { day: "2-digit", month: "long", year: "numeric" })}`,
-      pageWidth / 2,
-      35,
-      { align: "center" },
-    );
-
-    // ==========================
+    // ============================================================
     // STUDENT INFO CARD
-    // ==========================
+    // ============================================================
     doc.setFillColor(250, 248, 255);
     doc.setDrawColor(221, 214, 254);
-    doc.setLineWidth(0.5);
-    doc.roundedRect(10, 50, 190, 40, 4, 4, "FD");
+    doc.setLineWidth(0.4);
+    doc.roundedRect(12, 52, pageWidth - 24, 52, 3, 3, "FD");
 
-    // Left column
-    doc.setTextColor(109, 40, 217);
-    doc.setFontSize(8);
+    // Section pill
+    doc.setFillColor(109, 40, 217);
+    doc.roundedRect(12, 52, 55, 7, 2, 2, "F");
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(7);
     doc.setFont("helvetica", "bold");
-    doc.text("STUDENT NAME", 16, 60);
-    doc.setTextColor(30, 30, 30);
-    doc.setFontSize(11);
-    doc.setFont("helvetica", "bold");
-    doc.text(arrangedResult.student_name, 16, 68);
+    doc.text("STUDENT INFORMATION", 39, 57, { align: "center" });
 
-    doc.setTextColor(109, 40, 217);
-    doc.setFontSize(8);
-    doc.setFont("helvetica", "bold");
-    doc.text("STUDENT ID", 16, 78);
-    doc.setTextColor(80, 80, 80);
-    doc.setFontSize(10);
-    doc.setFont("helvetica", "normal");
-    doc.text(`#${arrangedResult.student_id}`, 16, 85);
-
-    // Divider line in card
-    doc.setDrawColor(221, 214, 254);
-    doc.setLineWidth(0.3);
-    doc.line(105, 54, 105, 86);
-
-    // Right column
-    doc.setTextColor(109, 40, 217);
-    doc.setFontSize(8);
-    doc.setFont("helvetica", "bold");
-    doc.text("EXAM", 112, 60);
-    doc.setTextColor(30, 30, 30);
-    doc.setFontSize(10);
-    doc.setFont("helvetica", "normal");
-    doc.text(arrangedResult.test_name, 112, 68);
-
-    doc.setTextColor(109, 40, 217);
-    doc.setFontSize(8);
-    doc.setFont("helvetica", "bold");
-    doc.text("OVERALL GRADE", 112, 78);
-    doc.setTextColor(30, 30, 30);
-    doc.setFontSize(14);
-    doc.setFont("helvetica", "bold");
-    doc.text(gradeInfo.grade, 112, 87);
-
-    // ==========================
-    // SECTION LABEL
-    // ==========================
-    doc.setFontSize(9);
-    doc.setFont("helvetica", "bold");
-    doc.setTextColor(109, 40, 217);
-    doc.text("SUBJECT-WISE PERFORMANCE", 10, 103);
-
+    // Vertical divider
     doc.setDrawColor(221, 214, 254);
     doc.setLineWidth(0.4);
-    doc.line(10, 106, 200, 106);
+    doc.line(105, 56, 105, 100);
 
-    // ==========================
+    const infoY = 67;
+    const rowGap = 11;
+    const labelX = 18;
+    const valueX = 60;
+    const labelX2 = 112;
+    const valueX2 = 152;
+
+    const leftRows = [
+      { label: "Student Name", value: arrangedResult.student_name || "-" },
+      { label: "Roll Number", value: String(arrangedResult.roll_no || "-") },
+      { label: "Class", value: arrangedResult.class_name || "-" },
+      { label: "Section", value: arrangedResult.section_name || "-" },
+    ];
+
+    const rightRows = [
+      { label: "Examination", value: arrangedResult.test_name || "-" },
+      // { label: "Session", value: selectedSession?.session_id || "-" },
+      { label: "Grade", value: gradeInfo.grade },
+      { label: "Result", value: resultStatus, isResult: true },
+    ];
+
+    leftRows.forEach((row, i) => {
+      const y = infoY + i * rowGap;
+      doc.setFontSize(7.5);
+      doc.setFont("helvetica", "bold");
+      doc.setTextColor(109, 40, 217);
+      doc.text(row.label + " :", labelX, y);
+      doc.setFont("helvetica", "normal");
+      doc.setTextColor(30, 30, 30);
+      doc.setFontSize(8.5);
+      doc.text(row.value, valueX, y);
+    });
+
+    rightRows.forEach((row, i) => {
+      const y = infoY + i * rowGap;
+      doc.setFontSize(7.5);
+      doc.setFont("helvetica", "bold");
+      doc.setTextColor(109, 40, 217);
+      doc.text(row.label + " :", labelX2, y);
+
+      if (row.isResult) {
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(9);
+        doc.setTextColor(
+          isFailed ? 220 : 34,
+          isFailed ? 38 : 197,
+          isFailed ? 38 : 94,
+        );
+      } else {
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(8.5);
+        doc.setTextColor(30, 30, 30);
+      }
+      doc.text(row.value, valueX2, y);
+    });
+
+    // ============================================================
+    // SUBJECT TABLE HEADING
+    // ============================================================
+    doc.setFillColor(109, 40, 217);
+    doc.roundedRect(12, 110, 70, 7, 2, 2, "F");
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(7);
+    doc.setFont("helvetica", "bold");
+    doc.text("SUBJECT-WISE PERFORMANCE", 47, 115, { align: "center" });
+
+    // ============================================================
     // SUBJECT TABLE
-    // ==========================
+    // ============================================================
     autoTable(doc, {
-      startY: 110,
-      head: [["Subject", "Marks Obtained", "Max Marks", "Percentage", "Grade"]],
-      body: arrangedResult.subjects.map((subject) => [
+      startY: 120,
+      head: [
+        [
+          "#",
+          "Subject",
+          "Max Marks",
+          "Marks Obtained",
+          "Percentage",
+          "Grade",
+          "Result",
+        ],
+      ],
+      body: arrangedResult.subjects.map((subject, idx) => [
+        idx + 1,
         subject.subject_name,
-        subject.marks_obtained,
         subject.max_marks,
+        subject.marks_obtained,
         `${subject.percentage}%`,
         getGrade(Number(subject.percentage)).grade,
+        Number(subject.marks_obtained) < 30 ? "FAIL" : "PASS",
       ]),
       theme: "grid",
       headStyles: {
@@ -279,112 +354,143 @@ function ResultFilter() {
         textColor: [255, 255, 255],
         halign: "center",
         fontStyle: "bold",
-        fontSize: 9,
-        cellPadding: 5,
+        fontSize: 8.5,
+        cellPadding: 4,
       },
       bodyStyles: {
         halign: "center",
-        fontSize: 9,
+        fontSize: 8.5,
         textColor: [40, 40, 40],
-        cellPadding: 4,
+        cellPadding: 3.5,
       },
       alternateRowStyles: {
         fillColor: [250, 248, 255],
       },
       columnStyles: {
-        0: { halign: "left", cellWidth: 60 },
+        0: { cellWidth: 10, halign: "center" },
+        1: { halign: "left", cellWidth: 55 },
+        6: { fontStyle: "bold" },
+      },
+      margin: { left: 12, right: 12 },
+      didParseCell: (data) => {
+        if (data.section === "body") {
+          const rowSubject = arrangedResult.subjects[data.row.index];
+          const subjectFailed = Number(rowSubject?.marks_obtained) < 30;
+          if (subjectFailed) {
+            data.cell.styles.fillColor = [255, 237, 237];
+            data.cell.styles.textColor = [180, 0, 0];
+            if (data.column.index === 6) {
+              data.cell.styles.fontStyle = "bold";
+              data.cell.styles.textColor = [200, 0, 0];
+            }
+          }
+        }
       },
     });
 
-    // ==========================
-    // SUMMARY CARD
-    // ==========================
-    const finalY = doc.lastAutoTable.finalY + 12;
+    // ============================================================
+    // RESULT SUMMARY
+    // ============================================================
+    const finalY = doc.lastAutoTable.finalY + 8;
 
+    // Section pill
     doc.setFillColor(109, 40, 217);
-    doc.roundedRect(10, finalY, 190, 8, 2, 2, "F");
+    doc.roundedRect(12, finalY, 50, 7, 2, 2, "F");
     doc.setTextColor(255, 255, 255);
-    doc.setFontSize(9);
+    doc.setFontSize(7);
     doc.setFont("helvetica", "bold");
-    doc.text("RESULT SUMMARY", pageWidth / 2, finalY + 5.5, {
-      align: "center",
-    });
+    doc.text("RESULT SUMMARY", 37, finalY + 5, { align: "center" });
 
+    // Summary box
     doc.setFillColor(250, 248, 255);
     doc.setDrawColor(221, 214, 254);
-    doc.setLineWidth(0.5);
-    doc.roundedRect(10, finalY + 8, 190, 28, 2, 2, "FD");
+    doc.setLineWidth(0.4);
+    doc.roundedRect(12, finalY + 9, pageWidth - 24, 24, 2, 2, "FD");
 
-    // Summary row
-    const summaryY = finalY + 20;
     const cols = [
-      { label: "Total Marks", value: `${arrangedResult.total_marks}` },
-      { label: "Maximum Marks", value: `${arrangedResult.total_max_marks}` },
+      { label: "Max Marks", value: String(arrangedResult.total_max_marks) },
+      {
+        label: "Total Marks Obtained",
+        value: String(arrangedResult.total_marks),
+      },
       { label: "Percentage", value: `${arrangedResult.percentage}%` },
-      { label: "Final Grade", value: gradeInfo.grade },
+      { label: "Grade", value: gradeInfo.grade },
+      { label: "Result", value: resultStatus },
     ];
 
-    const colWidth = 190 / cols.length;
+    const colWidth = (pageWidth - 24) / cols.length;
 
     cols.forEach((col, i) => {
-      const x = 10 + i * colWidth + colWidth / 2;
+      const x = 12 + i * colWidth + colWidth / 2;
+      const isResultCol = col.label === "Result";
 
       doc.setTextColor(109, 40, 217);
-      doc.setFontSize(7);
+      doc.setFontSize(6.5);
       doc.setFont("helvetica", "bold");
-      doc.text(col.label.toUpperCase(), x, summaryY - 6, { align: "center" });
+      doc.text(col.label.toUpperCase(), x, finalY + 16, { align: "center" });
 
-      doc.setTextColor(30, 30, 30);
-      doc.setFontSize(12);
+      if (isResultCol) {
+        doc.setTextColor(
+          isFailed ? 200 : 34,
+          isFailed ? 0 : 197,
+          isFailed ? 0 : 94,
+        );
+      } else {
+        doc.setTextColor(30, 30, 30);
+      }
+      doc.setFontSize(11);
       doc.setFont("helvetica", "bold");
-      doc.text(col.value, x, summaryY + 2, { align: "center" });
+      doc.text(col.value, x, finalY + 27, { align: "center" });
 
-      // Vertical divider between columns
       if (i < cols.length - 1) {
         doc.setDrawColor(221, 214, 254);
         doc.setLineWidth(0.3);
         doc.line(
-          10 + (i + 1) * colWidth,
-          finalY + 10,
-          10 + (i + 1) * colWidth,
-          finalY + 34,
+          12 + (i + 1) * colWidth,
+          finalY + 11,
+          12 + (i + 1) * colWidth,
+          finalY + 31,
         );
       }
     });
 
-    // ==========================
-    // SIGNATURE
-    // ==========================
-    const signY = finalY + 52;
+    // ============================================================
+    // PRINCIPAL SIGNATURE
+    // ============================================================
+    const signY = finalY + 54;
 
-    doc.setDrawColor(180, 180, 180);
-    doc.setLineWidth(0.5);
-    doc.line(140, signY, 195, signY);
+    doc.setDrawColor(150, 150, 150);
+    doc.setLineWidth(0.4);
+    doc.line(pageWidth - 70, signY, pageWidth - 18, signY);
 
-    doc.setFontSize(8);
+    doc.setFontSize(7.5);
     doc.setFont("helvetica", "normal");
-    doc.setTextColor(120, 120, 120);
-    doc.text("Principal Signature", 167, signY + 6, { align: "center" });
-
-    // ==========================
-    // FOOTER
-    // ==========================
-    doc.setFillColor(109, 40, 217);
-    doc.rect(0, 282, pageWidth, 15, "F");
-
-    doc.setFontSize(8);
-    doc.setFont("helvetica", "normal");
-    doc.setTextColor(196, 181, 253);
-    doc.text("This is a computer generated report card.", pageWidth / 2, 291, {
+    doc.setTextColor(100, 100, 100);
+    doc.text("Principal Signature", pageWidth - 44, signY + 6, {
       align: "center",
     });
 
-    // ==========================
+    // ============================================================
+    // FOOTER
+    // ============================================================
+    doc.setFillColor(109, 40, 217);
+    doc.rect(6, pageHeight - 18, pageWidth - 12, 12, "F");
+
+    doc.setFontSize(7.5);
+    doc.setFont("helvetica", "normal");
+    doc.setTextColor(196, 181, 253);
+    doc.text(
+      "This is a computer generated report card and does not require a physical stamp.",
+      pageWidth / 2,
+      pageHeight - 10,
+      { align: "center" },
+    );
+
+    // ============================================================
     // SAVE
-    // ==========================
+    // ============================================================
     doc.save(`${arrangedResult.student_name}-ReportCard.pdf`);
   };
-
   // handle update function is here
   const handleUpdateMark = async () => {
     try {
@@ -431,8 +537,7 @@ function ResultFilter() {
               className="w-5 h-5 text-purple-700"
               fill="none"
               stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
+              viewBox="0 0 24 24">
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -456,8 +561,7 @@ function ResultFilter() {
                     (s) => s.session_id == e.target.value,
                   );
                   setSelectedSession(s);
-                }}
-              >
+                }}>
                 <option value="">Select Session</option>
                 {sessions.map((s) => (
                   <option key={s.session_id} value={s.session_id}>
@@ -475,8 +579,7 @@ function ResultFilter() {
                 onChange={(e) => {
                   const c = classes.find((c) => c.class_id == e.target.value);
                   setSelectedClass(c);
-                }}
-              >
+                }}>
                 <option value="">Select Class</option>
                 {classes.map((c) => (
                   <option key={c.class_id} value={c.class_id}>
@@ -498,8 +601,7 @@ function ResultFilter() {
                     (s) => s.section_id == e.target.value,
                   );
                   setSelectedSection(s);
-                }}
-              >
+                }}>
                 <option value="">Select Section</option>
                 {sections.map((s) => (
                   <option key={s.section_id} value={s.section_id}>
@@ -518,8 +620,7 @@ function ResultFilter() {
             disabled={
               !selectedSession || !selectedClass || !selectedSection || loading
             }
-            className="bg-linear-to-r from-purple-600 to-violet-700 hover:opacity-90 disabled:bg-gray-300 disabled:cursor-not-allowed text-white px-6 py-2.5 rounded-lg font-semibold shadow-sm hover:shadow-md transition-all flex items-center gap-2"
-          >
+            className="bg-linear-to-r from-purple-600 to-violet-700 hover:opacity-90 disabled:bg-gray-300 disabled:cursor-not-allowed text-white px-6 py-2.5 rounded-lg font-semibold shadow-sm hover:shadow-md transition-all flex items-center gap-2">
             {loading ? (
               <>
                 <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
@@ -546,8 +647,7 @@ function ResultFilter() {
                   className="w-4 h-4"
                   fill="none"
                   stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
+                  viewBox="0 0 24 24">
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
@@ -567,8 +667,7 @@ function ResultFilter() {
               className="w-5 h-5 text-red-500 shrink-0"
               fill="none"
               stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
+              viewBox="0 0 24 24">
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -582,14 +681,13 @@ function ResultFilter() {
 
         {viewMode === "students" && students.length > 0 && (
           <div className="bg-white rounded-3xl border border-purple-100 shadow-sm p-8">
-            <div className="px-6 py-4 border-b border-gray-200 bg-[#f8f7ff]">
+            <div className="px-6 py-4 border-b border-gray-200 bg-[#f8f7ff] flex justify-between">
               <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
                 <svg
                   className="w-5 h-5 text-purple-700"
                   fill="none"
                   stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
+                  viewBox="0 0 24 24">
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
@@ -599,13 +697,41 @@ function ResultFilter() {
                 </svg>
                 Students ({students.length})
               </h3>
+              {/* for search with roll  */}
+              <div className="mt-3">
+                <input
+                  type="text"
+                  placeholder="Search by Roll Number..."
+                  value={rollFilter}
+                  onChange={(e) => setRollFilter(e.target.value)}
+                  className="
+  w-full
+  max-w-sm
+  px-4
+  py-3
+  bg-white
+  border
+  border-purple-200
+  rounded-2xl
+  text-gray-700
+  placeholder:text-gray-400
+  shadow-sm
+  transition-all
+  duration-200
+  focus:outline-none
+  focus:border-purple-500
+  focus:ring-4
+  focus:ring-purple-100
+  focus:shadow-md
+"
+                />
+              </div>
             </div>
             <div className="divide-y divide-gray-100">
-              {students.map((student) => (
+              {filteredStudents.map((student) => (
                 <div
                   key={student.student_id}
-                  className="p-4 hover:bg-blue-50 transition-colors flex items-center justify-between"
-                >
+                  className="p-4 hover:bg-blue-50 transition-colors flex items-center justify-between">
                   <div className="flex items-center gap-4">
                     <div className="w-10 h-10 rounded-full bg-linear-to-br from-blue-500 to-blue-600 text-white flex items-center justify-center text-sm font-bold shadow-sm">
                       {student.name
@@ -619,11 +745,8 @@ function ResultFilter() {
                       <h4 className="text-sm font-semibold text-gray-900">
                         {student.name}
                       </h4>
-                      <p className="text-xs text-gray-500">
-                        ID: {student.student_id}
-                      </p>
-                      <p className="text-xs text-gray-500">
-                        ID: {student.roll_no || ""}
+                      <p className="text-xs text-gray-500 mt-1">
+                        Roll No: {student.roll_no || "-"}
                       </p>
                     </div>
                   </div>
@@ -632,15 +755,13 @@ function ResultFilter() {
                       fetchUnitTests(student);
                       setViewMode("tests");
                     }}
-                    className="text-purple-700 hover:text-blue-700 hover:bg-purple-100 px-4 py-2 rounded-lg text-sm font-medium transition-all flex items-center gap-1"
-                  >
+                    className="text-purple-700 hover:text-blue-700 hover:bg-purple-100 px-4 py-2 rounded-lg text-sm font-medium transition-all flex items-center gap-1">
                     View Tests
                     <svg
                       className="w-4 h-4"
                       fill="none"
                       stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
+                      viewBox="0 0 24 24">
                       <path
                         strokeLinecap="round"
                         strokeLinejoin="round"
@@ -664,8 +785,7 @@ function ResultFilter() {
                   className="w-5 h-5 text-purple-600"
                   fill="none"
                   stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
+                  viewBox="0 0 24 24">
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
@@ -677,14 +797,12 @@ function ResultFilter() {
               </h3>
               <button
                 onClick={() => setViewMode("students")}
-                className="text-sm text-gray-500 hover:text-gray-700 flex items-center gap-1"
-              >
+                className="text-sm text-gray-500 hover:text-gray-700 flex items-center gap-1">
                 <svg
                   className="w-4 h-4"
                   fill="none"
                   stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
+                  viewBox="0 0 24 24">
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
@@ -703,8 +821,7 @@ function ResultFilter() {
                   onClick={() => {
                     fetchFullResult(test);
                     setViewMode("result");
-                  }}
-                >
+                  }}>
                   <div className="flex items-start justify-between mb-2">
                     <div>
                       <h4 className="font-semibold text-gray-900 group-hover:text-purple-700 transition-colors">
@@ -719,8 +836,7 @@ function ResultFilter() {
                         className="w-4 h-4"
                         fill="none"
                         stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
+                        viewBox="0 0 24 24">
                         <path
                           strokeLinecap="round"
                           strokeLinejoin="round"
@@ -736,8 +852,7 @@ function ResultFilter() {
                         className="w-4 h-4 text-amber-500"
                         fill="none"
                         stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
+                        viewBox="0 0 24 24">
                         <path
                           strokeLinecap="round"
                           strokeLinejoin="round"
@@ -761,14 +876,12 @@ function ResultFilter() {
             <div className="flex justify-between">
               <button
                 onClick={() => setViewMode("tests")}
-                className="text-gray-600 hover:text-gray-900 flex items-center gap-2 text-sm font-medium"
-              >
+                className="text-gray-600 hover:text-gray-900 flex items-center gap-2 text-sm font-medium">
                 <svg
                   className="w-4 h-4"
                   fill="none"
                   stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
+                  viewBox="0 0 24 24">
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
@@ -781,8 +894,7 @@ function ResultFilter() {
 
               <button
                 onClick={handleExportPDF}
-                className="bg-purple-600 text-white px-4 py-2 rounded-xl hover:bg-purple-700"
-              >
+                className="bg-purple-600 text-white px-4 py-2 rounded-xl hover:bg-purple-700">
                 Export PDF
               </button>
             </div>
@@ -814,8 +926,7 @@ function ResultFilter() {
 
                 {gradeInfo && (
                   <div
-                    className={`px-6 py-3 rounded-xl border-2 ${gradeInfo.border} ${gradeInfo.bg} text-center`}
-                  >
+                    className={`px-6 py-3 rounded-xl border-2 ${gradeInfo.border} ${gradeInfo.bg} text-center`}>
                     <p className="text-xs font-medium text-gray-600 uppercase tracking-wider mb-1">
                       Overall Grade
                     </p>
@@ -876,8 +987,7 @@ function ResultFilter() {
                     className="w-5 h-5 text-indigo-600"
                     fill="none"
                     stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
+                    viewBox="0 0 24 24">
                     <path
                       strokeLinecap="round"
                       strokeLinejoin="round"
@@ -919,8 +1029,7 @@ function ResultFilter() {
                       return (
                         <tr
                           key={index}
-                          className="hover:bg-purple-50 transition-colors"
-                        >
+                          className="hover:bg-purple-50 transition-colors">
                           <td className="px-6 py-4">
                             <div className="flex items-center gap-3">
                               <div className="w-8 h-8 rounded-lg bg-indigo-100 text-indigo-600 flex items-center justify-center text-xs font-bold">
@@ -944,8 +1053,7 @@ function ResultFilter() {
                           </td>
                           <td className="px-6 py-4 text-center">
                             <span
-                              className={`text-sm font-semibold ${subjGrade.color}`}
-                            >
+                              className={`text-sm font-semibold ${subjGrade.color}`}>
                               {subject.percentage}%
                             </span>
                           </td>
@@ -961,8 +1069,7 @@ function ResultFilter() {
                           </td>
                           <td className="px-6 py-4 text-center">
                             <span
-                              className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${subjGrade.bg} ${subjGrade.color} border ${subjGrade.border}`}
-                            >
+                              className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${subjGrade.bg} ${subjGrade.color} border ${subjGrade.border}`}>
                               {subjGrade.grade}
                             </span>
                           </td>
@@ -995,8 +1102,7 @@ function ResultFilter() {
     border-purple-200
     font-medium
     text-sm
-  "
-                            >
+  ">
                               <Pencil size={14} />
                               Edit
                             </button>
@@ -1031,8 +1137,7 @@ function ResultFilter() {
                       </td>
                       <td className="px-6 py-4 text-center">
                         <span
-                          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold ${gradeInfo?.bg} ${gradeInfo?.color} border ${gradeInfo?.border}`}
-                        >
+                          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold ${gradeInfo?.bg} ${gradeInfo?.color} border ${gradeInfo?.border}`}>
                           {gradeInfo?.grade}
                         </span>
                       </td>
@@ -1052,8 +1157,7 @@ function ResultFilter() {
                   return (
                     <div
                       key={idx}
-                      className={`p-4 rounded-lg border ${subjGrade.border} ${subjGrade.bg}`}
-                    >
+                      className={`p-4 rounded-lg border ${subjGrade.border} ${subjGrade.bg}`}>
                       <p className="text-xs font-medium text-gray-600 mb-1">
                         {subject.subject_name}
                       </p>
@@ -1062,8 +1166,7 @@ function ResultFilter() {
                           {subject.marks_obtained}/{subject.max_marks}
                         </span>
                         <span
-                          className={`text-sm font-bold ${subjGrade.color}`}
-                        >
+                          className={`text-sm font-bold ${subjGrade.color}`}>
                           {subjGrade.grade}
                         </span>
                       </div>
@@ -1087,8 +1190,7 @@ function ResultFilter() {
                   className="w-8 h-8 text-gray-400"
                   fill="none"
                   stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
+                  viewBox="0 0 24 24">
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
@@ -1114,8 +1216,7 @@ function ResultFilter() {
                 className="w-8 h-8 text-gray-400"
                 fill="none"
                 stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
+                viewBox="0 0 24 24">
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -1160,8 +1261,7 @@ function ResultFilter() {
               flex
               items-center
               justify-center
-            "
-                >
+            ">
                   <X size={18} />
                 </button>
               </div>
@@ -1275,8 +1375,7 @@ function ResultFilter() {
             border-gray-200
             text-gray-700
             hover:bg-gray-100
-          "
-              >
+          ">
                 Cancel
               </button>
 
@@ -1294,8 +1393,7 @@ function ResultFilter() {
             text-white
             font-medium
             shadow-lg
-          "
-              >
+          ">
                 <Save size={16} />
                 Save Changes
               </button>

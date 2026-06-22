@@ -16,6 +16,7 @@ import {
   ClipboardList,
 } from "lucide-react";
 import { useAuthStore } from "../../store/authStore";
+import { toast } from "react-hot-toast";
 
 function SectionPage() {
   const [sections, setSections] = useState([]);
@@ -55,7 +56,7 @@ function SectionPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!formData.name || !formData.class_id)
-      return alert("All fields are required");
+      return toast.error("Please fill all the fields");
     try {
       setLoading(true);
       await createSection(formData);
@@ -63,7 +64,7 @@ function SectionPage() {
       fetchSections();
       setShowForm(false);
     } catch (error) {
-      alert(error?.response?.data?.message || "Failed to create section");
+      toast.error(error?.response?.data?.message || "Failed to create section");
     } finally {
       setLoading(false);
     }
@@ -81,7 +82,7 @@ function SectionPage() {
       setEditName("");
       fetchSections();
     } catch (error) {
-      alert(error?.response?.data?.message || "Failed to update section");
+      toast.error(error?.response?.data?.message || "Failed to update section");
     }
   };
 
@@ -91,7 +92,7 @@ function SectionPage() {
       await deleteSection(id);
       fetchSections();
     } catch (error) {
-      alert(error?.response?.data?.message || "Failed to delete section");
+      toast.error(error?.response?.data?.message || "Failed to delete section");
     }
   };
 

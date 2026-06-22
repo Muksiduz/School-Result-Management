@@ -45,7 +45,7 @@ function StudentsPage() {
     class_id: "",
     section_id: "",
   });
-  console.log("promoteData:", promoteStudent, typeof promoteStudent);
+  // console.log("promoteData:", promoteStudent, typeof promoteStudent);
 
   const {
     classes: pclasses,
@@ -60,7 +60,7 @@ function StudentsPage() {
 
   useEffect(() => {
     initialfetch();
-    console.log("Class:", pclasses);
+    // console.log("Class:", pclasses);
   }, []);
 
   const fetchStudents = async () => {
@@ -784,7 +784,7 @@ function StudentsPage() {
                         (cls) => cls.class_id === Number(e.target.value),
                       );
                       setSelectedcls(c);
-                      console.log("selected class", selectedCls);
+                      // console.log("selected class", selectedCls);
                     }}
                     className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm bg-gray-50 focus:outline-none focus:border-purple-400 focus:ring-2 focus:ring-purple-100 transition-all">
                     <option value="">Select class</option>

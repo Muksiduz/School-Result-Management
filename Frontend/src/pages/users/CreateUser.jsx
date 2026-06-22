@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { createUser } from "../../services/userService";
 import { X, UserPlus } from "lucide-react";
+import toast from "react-hot-toast";
 
 function CreateUser({ onClose }) {
   const [loading, setLoading] = useState(false);
@@ -17,10 +18,10 @@ function CreateUser({ onClose }) {
     try {
       setLoading(true);
       const response = await createUser(formData);
-      alert(response.message);
+      toast.success("User created successfully");
       onClose?.();
     } catch (error) {
-      alert(error.response?.data?.message || "Failed");
+      toast.error(error?.response?.data?.message || "Failed to create user");
     } finally {
       setLoading(false);
     }

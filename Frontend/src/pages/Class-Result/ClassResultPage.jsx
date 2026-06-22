@@ -38,7 +38,6 @@ const ClassResultPage = () => {
         studentMap.set(studentId, {
           student_id: item.student_id,
           student_name: item.student_name,
-          roll_no:item.roll_number,
           test_name: item.test_name,
           subjects: [],
           total_marks_obtained: 0,
@@ -58,19 +57,31 @@ const ClassResultPage = () => {
       student.total_marks_obtained += Number(item.marks_obtained);
       student.total_max_marks += Number(item.max_marks);
     });
-    return Array.from(studentMap.values()).map((student) => ({
-      ...student,
-      overall_percentage: (
-        (student.total_marks_obtained / student.total_max_marks) *
-        100
-      ).toFixed(2),
-      grade: getGrade(
-        (student.total_marks_obtained / student.total_max_marks) * 100,
-      ),
-    }));
-  }, [results]);
+    return Array.from(studentMap.values()).map((student) => {
+      const overallPercentage =
+        (student.total_marks_obtained / student.total_max_marks) * 100;
 
-  console.log(arrangedResults)
+      const failedSubjects = student.subjects.filter(
+        (subject) => Number(subject.marks_obtained) < 30,
+      );
+
+      const isFailed = failedSubjects.length > 0;
+
+      return {
+        ...student,
+
+        overall_percentage: overallPercentage.toFixed(2),
+
+        grade: getGrade(overallPercentage),
+
+        failedSubjects,
+
+        resultStatus: isFailed ? "FAIL" : "PASS",
+
+        isFailed,
+      };
+    });
+  }, [results]);
 
   function getGrade(percentage) {
     if (percentage >= 90)
@@ -164,7 +175,7 @@ const ClassResultPage = () => {
     doc.setFontSize(22);
     doc.setFont("helvetica", "bold");
 
-    doc.text("ABC PUBLIC SCHOOL", pageWidth / 2, 13, { align: "center" });
+    doc.text("TARANGAJHAR HIGH SCHOOL", pageWidth / 2, 13, { align: "center" });
 
     doc.setFontSize(10);
 
@@ -197,7 +208,7 @@ const ClassResultPage = () => {
     const subjects = allSubjects;
 
     const tableHead = [
-      ["Rank", "Student Name", ...subjects, "Total", "%", "Grade"],
+      ["Rank", "Student Name", ...subjects, "Total", "%", "Grade", "Result"],
     ];
 
     const rankedStudents = [...arrangedResults].sort(
@@ -222,6 +233,8 @@ const ClassResultPage = () => {
       `${student.overall_percentage}%`,
 
       student.grade.grade,
+
+      student.isFailed ? "FAIL" : "PASS",
     ]);
 
     autoTable(doc, {
@@ -232,6 +245,16 @@ const ClassResultPage = () => {
       body: tableBody,
 
       theme: "grid",
+      didParseCell: function (data) {
+        if (data.section === "body") {
+          const student = rankedStudents[data.row.index];
+
+          if (student.isFailed) {
+            data.cell.styles.fillColor = [254, 226, 226]; // light red
+            data.cell.styles.textColor = [185, 28, 28]; // dark red
+          }
+        }
+      },
 
       headStyles: {
         fillColor: [109, 40, 217],
@@ -254,13 +277,9 @@ const ClassResultPage = () => {
 
     const finalY = doc.lastAutoTable.finalY + 15;
 
-    const passCount = rankedStudents.filter(
-      (s) => Number(s.overall_percentage) >= 40,
-    ).length;
+    const passCount = rankedStudents.filter((s) => !s.isFailed).length;
 
-    const failCount = rankedStudents.filter(
-      (s) => Number(s.overall_percentage) < 40,
-    ).length;
+    const failCount = rankedStudents.filter((s) => s.isFailed).length;
 
     const avg =
       rankedStudents.reduce(
@@ -268,15 +287,19 @@ const ClassResultPage = () => {
         0,
       ) / rankedStudents.length;
 
+    const totalMaxMarks =
+      rankedStudents.length > 0 ? rankedStudents[0].total_max_marks : 0;
+
     doc.setFont("helvetica", "bold");
 
-    doc.text(`Total Students: ${rankedStudents.length}`, 14, finalY);
+    //need to check this one
+    doc.text(`Maximum Marks: ${totalMaxMarks}`, 14, finalY);
 
-    doc.text(`Passed: ${passCount}`, 80, finalY);
+    doc.text(`Total Students: ${rankedStudents.length}`, 80, finalY);
 
-    doc.text(`Failed: ${failCount}`, 130, finalY);
+    doc.text(`Passed: ${passCount}`, 160, finalY);
 
-    doc.text(`Class Average: ${avg.toFixed(2)}%`, 180, finalY);
+    doc.text(`Failed: ${failCount}`, 220, finalY);
 
     // =====================
     // TOPPER
@@ -518,8 +541,7 @@ const ClassResultPage = () => {
                   return (
                     <tr
                       key={student.student_id}
-                      className="border-b border-gray-50 hover:bg-purple-50/30 transition-colors"
-                    >
+                      className="border-b border-gray-50 hover:bg-purple-50/30 transition-colors">
                       {/* Student */}
                       <td className="px-4 py-3 sticky left-0 bg-white z-10 border-r border-gray-50">
                         <div className="flex items-center gap-3">
@@ -538,9 +560,6 @@ const ClassResultPage = () => {
                             <p className="text-xs text-gray-400">
                               ID: {student.student_id}
                             </p>
-                            <p className="text-xs text-gray-400">
-                              Roll Number: {student.roll_no}
-                            </p>
                           </div>
                         </div>
                       </td>
@@ -553,14 +572,12 @@ const ClassResultPage = () => {
                         return (
                           <td
                             key={subjectName}
-                            className="px-4 py-3 text-center"
-                          >
+                            className="px-4 py-3 text-center">
                             {subject ? (
                               <div className="space-y-1">
                                 <div>
                                   <span
-                                    className={`text-sm font-semibold ${Number(subject.percentage) >= 40 ? "text-gray-700" : "text-red-500"}`}
-                                  >
+                                    className={`text-sm font-semibold ${Number(subject.percentage) >= 40 ? "text-gray-700" : "text-red-500"}`}>
                                     {subject.marks_obtained}
                                   </span>
                                   <span className="text-xs text-gray-400">
@@ -599,8 +616,7 @@ const ClassResultPage = () => {
                       <td className="px-4 py-3 text-center">
                         <div className="space-y-1">
                           <span
-                            className={`text-sm font-semibold ${gradeInfo.color}`}
-                          >
+                            className={`text-sm font-semibold ${gradeInfo.color}`}>
                             {student.overall_percentage}%
                           </span>
                           <div className="w-full bg-gray-100 rounded-full h-1.5">
@@ -617,8 +633,7 @@ const ClassResultPage = () => {
                       {/* Grade */}
                       <td className="px-4 py-3 text-center">
                         <span
-                          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold border ${gradeInfo.bg} ${gradeInfo.color} ${gradeInfo.border}`}
-                        >
+                          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold border ${gradeInfo.bg} ${gradeInfo.color} ${gradeInfo.border}`}>
                           {gradeInfo.grade}
                         </span>
                       </td>

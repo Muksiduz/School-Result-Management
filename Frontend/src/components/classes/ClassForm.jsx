@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { createClass } from "../../services/classService";
 import { X, Plus, School } from "lucide-react";
+import toast from "react-hot-toast";
 
 function ClassForm({ onClose, onSuccess }) {
   const [name, setName] = useState("");
@@ -11,13 +12,13 @@ function ClassForm({ onClose, onSuccess }) {
     try {
       setLoading(true);
       await createClass({ name });
-      alert("Class Created Successfully");
+      toast.success("Class created successfully 🎓");
       setName("");
       onSuccess?.();
       onClose?.();
     } catch (error) {
       console.log(error);
-      alert(error.response?.data?.message || "Failed to create class");
+      toast.error(error?.response?.data?.message || "Failed to create class");
     } finally {
       setLoading(false);
     }
