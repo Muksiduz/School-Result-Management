@@ -173,15 +173,29 @@ const ClassResultPage = () => {
       (a, b) => Number(b.overall_percentage) - Number(a.overall_percentage),
     );
 
+    // ==========================
+    // SUMMARY CALCULATIONS
+    // ==========================
+    const passCount = rankedStudents.filter((s) => !s.isFailed).length;
+    const failCount = rankedStudents.filter((s) => s.isFailed).length;
+    const avg =
+      rankedStudents.reduce(
+        (acc, curr) => acc + Number(curr.overall_percentage),
+        0,
+      ) / rankedStudents.length;
+    const totalMaxMarks =
+      rankedStudents.length > 0 ? rankedStudents[0].total_max_marks : 0;
+    const topper = rankedStudents[0];
+
     const tableHead = [
       [
         "Rank",
         "Roll No",
-        "ID",
         "Student Name",
         ...subjects,
-        "Total",
-        "Percentage",
+        "Obtained",
+        "Max Marks",
+        "%",
         "Grade",
         "Result",
       ],
@@ -190,65 +204,150 @@ const ClassResultPage = () => {
     const tableBody = rankedStudents.map((student, index) => [
       index + 1,
       student.roll_number || "-",
-      student.student_id,
       student.student_name,
-
       ...subjects.map((subject) => {
         const subjectData = student.subjects.find(
           (s) => s.subject_name === subject,
         );
-
         return subjectData ? subjectData.marks_obtained : "-";
       }),
-
       student.total_marks_obtained,
+      student.total_max_marks,
       `${student.overall_percentage}%`,
       student.grade.grade,
       student.isFailed ? "FAIL" : "PASS",
     ]);
 
     autoTable(doc, {
-      startY: 40,
-
+      startY: 65,
       head: tableHead,
-
       body: tableBody,
-
       theme: "grid",
+      margin: { top: 70, left: 8, right: 8 },
 
-      margin: {
-        top: 40,
-      },
-
-      didDrawPage: () => {
-        // =========================
-        // HEADER ON EVERY PAGE
-        // =========================
-
+      didDrawPage: (data) => {
+        // ==========================
+        // HEADER
+        // ==========================
         doc.setFillColor(109, 40, 217);
-        doc.rect(0, 0, pageWidth, 30, "F");
+        doc.rect(0, 0, pageWidth, 38, "F");
 
+        // School name
         doc.setTextColor(255, 255, 255);
-
-        doc.setFontSize(22);
+        doc.setFontSize(17);
         doc.setFont("helvetica", "bold");
-
-        doc.text("TARANGAJHAR HIGH SCHOOL", pageWidth / 2, 13, {
+        doc.text("TARANGAJHAR HIGH SCHOOL", pageWidth / 2, 14, {
           align: "center",
         });
 
-        doc.setFontSize(10);
+        // Thin divider
+        doc.setDrawColor(196, 181, 253);
+        doc.setLineWidth(0.3);
+        doc.line(20, 19, pageWidth - 20, 19);
 
-        doc.text("Class Result Sheet", pageWidth / 2, 22, { align: "center" });
+        // Subtitle
+        doc.setFontSize(9);
+        doc.setFont("helvetica", "bold");
+        doc.setTextColor(221, 214, 254);
+        doc.text("CLASS RESULT SHEET", pageWidth / 2, 27, { align: "center" });
+
+        // Date — top right
+        doc.setFontSize(7);
+        doc.setFont("helvetica", "normal");
+        doc.setTextColor(196, 181, 253);
+        doc.text(
+          `${new Date().toLocaleDateString("en-IN", {
+            day: "2-digit",
+            month: "short",
+            year: "numeric",
+          })}`,
+          pageWidth - 8,
+          9,
+          { align: "right" },
+        );
+
+        // Page number — top right
+        doc.text(`Page ${data.pageNumber}`, pageWidth - 8, 34, {
+          align: "right",
+        });
+
+        // ==========================
+        // INFO BAR (page 1 only)
+        // ==========================
+        if (data.pageNumber === 1) {
+          doc.setFillColor(250, 248, 255);
+          doc.setDrawColor(221, 214, 254);
+          doc.setLineWidth(0.4);
+          doc.roundedRect(8, 50, pageWidth - 16, 10, 1.5, 1.5, "FD");
+
+          const infoItems = [
+            { label: "SESSION", value: selectedSession?.name || "-" },
+            { label: "CLASS", value: selectedClass?.name || "-" },
+            { label: "SECTION", value: selectedSection?.name || "-" },
+            { label: "EXAM", value: selectedUnitTest?.name || "-" },
+            { label: "TOTAL STUDENTS", value: String(rankedStudents.length) },
+          ];
+
+          const slotW = (pageWidth - 16) / infoItems.length;
+
+          infoItems.forEach((item, i) => {
+            const x = 8 + i * slotW + slotW / 2;
+
+            doc.setFontSize(5.5);
+            doc.setFont("helvetica", "bold");
+            doc.setTextColor(109, 40, 217);
+            doc.text(item.label, x, 54, { align: "center" });
+
+            doc.setFontSize(7);
+            doc.setFont("helvetica", "bold");
+            doc.setTextColor(30, 30, 30);
+            doc.text(item.value, x, 58, { align: "center" });
+
+            if (i < infoItems.length - 1) {
+              doc.setDrawColor(221, 214, 254);
+              doc.setLineWidth(0.3);
+              doc.line(8 + (i + 1) * slotW, 51, 8 + (i + 1) * slotW, 60);
+            }
+          });
+        }
+
+        // ==========================
+        // FOOTER
+        // ==========================
+        doc.setFillColor(109, 40, 217);
+        doc.rect(0, pageHeight - 10, pageWidth, 10, "F");
+
+        doc.setFontSize(7);
+        doc.setFont("helvetica", "normal");
+        doc.setTextColor(196, 181, 253);
+        doc.text(
+          "This is a computer generated result sheet and does not require a physical stamp.",
+          pageWidth / 2,
+          pageHeight - 4,
+          { align: "center" },
+        );
       },
 
       didParseCell: (data) => {
         if (data.section === "body") {
           const student = rankedStudents[data.row.index];
 
-          if (student.isFailed) {
-            data.cell.styles.fillColor = [254, 226, 226];
+          // FAIL rows
+          if (student?.isFailed) {
+            data.cell.styles.fillColor = [255, 237, 237];
             data.cell.styles.textColor = [185, 28, 28];
+          }
+
+          // Rank 1 — gold
+          if (data.row.index === 0 && !student?.isFailed) {
+            data.cell.styles.fillColor = [255, 251, 235];
+            data.cell.styles.textColor = [120, 80, 0];
+          }
+
+          // Result column bold
+          const lastCol = tableHead[0].length - 1;
+          if (data.column.index === lastCol) {
+            data.cell.styles.fontStyle = "bold";
           }
         }
       },
@@ -258,125 +357,149 @@ const ClassResultPage = () => {
         textColor: [255, 255, 255],
         halign: "center",
         fontStyle: "bold",
+        fontSize: 7.5,
+        cellPadding: 3.5,
       },
 
       bodyStyles: {
         halign: "center",
-        fontSize: 8,
+        fontSize: 7.5,
+        cellPadding: 3,
       },
 
       alternateRowStyles: {
-        fillColor: [248, 250, 252],
+        fillColor: [250, 248, 255],
       },
 
       columnStyles: {
-        2: {
-          halign: "left",
-          cellWidth: 40,
-        },
+        0: { cellWidth: 11 },
+        1: { cellWidth: 14 },
+        2: { halign: "left", cellWidth: 36 },
       },
     });
 
-    // =========================
-    // SUMMARY CALCULATIONS
-    // =========================
+    // ==========================
+    // SUMMARY — same page if fits,
+    // new page otherwise
+    // ==========================
+    let sy = doc.lastAutoTable.finalY + 10;
 
-    const passCount = rankedStudents.filter((s) => !s.isFailed).length;
+    if (sy > pageHeight - 60) {
+      doc.addPage();
+      sy = 48; // below header
+    }
 
-    const failCount = rankedStudents.filter((s) => s.isFailed).length;
-
-    const avg =
-      rankedStudents.reduce(
-        (acc, curr) => acc + Number(curr.overall_percentage),
-        0,
-      ) / rankedStudents.length;
-
-    const totalMaxMarks =
-      rankedStudents.length > 0 ? rankedStudents[0].total_max_marks : 0;
-
-    const topper = rankedStudents[0];
-
-    // =========================
-    // SUMMARY PAGE
-    // =========================
-
-    doc.addPage();
-
+    // Section pill
     doc.setFillColor(109, 40, 217);
-    doc.rect(0, 0, pageWidth, 30, "F");
-
+    doc.roundedRect(8, sy, 44, 6, 1.5, 1.5, "F");
     doc.setTextColor(255, 255, 255);
-
-    doc.setFontSize(22);
+    doc.setFontSize(6.5);
     doc.setFont("helvetica", "bold");
+    doc.text("RESULT SUMMARY", 30, sy + 4.2, { align: "center" });
 
-    doc.text("TARANGAJHAR HIGH SCHOOL", pageWidth / 2, 13, { align: "center" });
+    // Summary box
+    doc.setFillColor(250, 248, 255);
+    doc.setDrawColor(221, 214, 254);
+    doc.setLineWidth(0.4);
+    doc.roundedRect(8, sy + 8, pageWidth - 16, 22, 2, 2, "FD");
 
-    doc.setFontSize(10);
+    const summaryCols = [
+      {
+        label: "Total Students",
+        value: String(rankedStudents.length),
+        color: null,
+      },
+      { label: "Passed", value: String(passCount), color: [22, 163, 74] },
+      {
+        label: "Failed",
+        value: String(failCount),
+        color: failCount > 0 ? [220, 38, 38] : [30, 30, 30],
+      },
+      {
+        label: "Pass %",
+        value: `${((passCount / rankedStudents.length) * 100).toFixed(0)}%`,
+        color: [22, 163, 74],
+      },
+      { label: "Max Marks", value: String(totalMaxMarks), color: null },
+      { label: "Class Average", value: `${avg.toFixed(1)}%`, color: null },
+      { label: "Top Scorer", value: topper?.student_name || "-", color: null },
+      {
+        label: "Top Score",
+        value: `${topper?.overall_percentage || 0}%`,
+        color: [109, 40, 217],
+      },
+    ];
 
-    doc.text("Class Result Summary", pageWidth / 2, 22, { align: "center" });
+    const sumColW = (pageWidth - 16) / summaryCols.length;
 
-    doc.setTextColor(0);
+    summaryCols.forEach((col, i) => {
+      const x = 8 + i * sumColW + sumColW / 2;
 
-    doc.setFontSize(16);
-    doc.text("Class Summary", 14, 50);
+      doc.setFontSize(5.5);
+      doc.setFont("helvetica", "bold");
+      doc.setTextColor(109, 40, 217);
+      doc.text(col.label.toUpperCase(), x, sy + 14, { align: "center" });
 
-    doc.setFontSize(11);
+      const [r, g, b] = col.color || [30, 30, 30];
+      doc.setTextColor(r, g, b);
+      doc.setFontSize(9.5);
+      doc.setFont("helvetica", "bold");
+      doc.text(col.value, x, sy + 24, { align: "center" });
 
-    doc.text(`Session: ${selectedSession?.name || "-"}`, 14, 70);
+      if (i < summaryCols.length - 1) {
+        doc.setDrawColor(221, 214, 254);
+        doc.setLineWidth(0.3);
+        doc.line(
+          8 + (i + 1) * sumColW,
+          sy + 10,
+          8 + (i + 1) * sumColW,
+          sy + 28,
+        );
+      }
+    });
 
-    doc.text(`Class: ${selectedClass?.name || "-"}`, 14, 80);
-
-    doc.text(`Section: ${selectedSection?.name || "-"}`, 14, 90);
-
-    doc.text(`Unit Test: ${selectedUnitTest?.name || "-"}`, 14, 100);
-
-    doc.text(`Generated: ${new Date().toLocaleDateString()}`, 14, 110);
-
-    doc.setFont("helvetica", "bold");
-
-    doc.text(`Total Students : ${rankedStudents.length}`, 14, 130);
-
-    doc.text(`Passed Students : ${passCount}`, 14, 145);
-
-    doc.text(`Failed Students : ${failCount}`, 14, 160);
-
-    doc.text(`Maximum Marks : ${totalMaxMarks}`, 14, 175);
-
-    doc.text(`Class Average : ${avg.toFixed(2)}%`, 14, 190);
-
-    doc.text(`Top Performer : ${topper.student_name}`, 14, 205);
-
-    doc.text(`Top Score : ${topper.overall_percentage}%`, 14, 220);
-
-    // =========================
+    // ==========================
     // SIGNATURE
-    // =========================
+    // ==========================
+    const signY = sy + 48;
 
-    doc.line(pageWidth - 90, pageHeight - 50, pageWidth - 20, pageHeight - 50);
+    const signers = [
+      { label: "Class Teacher", x: pageWidth * 0.18 },
+      { label: "Headmaster", x: pageWidth * 0.5 },
+      { label: "Principal", x: pageWidth * 0.82 },
+    ];
 
-    doc.text("Principal Signature", pageWidth - 80, pageHeight - 40);
+    signers.forEach((sig) => {
+      doc.setDrawColor(160, 160, 160);
+      doc.setLineWidth(0.4);
+      doc.line(sig.x - 24, signY, sig.x + 24, signY);
 
-    // =========================
-    // PAGE NUMBERS
-    // =========================
+      doc.setFontSize(7.5);
+      doc.setFont("helvetica", "normal");
+      doc.setTextColor(80, 80, 80);
+      doc.text(sig.label, sig.x, signY + 5, { align: "center" });
+    });
 
+    // ==========================
+    // PAGE NUMBERS (all pages)
+    // ==========================
     const totalPages = doc.internal.getNumberOfPages();
 
     for (let i = 1; i <= totalPages; i++) {
       doc.setPage(i);
-
-      doc.setFontSize(9);
-
-      doc.setTextColor(120);
-
-      doc.text(`Page ${i} of ${totalPages}`, pageWidth - 35, pageHeight - 8);
+      doc.setFontSize(7);
+      doc.setFont("helvetica", "normal");
+      doc.setTextColor(196, 181, 253);
+      doc.text(`Page ${i} of ${totalPages}`, pageWidth - 8, pageHeight - 4, {
+        align: "right",
+      });
     }
 
+    // ==========================
+    // SAVE
+    // ==========================
     doc.save(
-      `${selectedClass?.name || "Class"}-${
-        selectedUnitTest?.name || "Result"
-      }.pdf`,
+      `${selectedClass?.name || "Class"}-${selectedUnitTest?.name || "Result"}-Sheet.pdf`,
     );
   };
   return (

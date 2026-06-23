@@ -58,7 +58,8 @@ function ResultFilter() {
     fetchInitialData();
   }, []);
 
-  console.log("Students:", students);
+  // console.log("Students:", students);
+  console.log("Full Result:", fullResult);
 
   const arrangedResult =
     fullResult?.length > 0
@@ -68,7 +69,11 @@ function ResultFilter() {
           test_name: fullResult[0]?.test_name,
           class_name: fullResult[0]?.class_name,
           section_name: fullResult[0]?.section_name,
-          Father_name: fullResult[0]?.father_name,
+          father_name: fullResult[0]?.father_name,
+          //added this
+          session_name: fullResult[0]?.session_name,
+
+          //upto here
           roll_no: fullResult[0]?.roll_no,
           subjects: fullResult.map((r) => ({
             subject_id: r.subject_id,
@@ -183,151 +188,185 @@ function ResultFilter() {
     const doc = new jsPDF();
     const pageWidth = doc.internal.pageSize.getWidth();
     const pageHeight = doc.internal.pageSize.getHeight();
-    const gradeInfo = getGrade(Number(arrangedResult.percentage));
 
-    // ============================================================
-    // PAGE BORDER
-    // ============================================================
-    doc.setDrawColor(109, 40, 217);
-    doc.setLineWidth(1.5);
-    doc.rect(6, 6, pageWidth - 12, pageHeight - 12);
+    const gradeInfo = isFailed
+      ? { grade: "F" }
+      : getGrade(Number(arrangedResult.percentage));
 
-    doc.setDrawColor(196, 181, 253);
-    doc.setLineWidth(0.4);
-    doc.rect(9, 9, pageWidth - 18, pageHeight - 18);
+    const resultDate = arrangedResult.result_date
+      ? new Date(arrangedResult.result_date).toLocaleDateString("en-IN", {
+          day: "2-digit",
+          month: "long",
+          year: "numeric",
+        })
+      : new Date().toLocaleDateString("en-IN", {
+          day: "2-digit",
+          month: "long",
+          year: "numeric",
+        });
+
+    const M = 12; // left/right margin
+    const W = pageWidth - M * 2; // content width
 
     // ============================================================
     // HEADER
     // ============================================================
     doc.setFillColor(109, 40, 217);
-    doc.rect(6, 6, pageWidth - 12, 40, "F");
+    doc.rect(0, 0, pageWidth, 38, "F");
 
-    // Generated date — top right
     doc.setFontSize(7);
     doc.setFont("helvetica", "normal");
     doc.setTextColor(196, 181, 253);
     doc.text(
-      `Date: ${new Date().toLocaleDateString("en-IN", {
-        day: "2-digit",
-        month: "long",
-        year: "numeric",
-      })}`,
-      pageWidth - 12,
-      12,
+      `Date: ${new Date().toLocaleDateString("en-IN", { day: "2-digit", month: "long", year: "numeric" })}`,
+      pageWidth - M,
+      8,
       { align: "right" },
     );
 
-    // School name — centered
     doc.setTextColor(255, 255, 255);
-    doc.setFontSize(20);
+    doc.setFontSize(18);
     doc.setFont("helvetica", "bold");
-    doc.text("TARANGAJHAR HIGH SCHOOL", pageWidth / 2, 24, { align: "center" });
+    doc.text("TARANGAJHAR HIGH SCHOOL", pageWidth / 2, 18, { align: "center" });
 
-    // Thin divider
     doc.setDrawColor(196, 181, 253);
     doc.setLineWidth(0.3);
-    doc.line(20, 30, pageWidth - 20, 30);
+    doc.line(M + 10, 23, pageWidth - M - 10, 23);
 
-    // Report card label
-    doc.setFontSize(10);
+    doc.setFontSize(9);
     doc.setFont("helvetica", "bold");
     doc.setTextColor(221, 214, 254);
-    doc.text("STUDENT ACADEMIC REPORT CARD", pageWidth / 2, 39, {
+    doc.text("STUDENT ACADEMIC REPORT CARD", pageWidth / 2, 31, {
       align: "center",
     });
 
     // ============================================================
-    // STUDENT INFO CARD
+    // SESSION BAR
     // ============================================================
-    doc.setFillColor(250, 248, 255);
+    doc.setFillColor(243, 240, 255);
     doc.setDrawColor(221, 214, 254);
-    doc.setLineWidth(0.4);
-    doc.roundedRect(12, 52, pageWidth - 24, 52, 3, 3, "FD");
+    doc.setLineWidth(0.3);
+    doc.rect(M, 42, W, 9, "FD");
 
-    // Section pill
-    doc.setFillColor(109, 40, 217);
-    doc.roundedRect(12, 52, 55, 7, 2, 2, "F");
-    doc.setTextColor(255, 255, 255);
+    doc.setDrawColor(221, 214, 254);
+    doc.line(pageWidth / 2, 42, pageWidth / 2, 51);
+
     doc.setFontSize(7);
     doc.setFont("helvetica", "bold");
-    doc.text("STUDENT INFORMATION", 39, 57, { align: "center" });
+    doc.setTextColor(109, 40, 217);
+    doc.text("SESSION :", M + 4, 47.5);
+    doc.setFont("helvetica", "normal");
+    doc.setTextColor(30, 30, 30);
+    doc.text(arrangedResult.session_name || "-", M + 24, 47.5);
 
-    // Vertical divider
+    doc.setFont("helvetica", "bold");
+    doc.setTextColor(109, 40, 217);
+    doc.text("RESULT DATE :", pageWidth / 2 + 4, 47.5);
+    doc.setFont("helvetica", "normal");
+    doc.setTextColor(30, 30, 30);
+    doc.text(resultDate, pageWidth / 2 + 30, 47.5);
+
+    // ============================================================
+    // STUDENT INFO CARD
+    // ============================================================
+    // Header bar
+    doc.setFillColor(109, 40, 217);
+    doc.rect(M, 54, W, 7, "F");
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(7.5);
+    doc.setFont("helvetica", "bold");
+    doc.text("STUDENT INFORMATION", pageWidth / 2, 58.8, { align: "center" });
+
+    // Card body
+    doc.setFillColor(250, 248, 255);
     doc.setDrawColor(221, 214, 254);
-    doc.setLineWidth(0.4);
-    doc.line(105, 56, 105, 100);
+    doc.setLineWidth(0.3);
+    doc.rect(M, 61, W, 40, "FD");
 
-    const infoY = 67;
-    const rowGap = 11;
-    const labelX = 18;
-    const valueX = 60;
-    const labelX2 = 112;
-    const valueX2 = 152;
+    // Center vertical divider
+    doc.setDrawColor(221, 214, 254);
+    doc.line(pageWidth / 2, 61, pageWidth / 2, 101);
 
-    const leftRows = [
+    // Horizontal row dividers
+    [70, 79, 88].forEach((y) => {
+      doc.setDrawColor(237, 233, 254);
+      doc.setLineWidth(0.2);
+      doc.line(M, y, pageWidth - M, y);
+    });
+
+    const c1L = M + 4;
+    const c1V = M + 34;
+    const c2L = pageWidth / 2 + 4;
+    const c2V = pageWidth / 2 + 34;
+    const r0 = 67.5;
+    const rG = 9;
+
+    const col1 = [
       { label: "Student Name", value: arrangedResult.student_name || "-" },
+      { label: "Father's Name", value: arrangedResult.father_name || "-" },
       { label: "Roll Number", value: String(arrangedResult.roll_no || "-") },
       { label: "Class", value: arrangedResult.class_name || "-" },
-      { label: "Section", value: arrangedResult.section_name || "-" },
     ];
 
-    const rightRows = [
+    const col2 = [
+      { label: "Section", value: arrangedResult.section_name || "-" },
       { label: "Examination", value: arrangedResult.test_name || "-" },
-      // { label: "Session", value: selectedSession?.session_id || "-" },
       { label: "Grade", value: gradeInfo.grade },
       { label: "Result", value: resultStatus, isResult: true },
     ];
 
-    leftRows.forEach((row, i) => {
-      const y = infoY + i * rowGap;
-      doc.setFontSize(7.5);
+    col1.forEach((row, i) => {
+      const y = r0 + i * rG;
+      doc.setFontSize(6.5);
       doc.setFont("helvetica", "bold");
       doc.setTextColor(109, 40, 217);
-      doc.text(row.label + " :", labelX, y);
+      doc.text(row.label + " :", c1L, y);
       doc.setFont("helvetica", "normal");
-      doc.setTextColor(30, 30, 30);
-      doc.setFontSize(8.5);
-      doc.text(row.value, valueX, y);
+      doc.setFontSize(7.5);
+      doc.setTextColor(20, 20, 20);
+      doc.text(row.value, c1V, y);
     });
 
-    rightRows.forEach((row, i) => {
-      const y = infoY + i * rowGap;
-      doc.setFontSize(7.5);
+    col2.forEach((row, i) => {
+      const y = r0 + i * rG;
+      doc.setFontSize(6.5);
       doc.setFont("helvetica", "bold");
       doc.setTextColor(109, 40, 217);
-      doc.text(row.label + " :", labelX2, y);
+      doc.text(row.label + " :", c2L, y);
 
       if (row.isResult) {
         doc.setFont("helvetica", "bold");
-        doc.setFontSize(9);
+        doc.setFontSize(8);
         doc.setTextColor(
-          isFailed ? 220 : 34,
-          isFailed ? 38 : 197,
-          isFailed ? 38 : 94,
+          isFailed ? 200 : 22,
+          isFailed ? 0 : 163,
+          isFailed ? 0 : 74,
         );
       } else {
         doc.setFont("helvetica", "normal");
-        doc.setFontSize(8.5);
-        doc.setTextColor(30, 30, 30);
+        doc.setFontSize(7.5);
+        doc.setTextColor(20, 20, 20);
       }
-      doc.text(row.value, valueX2, y);
+      doc.text(row.value, c2V, y);
     });
 
     // ============================================================
-    // SUBJECT TABLE HEADING
+    // SUBJECT TABLE HEADING BAR
     // ============================================================
     doc.setFillColor(109, 40, 217);
-    doc.roundedRect(12, 110, 70, 7, 2, 2, "F");
+    doc.rect(M, 104, W, 7, "F");
     doc.setTextColor(255, 255, 255);
-    doc.setFontSize(7);
+    doc.setFontSize(7.5);
     doc.setFont("helvetica", "bold");
-    doc.text("SUBJECT-WISE PERFORMANCE", 47, 115, { align: "center" });
+    doc.text("SUBJECT-WISE PERFORMANCE", pageWidth / 2, 108.8, {
+      align: "center",
+    });
 
     // ============================================================
     // SUBJECT TABLE
     // ============================================================
     autoTable(doc, {
-      startY: 120,
+      startY: 113,
       head: [
         [
           "#",
@@ -339,39 +378,45 @@ function ResultFilter() {
           "Result",
         ],
       ],
-      body: arrangedResult.subjects.map((subject, idx) => [
-        idx + 1,
-        subject.subject_name,
-        subject.max_marks,
-        subject.marks_obtained,
-        `${subject.percentage}%`,
-        getGrade(Number(subject.percentage)).grade,
-        Number(subject.marks_obtained) < 30 ? "FAIL" : "PASS",
-      ]),
+      body: arrangedResult.subjects.map((subject, idx) => {
+        const subPct = Number(subject.percentage);
+        const subFailed = Number(subject.marks_obtained) < 30;
+        const subGrade = subFailed ? "F" : getGrade(subPct).grade;
+        return [
+          idx + 1,
+          subject.subject_name,
+          subject.max_marks,
+          subject.marks_obtained,
+          `${subject.percentage}%`,
+          subGrade,
+          subFailed ? "FAIL" : "PASS",
+        ];
+      }),
       theme: "grid",
       headStyles: {
-        fillColor: [109, 40, 217],
-        textColor: [255, 255, 255],
+        fillColor: [237, 233, 254],
+        textColor: [76, 29, 149],
         halign: "center",
         fontStyle: "bold",
         fontSize: 8.5,
-        cellPadding: 4,
+        cellPadding: 3,
       },
       bodyStyles: {
         halign: "center",
-        fontSize: 8.5,
-        textColor: [40, 40, 40],
-        cellPadding: 3.5,
+        fontSize: 7.5,
+        textColor: [30, 30, 30],
+        cellPadding: 4,
       },
       alternateRowStyles: {
         fillColor: [250, 248, 255],
       },
       columnStyles: {
-        0: { cellWidth: 10, halign: "center" },
-        1: { halign: "left", cellWidth: 55 },
-        6: { fontStyle: "bold" },
+        0: { halign: "center" },
+        1: { halign: "left" },
       },
-      margin: { left: 12, right: 12 },
+      tableWidth: W,
+      margin: { left: M, right: M },
+
       didParseCell: (data) => {
         if (data.section === "body") {
           const rowSubject = arrangedResult.subjects[data.row.index];
@@ -389,84 +434,157 @@ function ResultFilter() {
     });
 
     // ============================================================
-    // RESULT SUMMARY
+    // RESULT SUMMARY BAR + BOX
     // ============================================================
-    const finalY = doc.lastAutoTable.finalY + 8;
+    const finalY = doc.lastAutoTable.finalY + 5;
 
-    // Section pill
     doc.setFillColor(109, 40, 217);
-    doc.roundedRect(12, finalY, 50, 7, 2, 2, "F");
+    doc.rect(M, finalY, W, 7, "F");
     doc.setTextColor(255, 255, 255);
-    doc.setFontSize(7);
+    doc.setFontSize(7.5);
     doc.setFont("helvetica", "bold");
-    doc.text("RESULT SUMMARY", 37, finalY + 5, { align: "center" });
+    doc.text("RESULT SUMMARY", pageWidth / 2, finalY + 5, { align: "center" });
 
-    // Summary box
     doc.setFillColor(250, 248, 255);
     doc.setDrawColor(221, 214, 254);
-    doc.setLineWidth(0.4);
-    doc.roundedRect(12, finalY + 9, pageWidth - 24, 24, 2, 2, "FD");
+    doc.setLineWidth(0.3);
+    doc.rect(M, finalY + 7, W, 18, "FD");
 
     const cols = [
       { label: "Max Marks", value: String(arrangedResult.total_max_marks) },
-      {
-        label: "Total Marks Obtained",
-        value: String(arrangedResult.total_marks),
-      },
+      { label: "Marks Obtained", value: String(arrangedResult.total_marks) },
       { label: "Percentage", value: `${arrangedResult.percentage}%` },
       { label: "Grade", value: gradeInfo.grade },
       { label: "Result", value: resultStatus },
     ];
 
-    const colWidth = (pageWidth - 24) / cols.length;
+    const colW = W / cols.length;
 
     cols.forEach((col, i) => {
-      const x = 12 + i * colWidth + colWidth / 2;
-      const isResultCol = col.label === "Result";
+      const x = M + i * colW + colW / 2;
+      const isResult = col.label === "Result";
 
-      doc.setTextColor(109, 40, 217);
-      doc.setFontSize(6.5);
+      doc.setFontSize(5.5);
       doc.setFont("helvetica", "bold");
-      doc.text(col.label.toUpperCase(), x, finalY + 16, { align: "center" });
+      doc.setTextColor(109, 40, 217);
+      doc.text(col.label.toUpperCase(), x, finalY + 12, { align: "center" });
 
-      if (isResultCol) {
+      doc.setFontSize(9.5);
+      doc.setFont("helvetica", "bold");
+      if (isResult) {
         doc.setTextColor(
-          isFailed ? 200 : 34,
-          isFailed ? 0 : 197,
-          isFailed ? 0 : 94,
+          isFailed ? 200 : 22,
+          isFailed ? 0 : 163,
+          isFailed ? 0 : 74,
         );
       } else {
-        doc.setTextColor(30, 30, 30);
+        doc.setTextColor(20, 20, 20);
       }
-      doc.setFontSize(11);
-      doc.setFont("helvetica", "bold");
-      doc.text(col.value, x, finalY + 27, { align: "center" });
+      doc.text(col.value, x, finalY + 21, { align: "center" });
 
       if (i < cols.length - 1) {
         doc.setDrawColor(221, 214, 254);
-        doc.setLineWidth(0.3);
+        doc.setLineWidth(0.2);
         doc.line(
-          12 + (i + 1) * colWidth,
-          finalY + 11,
-          12 + (i + 1) * colWidth,
-          finalY + 31,
+          M + (i + 1) * colW,
+          finalY + 9,
+          M + (i + 1) * colW,
+          finalY + 24,
         );
       }
     });
 
     // ============================================================
-    // PRINCIPAL SIGNATURE
+    // BOTTOM SECTION — Grade Scale LEFT + Signature RIGHT
     // ============================================================
-    const signY = finalY + 54;
+    const bottomY = finalY + 30;
+    const gradeColWidth = W * 0.55; // 55% for grade scale
+    const sigColWidth = W * 0.45; // 45% for signature
 
-    doc.setDrawColor(150, 150, 150);
-    doc.setLineWidth(0.4);
-    doc.line(pageWidth - 70, signY, pageWidth - 18, signY);
+    // --- GRADE SCALE (left column) ---
+    doc.setFillColor(109, 40, 217);
+    doc.rect(M, bottomY, gradeColWidth, 7, "F");
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(7);
+    doc.setFont("helvetica", "bold");
+    doc.text("GRADING SCALE", M + gradeColWidth / 2, bottomY + 5, {
+      align: "center",
+    });
+
+    const gradeScale = [
+      { range: "90-100%", grade: "A+" },
+      { range: "80-89%", grade: "A" },
+      { range: "70-79%", grade: "B+" },
+      { range: "60-69%", grade: "B" },
+      { range: "50-59%", grade: "C" },
+      { range: "40-49%", grade: "D" },
+      { range: "< 40%", grade: "F" },
+    ];
+
+    const gradeRowH = 7;
+    const gradeTableH = gradeScale.length * gradeRowH;
+
+    doc.setFillColor(250, 248, 255);
+    doc.setDrawColor(221, 214, 254);
+    doc.setLineWidth(0.3);
+    doc.rect(M, bottomY + 7, gradeColWidth, gradeTableH, "FD");
+
+    gradeScale.forEach((g, i) => {
+      const gy = bottomY + 7 + i * gradeRowH;
+      const midY = gy + gradeRowH / 2 + 1.5;
+
+      // Row divider
+      if (i > 0) {
+        doc.setDrawColor(237, 233, 254);
+        doc.setLineWidth(0.2);
+        doc.line(M, gy, M + gradeColWidth, gy);
+      }
+
+      // Grade — left side
+      doc.setFontSize(7.5);
+      doc.setFont("helvetica", "bold");
+      doc.setTextColor(109, 40, 217);
+      doc.text(g.grade, M + gradeColWidth * 0.22, midY, { align: "center" });
+
+      // Divider inside grade row
+      doc.setDrawColor(221, 214, 254);
+      doc.setLineWidth(0.2);
+      doc.line(
+        M + gradeColWidth * 0.38,
+        gy,
+        M + gradeColWidth * 0.38,
+        gy + gradeRowH,
+      );
+
+      // Range — right side
+      doc.setFontSize(6.5);
+      doc.setFont("helvetica", "normal");
+      doc.setTextColor(60, 60, 60);
+      doc.text(g.range, M + gradeColWidth * 0.7, midY, { align: "center" });
+    });
+
+    // --- SIGNATURE (right column) ---
+    const sigX = M + gradeColWidth + 4;
+    const sigAreaW = sigColWidth - 4;
+
+    // Large blank space for actual signature
+    const sigLineY = bottomY + 7 + gradeTableH - 8;
+
+    doc.setDrawColor(180, 180, 180);
+    doc.setLineWidth(0.5);
+    doc.line(sigX + 4, sigLineY, sigX + sigAreaW - 4, sigLineY);
 
     doc.setFontSize(7.5);
+    doc.setFont("helvetica", "bold");
+    doc.setTextColor(80, 80, 80);
+    doc.text("Principal Signature", sigX + sigAreaW / 2, sigLineY + 5, {
+      align: "center",
+    });
+
+    doc.setFontSize(6.5);
     doc.setFont("helvetica", "normal");
-    doc.setTextColor(100, 100, 100);
-    doc.text("Principal Signature", pageWidth - 44, signY + 6, {
+    doc.setTextColor(150, 150, 150);
+    doc.text(`Date: ${resultDate}`, sigX + sigAreaW / 2, sigLineY + 10, {
       align: "center",
     });
 
@@ -474,15 +592,15 @@ function ResultFilter() {
     // FOOTER
     // ============================================================
     doc.setFillColor(109, 40, 217);
-    doc.rect(6, pageHeight - 18, pageWidth - 12, 12, "F");
+    doc.rect(0, pageHeight - 12, pageWidth, 12, "F");
 
-    doc.setFontSize(7.5);
+    doc.setFontSize(7);
     doc.setFont("helvetica", "normal");
     doc.setTextColor(196, 181, 253);
     doc.text(
       "This is a computer generated report card and does not require a physical stamp.",
       pageWidth / 2,
-      pageHeight - 10,
+      pageHeight - 5,
       { align: "center" },
     );
 
