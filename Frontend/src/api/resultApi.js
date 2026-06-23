@@ -24,9 +24,9 @@ export const getStudentUnitTests = (student_id, session_id) =>
     params: { student_id, session_id },
   });
 
-export const getFullResult = (student_id, session_id, unit_test_id) =>
+export const getFullResult = (student_id, session_id,class_id, section_id, unit_test_id) =>
   api.get(`/results/full`, {
-    params: { student_id, session_id, unit_test_id },
+    params: { student_id, session_id,class_id,section_id, unit_test_id },
   });
 
 export const getWholeClassResult = (session_id, class_id, section_id, test_id) =>

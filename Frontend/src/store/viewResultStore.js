@@ -110,7 +110,7 @@ const useViewResultStore = create((set, get) => ({
   },
 
   fetchFullResult: async (unitTest) => {
-    const { selectedStudent, selectedSession } = get();
+    const { selectedStudent, selectedSession , selectedClass, selectedSection } = get();
     set({
       selectedUnitTest: unitTest,
       loading: true,
@@ -121,6 +121,8 @@ const useViewResultStore = create((set, get) => ({
       const res = await getFullResult(
         selectedStudent.student_id,
         selectedSession.session_id,
+        selectedClass.class_id,
+        selectedSection.section_id,
         unitTest.test_id,
       );
       set({ fullResult: res.data });

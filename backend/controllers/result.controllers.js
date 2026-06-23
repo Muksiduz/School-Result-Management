@@ -75,18 +75,19 @@ export async function getUnitTest(req, res){
 }
 
 export async function getResultOfSingleStudent(req, res) {
-    const { student_id, session_id, unit_test_id } = req.query;
+    const { student_id, session_id, unit_test_id, class_id, section_id } = req.query;
     try {
       const result = await pool.query(
-        `SELECT r.student_id, st.name as student_name,st.roll_no,st.father_name, r.marks_obtained,s.subject_id, s.name as subject_name, ut.max_marks, ut.name as test_name, c.class_id, c.name as class_name, sec.section_id, sec.name as section_name
+        `SELECT r.student_id, st.name as student_name,st.roll_no,st.father_name, r.marks_obtained,s.subject_id, s.name as subject_name, ut.max_marks, ut.name as test_name, c.class_id, c.name as class_name, sec.section_id, sec.name as section_name, ses.session_id, ses.name as session_name
        FROM results r
        JOIN subjects s ON r.subject_id = s.subject_id
        JOIN unit_tests ut ON r.unit_test_id = ut.test_id
        JOIN students st ON r.student_id = st.student_id
        JOIN classes c ON r.class_id = c.class_id
        JOIN sections sec ON r.section_id = sec.section_id
-       WHERE r.student_id=$1 AND r.session_id=$2 AND r.unit_test_id=$3`,
-        [student_id, session_id, unit_test_id],
+       JOIN academic_sessions ses ON r.session_id = ses.session_id
+       WHERE r.student_id=$1 AND r.session_id=$2 AND r.unit_test_id=$3 AND r.class_id=$4 AND r.section_id=$5`,
+        [student_id, session_id, unit_test_id, class_id, section_id],
       );
       res.json(result.rows);
     } catch (err) {
