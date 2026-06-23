@@ -281,12 +281,12 @@ function ExamPage() {
                               className="w-8 h-8 flex items-center justify-center rounded-lg bg-purple-50 hover:bg-purple-100 text-purple-600 border border-purple-100 transition-colors">
                               <Pencil size={14} />
                             </button>
-                            <button
+                            {/* <button
                               type="button"
                               onClick={() => handleDelete(test.test_id)}
                               className="w-8 h-8 flex items-center justify-center rounded-lg bg-red-50 hover:bg-red-100 text-red-500 border border-red-100 transition-colors">
                               <Trash2 size={14} />
-                            </button>
+                            </button> */}
                           </>
                         )}
                       </div>
