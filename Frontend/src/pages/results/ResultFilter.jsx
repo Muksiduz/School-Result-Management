@@ -1160,7 +1160,7 @@ function ResultFilter() {
                               </div>
                               <span className="text-sm font-medium text-gray-900">
                                 {subject.subject_name}
-                                {subject.subject_id}
+                                {/* {subject.subject_id} */}
                               </span>
                             </div>
                           </td>
