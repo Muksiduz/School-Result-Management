@@ -2,7 +2,7 @@ import pool from "../db/pool.js";
 
 export async function getAllSubjects(req, res){
     try {
-        const result = await pool.query(`SELECT * FROM subjects ORDER BY subject_id ASC`);
+        const result = await pool.query(`SELECT * FROM subjects WHERE is_active = true ORDER BY subject_id ASC`);
         res.status(200).json({ message: "Subjects fetched successfully", subjects: result.rows });
     } catch (error) {
         res.status(500).json({ message: error.message });
@@ -57,7 +57,7 @@ export async function updateSubject(req, res){
 export async function deleteSubject(req, res){
     const {id} = req.params;
     try {
-        const result = await pool.query(`DELETE FROM subjects WHERE subject_id = $1 RETURNING *`, [id]);
+        const result = await pool.query(`UPDATE subjects SET is_active = false WHERE subject_id = $1 RETURNING *`, [id]);
         if(result.rowCount === 0){
             return res.status(404).json({ message: "Subject not found" });
         }

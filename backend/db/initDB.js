@@ -13,6 +13,9 @@ async function initDb() {
       username TEXT UNIQUE NOT NULL,
       password TEXT NOT NULL,
       role TEXT CHECK(role IN ('admin', 'teacher', 'viewer')) NOT NULL,
+
+      is_active BOOLEAN DEFAULT true,
+
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )
   `);
@@ -20,7 +23,11 @@ async function initDb() {
     await pool.query(`
     CREATE TABLE IF NOT EXISTS classes (
       class_id SERIAL PRIMARY KEY,
-      name TEXT NOT NULL UNIQUE
+      name TEXT NOT NULL UNIQUE,
+
+      is_active BOOLEAN DEFAULT true,
+
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )
   `);
 
@@ -29,6 +36,9 @@ async function initDb() {
     section_id SERIAL PRIMARY KEY,
     name TEXT NOT NULL,
     class_id INTEGER REFERENCES classes(class_id) ON DELETE CASCADE,
+
+    is_active BOOLEAN DEFAULT true,
+
     UNIQUE(class_id, name)
   )
 `);
@@ -49,6 +59,8 @@ async function initDb() {
       date_of_birth DATE,
       address TEXT,
 
+      is_active BOOLEAN DEFAULT true,
+
       created_by TEXT,
 
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -63,6 +75,9 @@ async function initDb() {
       subject_id SERIAL PRIMARY KEY,
       name TEXT NOT NULL,
       class_id INTEGER REFERENCES classes(class_id),
+
+      is_active BOOLEAN DEFAULT true,
+
       UNIQUE(class_id, name)
     )
   `);
@@ -83,6 +98,9 @@ async function initDb() {
       name TEXT NOT NULL,
       session_id INTEGER REFERENCES academic_sessions(session_id),
       max_marks INTEGER NOT NULL,
+
+      is_active BOOLEAN DEFAULT true,
+
       UNIQUE(session_id, name)
     )
   `);
@@ -98,6 +116,8 @@ async function initDb() {
       subject_id INTEGER REFERENCES subjects(subject_id),
 
       marks_obtained INTEGER NOT NULL,
+
+      is_active BOOLEAN DEFAULT true,
 
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
