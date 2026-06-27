@@ -139,7 +139,7 @@ async function initDb() {
       name TEXT NOT NULL,
       roll_no VARCHAR(20) NOT NULL,
       old_session_id INTEGER REFERENCES old_sessions(old_session_id),
-      class TEXT,
+      class_name TEXT,
       section TEXT,
       father_name TEXT,
       mother_name TEXT,
@@ -147,6 +147,8 @@ async function initDb() {
       gender VARCHAR(10) CHECK (gender IN ('Male', 'Female', 'Other')),
       date_of_birth DATE,
       address TEXT,
+      is_active BOOLEAN DEFAULT true,
+      created_by TEXT,
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
       updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 
