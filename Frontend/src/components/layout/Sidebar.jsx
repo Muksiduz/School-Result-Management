@@ -138,6 +138,14 @@ function Sidebar({ isOpen }) {
           title="Old Sessions"
           active={location.pathname === "/old-sessions"}
         />
+
+        {/* Old Students */}
+        <MenuItem
+          to="/old-students"
+          icon={<Trophy size={17} />}
+          title="Old Students"
+          active={location.pathname === "/old-students"}
+        />
       </nav>
     </aside>
   );
