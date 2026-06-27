@@ -22,6 +22,8 @@ import UsersPage from "../../pages/users/GetUsers";
 import AddUserPage from "../../pages/users/CreateUser";
 import ClassResultPage from "../../pages/Class-Result/ClassResultPage";
 import EnterMarksAll from "../../pages/MarksInsert/EnterMarksAll";
+import OldSessionPage from "../../OLD_SESSIONS/pages/OldSessionPage";
+
 function AppRouter() {
   return (
     <Routes>
@@ -167,6 +169,16 @@ function AppRouter() {
           <ProtectedRoute>
             <ProtectedLayout>
               <ClassResultPage />
+            </ProtectedLayout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/old-sessions"
+        element={
+          <ProtectedRoute>
+            <ProtectedLayout>
+              <OldSessionPage />
             </ProtectedLayout>
           </ProtectedRoute>
         }

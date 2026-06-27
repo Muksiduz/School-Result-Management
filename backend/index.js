@@ -16,6 +16,7 @@ import unitTestRouter from "./routes/unitTest.route.js";
 import studentsRouter from "./routes/students.route.js";
 import dashboardRouter from "./routes/dashboard.route.js";
 import resultRouter from "./routes/result.route.js";
+import oldSessionsRouter from "./routes/old.sessions.routes.js";
 
 const app = express();
 
@@ -61,6 +62,9 @@ app.use("/api/v1/dashboard", dashboardRouter);
 
 // RUSULTS Routes
 app.use("/api/v1/results", resultRouter);
+
+// OLD SESSIONS ROUTES
+app.use("/api/v1/old-sessions", oldSessionsRouter)
 
 console.log(__dirname);
 
