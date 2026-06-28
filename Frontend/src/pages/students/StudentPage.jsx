@@ -17,6 +17,9 @@ import {
   ArrowUpRight,
   ChevronDown,
   ArrowUpCircle,
+  FileText,
+  GraduationCap,
+  Download,
 } from "lucide-react";
 import { Eye } from "lucide-react";
 import { useAuthStore } from "../../store/authStore";
@@ -24,6 +27,7 @@ import { getSectionsByClass } from "../../services/sectionService";
 
 import AddStudent from "./AddStudentPage";
 import usePromoteStore from "../../store/PromoteStore";
+import jsPDF from "jspdf";
 
 function StudentsPage() {
   const [students, setStudents] = useState([]);
@@ -145,6 +149,172 @@ function StudentsPage() {
       !selectedClass || String(student.class_id) === String(selectedClass);
     return matchesSearch && matchesClass;
   });
+
+  const generateCertificate = (student) => {
+    const doc = new jsPDF();
+
+    const today = new Date().toLocaleDateString("en-GB");
+
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(22);
+    doc.text("YOUR SCHOOL NAME", 105, 20, { align: "center" });
+
+    doc.setFontSize(11);
+    doc.setFont("helvetica", "normal");
+    doc.text("School Address, City, State", 105, 28, {
+      align: "center",
+    });
+
+    doc.setLineWidth(0.5);
+    doc.line(20, 35, 190, 35);
+
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(18);
+    doc.text("STUDENT CERTIFICATE", 105, 50, {
+      align: "center",
+    });
+
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(12);
+
+    doc.text(`Certificate No : SC-${Date.now()}`, 20, 68);
+    doc.text(`Date : ${today}`, 150, 68);
+
+    doc.text("This is to certify that", 20, 88);
+
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(17);
+
+    doc.text(student.name.toUpperCase(), 105, 102, { align: "center" });
+
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(12);
+
+    doc.text(
+      `S/o / D/o : ${student.father_name || "_____________________"}`,
+      20,
+      118,
+    );
+
+    doc.text(
+      `Mother's Name : ${student.mother_name || "_____________________"}`,
+      20,
+      130,
+    );
+
+    doc.text(`Roll Number : ${student.roll_no}`, 20, 142);
+
+    doc.text(`Class : ${student.class_name}`, 20, 154);
+
+    doc.text(`Section : ${student.section_name}`, 110, 154);
+
+    doc.text(`Gender : ${student.gender}`, 20, 166);
+
+    doc.text(
+      `Date of Birth : ${
+        student.date_of_birth
+          ? new Date(student.date_of_birth).toLocaleDateString("en-GB")
+          : "-"
+      }`,
+      110,
+      166,
+    );
+
+    doc.text("Address :", 20, 182);
+
+    doc.text(student.address || "-", 20, 192, {
+      maxWidth: 165,
+    });
+
+    doc.text("This student is a bonafide student of this institution", 20, 220);
+
+    doc.text(
+      "and is currently enrolled in the above mentioned class.",
+      20,
+      230,
+    );
+
+    doc.line(120, 265, 180, 265);
+
+    doc.text("Principal", 145, 272);
+
+    doc.save(`${student.name}-Student-Certificate.pdf`);
+  };
+  const generatePassCertificate = (student) => {
+    const doc = new jsPDF();
+
+    const today = new Date().toLocaleDateString("en-GB");
+
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(22);
+
+    doc.text("YOUR SCHOOL NAME", 105, 20, {
+      align: "center",
+    });
+
+    doc.setFontSize(18);
+
+    doc.text("PASS CERTIFICATE", 105, 32, {
+      align: "center",
+    });
+
+    doc.setLineWidth(0.5);
+
+    doc.line(20, 38, 190, 38);
+
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(11);
+
+    doc.text(`Certificate No : PC-${Date.now()}`, 20, 50);
+
+    doc.text(`Date : ${today}`, 150, 50);
+
+    doc.setFont("helvetica", "normal");
+
+    doc.text("This is to certify that", 20, 68);
+
+    doc.setFont("helvetica", "bold");
+
+    doc.setFontSize(18);
+
+    doc.text(student.name.toUpperCase(), 105, 82, {
+      align: "center",
+    });
+
+    doc.setFontSize(12);
+
+    doc.setFont("helvetica", "normal");
+
+    doc.text(`Son / Daughter of ${student.father_name}`, 20, 98);
+
+    doc.text("has successfully passed the Annual Examination.", 20, 112);
+
+    doc.text(
+      `Previous Class : ${student.class_name} - ${student.section_name}`,
+      20,
+      128,
+    );
+
+    doc.text(
+      `Promoted To : ${selectedCls?.name || ""} - ${selectedSec?.name || ""}`,
+      20,
+      142,
+    );
+
+    doc.text(`Roll Number : ${student.roll_no}`, 20, 156);
+
+    doc.text("The student has fulfilled all academic", 20, 176);
+
+    doc.text("requirements and is promoted to the next class.", 20, 186);
+
+    doc.text("We wish the student every success in future.", 20, 202);
+
+    doc.line(120, 245, 180, 245);
+
+    doc.text("Principal", 140, 252);
+
+    doc.save(`${student.name}-Pass-Certificate.pdf`);
+  };
 
   const getInitials = (name) =>
     name
@@ -752,7 +922,7 @@ function StudentsPage() {
               </button>
             </div>
 
-            {/* Body */}
+            {/* Promote student code*/}
             <div className="px-6 py-5">
               {/* Student info pill */}
               <div className="flex items-center gap-3 bg-purple-50 border border-purple-100 rounded-xl px-4 py-3 mb-5">
@@ -846,6 +1016,87 @@ function StudentsPage() {
                     }}
                     className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm bg-gray-50 focus:outline-none focus:border-purple-400 focus:ring-2 focus:ring-purple-100 transition-all"
                   />
+                </div>
+              </div>
+              {/* ---------------- Documents ---------------- */}
+              <div className="mt-8">
+                <div className="flex items-center gap-3 mb-4">
+                  <span className="text-xs font-semibold text-purple-600 uppercase tracking-wide">
+                    Documents
+                  </span>
+                  <div className="flex-1 h-px bg-purple-100" />
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  {/* Export Certificate */}
+                  <button
+                    onClick={() => generateCertificate(promoteStudent)}
+                    className="
+        flex items-center justify-between
+        rounded-2xl border border-purple-100
+        bg-purple-50
+        px-5 py-4
+        hover:bg-purple-100
+        hover:border-purple-300
+        transition-all
+        group
+      ">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center shadow-sm">
+                        <FileText
+                          size={20}
+                          className="text-purple-600 group-hover:scale-110 transition"
+                        />
+                      </div>
+
+                      <div className="text-left">
+                        <p className="text-sm font-semibold text-gray-800">
+                          Export Certificate
+                        </p>
+
+                        <p className="text-xs text-gray-500">
+                          Student profile certificate
+                        </p>
+                      </div>
+                    </div>
+
+                    <Download size={18} className="text-purple-500" />
+                  </button>
+
+                  {/* Export Pass Certificate */}
+                  <button
+                    onClick={() => generatePassCertificate(promoteStudent)}
+                    className="
+        flex items-center justify-between
+        rounded-2xl border border-emerald-100
+        bg-emerald-50
+        px-5 py-4
+        hover:bg-emerald-100
+        hover:border-emerald-300
+        transition-all
+        group
+      ">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center shadow-sm">
+                        <GraduationCap
+                          size={20}
+                          className="text-emerald-600 group-hover:scale-110 transition"
+                        />
+                      </div>
+
+                      <div className="text-left">
+                        <p className="text-sm font-semibold text-gray-800">
+                          Export Pass Certificate
+                        </p>
+
+                        <p className="text-xs text-gray-500">
+                          Promotion / pass certificate
+                        </p>
+                      </div>
+                    </div>
+
+                    <Download size={18} className="text-emerald-500" />
+                  </button>
                 </div>
               </div>
             </div>
