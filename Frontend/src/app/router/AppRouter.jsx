@@ -23,7 +23,7 @@ import AddUserPage from "../../pages/users/CreateUser";
 import ClassResultPage from "../../pages/Class-Result/ClassResultPage";
 import EnterMarksAll from "../../pages/MarksInsert/EnterMarksAll";
 import OldSessionPage from "../../OLD_SESSIONS/pages/OldSessionPage";
-import { OldStudentsPage } from "../../OLD_STUDENTS/pages/OldStudentsPage";
+import OldStudentsPage from "../../OLD_STUDENTS/pages/OldStudentsPage";
 
 function AppRouter() {
   return (

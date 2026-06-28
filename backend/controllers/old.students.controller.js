@@ -2,18 +2,24 @@ import pool from "../db/pool.js";
 
 export async function getAllOldStudents(req, res) {
   try {
-    const result = await pool.query(
-      `SELECT st.*, ses.old_session_id, ses.name AS session_name, ses.year AS   session_year FROM old_students st
-      LEFT JOIN old_sessions ses ON st.old_session_id = ses.old_session_id
-      ORDER BY st.name ASC`,
-    );
-    if (result.rows.length === 0) {
-      return res.status(404).json({ message: "No old students found" });
-    }
+    const result = await pool.query(`
+      SELECT
+        st.*,
+        ses.old_session_id,
+        ses.name AS session_name,
+        ses.year AS session_year
+      FROM old_students st
+      LEFT JOIN old_sessions ses
+      ON st.old_session_id = ses.old_session_id
+      ORDER BY st.name ASC
+    `);
+
     res.json(result.rows);
   } catch (error) {
     console.error(error);
-    return res.status(500).json({ message: error.message });
+    res.status(500).json({
+      message: error.message,
+    });
   }
 }
 
@@ -48,9 +54,7 @@ export async function getOldStudentsBySession(req, res) {
                   ORDER BY st.name ASC`,
       [id],
     );
-    if (result.rows.length === 0) {
-      return res.status(404).json({ message: "Old student not found" });
-    }
+
     res.json(result.rows);
   } catch (error) {
     console.error(error);
