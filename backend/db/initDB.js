@@ -59,6 +59,16 @@ async function initDb() {
       date_of_birth DATE,
       address TEXT,
 
+      religion VARCHAR(50),
+      nationality VARCHAR(50),
+      
+      blood_group VARCHAR(5),
+
+      date_of_joining DATE,
+      date_of_leaving DATE,
+      final_examination_held DATE,
+
+
       is_active BOOLEAN DEFAULT true,
 
       created_by TEXT,
@@ -147,8 +157,20 @@ async function initDb() {
       gender VARCHAR(10) CHECK (gender IN ('Male', 'Female', 'Other')),
       date_of_birth DATE,
       address TEXT,
+
+      religion VARCHAR(50),
+      nationality VARCHAR(50),
+      
+      blood_group VARCHAR(5),
+
+      date_of_joining DATE,
+      date_of_leaving DATE,
+      final_examination_held DATE,
+
       is_active BOOLEAN DEFAULT true,
+
       created_by TEXT,
+
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
       updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 
