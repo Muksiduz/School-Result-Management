@@ -254,7 +254,7 @@ const OldSessionPage = () => {
                 <label className="block text-sm font-semibold mb-2">Year</label>
 
                 <input
-                  type="number"
+                  type="text"
                   value={formData.year}
                   onChange={(e) =>
                     setFormData({
@@ -326,7 +326,7 @@ const OldSessionPage = () => {
                 <label className="block text-sm font-semibold mb-2">Year</label>
 
                 <input
-                  type="number"
+                  type="text"
                   value={formData.year}
                   onChange={(e) =>
                     setFormData({
