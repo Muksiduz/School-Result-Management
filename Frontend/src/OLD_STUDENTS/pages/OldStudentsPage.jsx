@@ -18,6 +18,7 @@ import {
 import { useOldStudentsStore } from "../store/oldStuduntsStore";
 import { updateOldStudents, deleteOldStudents } from "../utils/oldStudentsApi";
 import jsPDF from "jspdf";
+import logoS from "../../../public/logoS.jpg";
 
 const PAGE_SIZE = 10;
 
@@ -152,6 +153,11 @@ const OldStudentsPage = () => {
       class_name: student.class_name || "",
       section: student.section || "",
       father_name: student.father_name || "",
+      //send section name here as student.section
+      //send religion here as student.religion
+      //send Nationality here as student.nationality
+      //send student from date as student.from_date
+      //send student to date as student.to_date
       mother_name: student.mother_name || "",
       phone: student.phone || "",
       gender: student.gender || "",
@@ -190,237 +196,233 @@ const OldStudentsPage = () => {
   };
 
   // ── Certificate PDF ──
-  const generateCertificate = async (student) => {
-    const doc = new jsPDF({
-      orientation: "landscape",
-      unit: "mm",
-      format: "a4",
-    });
-    const W = 297;
-    const H = 210;
-    const cx = W / 2;
 
-    doc.setFillColor(253, 250, 245);
-    doc.rect(0, 0, W, H, "F");
+  const generateCertificate = (student) => {
+    const doc = new jsPDF();
+    const today = new Date().toLocaleDateString("en-GB");
+    const pageWidth = 210;
 
-    const M = 8,
-      M2 = 11,
-      M3 = 14;
+    doc.setTextColor(0, 0, 0);
+    doc.setDrawColor(0, 0, 0);
 
-    doc.setDrawColor(160, 10, 10);
-    doc.setLineWidth(2.2);
-    doc.rect(M, M, W - M * 2, H - M * 2);
-
-    doc.setLineWidth(0.5);
-    doc.rect(M2, M2, W - M2 * 2, H - M2 * 2);
-
-    doc.setFillColor(160, 10, 10);
-    for (let x = M3 + 2; x < W - M3 - 2; x += 3.5) doc.circle(x, M3, 0.55, "F");
-    for (let x = M3 + 2; x < W - M3 - 2; x += 3.5)
-      doc.circle(x, H - M3, 0.55, "F");
-    for (let y = M3 + 2; y < H - M3 - 2; y += 3.5) doc.circle(M3, y, 0.55, "F");
-    for (let y = M3 + 2; y < H - M3 - 2; y += 3.5)
-      doc.circle(W - M3, y, 0.55, "F");
-
-    doc.setDrawColor(160, 10, 10);
+    // ===== OUTER DECORATIVE BORDER =====
+    doc.setLineWidth(1.2);
+    doc.rect(8, 8, 194, 281);
     doc.setLineWidth(0.4);
-    doc.rect(M3 + 2, M3 + 2, W - (M3 + 2) * 2, H - (M3 + 2) * 2);
+    doc.rect(11, 11, 188, 275);
 
-    const drawCorner = (x, y, dirX, dirY) => {
-      doc.setFillColor(160, 10, 10);
-      doc.setDrawColor(160, 10, 10);
-      doc.setLineWidth(1.6);
-      doc.line(x, y, x + dirX * 14, y);
-      doc.line(x, y, x, y + dirY * 14);
-      const sq = 4.5;
-      doc.rect(x - (dirX < 0 ? sq : 0), y - (dirY < 0 ? sq : 0), sq, sq, "F");
-      doc.setLineWidth(0);
-      for (let i = 1; i <= 3; i++) {
-        doc.circle(x + dirX * (i * 3.5), y + dirY * 1.5, 0.5, "F");
-        doc.circle(x + dirX * 1.5, y + dirY * (i * 3.5), 0.5, "F");
-      }
-    };
-
-    const pad = M + 1;
-    drawCorner(pad, pad, 1, 1);
-    drawCorner(W - pad, pad, -1, 1);
-    drawCorner(pad, H - pad, 1, -1);
-    drawCorner(W - pad, H - pad, -1, -1);
-
-    doc.setDrawColor(220, 210, 205);
-    doc.setLineWidth(0.15);
-    const wy = H / 2 + 8;
-    for (let r = 8; r <= 32; r += 6) doc.circle(cx, wy, r, "S");
-    for (let a = 0; a < 360; a += 18) {
-      const rad = (a * Math.PI) / 180;
-      doc.line(cx, wy, cx + 32 * Math.cos(rad), wy + 32 * Math.sin(rad));
-    }
-
+    // ===== HEADER: SCHOOL NAME =====
     doc.setFont("times", "bold");
-    doc.setFontSize(34);
-    doc.setTextColor(15, 15, 15);
-    doc.text("CERTIFICATE", cx, 38, { align: "center" });
-    doc.setDrawColor(160, 10, 10);
-    doc.setLineWidth(0.7);
-    doc.line(cx - 44, 41.5, cx + 44, 41.5);
+    doc.setFontSize(22);
+    doc.text("TARANGAJHAR HIGH SCHOOL", pageWidth / 2, 28, { align: "center" });
 
-    doc.setFont("times", "italic");
-    doc.setFontSize(13);
-    doc.setTextColor(55, 55, 55);
-    doc.text("This certificate is presented to", cx, 51, { align: "center" });
-    doc.setFillColor(160, 10, 10);
-    [-4, 0, 4].forEach((dx) => doc.circle(cx + dx, 56, 0.9, "F"));
-
-    const sessionLabel = (
-      student.session_name ||
-      `Session ${student.old_session_id || ""}` ||
-      "Academic Session"
-    ).toUpperCase();
-    doc.setFont("helvetica", "normal");
-    doc.setFontSize(7.5);
-    doc.setTextColor(130, 130, 130);
-    doc.setCharSpace(3);
-    doc.text(sessionLabel, cx, 63, { align: "center" });
-    doc.setCharSpace(0);
-
-    doc.setFont("times", "bolditalic");
-    doc.setFontSize(28);
-    doc.setTextColor(15, 15, 15);
-    doc.text(student.name || "Student Name", cx, 76, { align: "center" });
-    const nw = doc.getTextWidth(student.name || "Student Name");
-    doc.setDrawColor(130, 10, 10);
-    doc.setLineWidth(0.45);
-    doc.line(cx - nw / 2, 78.5, cx + nw / 2, 78.5);
-
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(9.5);
-    doc.setTextColor(25, 25, 25);
-    doc.setCharSpace(1.8);
-    const metaLine = [
-      student.class_name ? `CLASS ${student.class_name}` : "",
-      student.section ? `SECTION ${student.section}` : "",
-      student.roll_no ? `ROLL NO. ${student.roll_no}` : "",
-    ]
-      .filter(Boolean)
-      .join("   ·   ");
-    doc.text(metaLine, cx, 88, { align: "center" });
-    doc.setCharSpace(0);
-
-    doc.setFont("times", "normal");
-    doc.setFontSize(10);
-    doc.setTextColor(80, 80, 80);
-    [
-      "This is to certify that the above named student has successfully",
-      "completed the academic session at our institution.",
-    ].forEach((line, i) =>
-      doc.text(line, cx, 98 + i * 6.5, { align: "center" }),
-    );
-
-    if (student.father_name || student.mother_name) {
-      doc.setFontSize(9);
-      doc.setTextColor(100, 100, 100);
-      const parentsLine = [
-        student.father_name ? `Father: ${student.father_name}` : "",
-        student.mother_name ? `Mother: ${student.mother_name}` : "",
-      ]
-        .filter(Boolean)
-        .join("     ");
-      doc.text(parentsLine, cx, 113, { align: "center" });
-    }
-
-    doc.setDrawColor(180, 10, 10);
     doc.setLineWidth(0.4);
-    doc.line(28, 122, W - 28, 122);
+    doc.line(45, 32, 165, 32);
 
-    const BY = 158;
+    // ===== EMBLEM (logoS.png — Satyameva Jayate / Ashoka emblem) =====
+    // x=90, y=36, width=30, height=26 — adjust if logoS.png's aspect ratio differs
+    doc.addImage(logoS, "PNG", 90, 36, 30, 26);
 
     doc.setFont("helvetica", "bold");
-    doc.setFontSize(7.5);
-    doc.setTextColor(110, 110, 110);
-    doc.setCharSpace(2);
-    doc.text("DATE", 32, BY - 8);
-    doc.setCharSpace(0);
+    doc.setFontSize(10);
+    doc.text("GOVERNMENT OF ASSAM", pageWidth / 2, 70, { align: "center" });
+
     doc.setFont("times", "normal");
     doc.setFontSize(12);
-    doc.setTextColor(20, 20, 20);
+    doc.text("Tarangajhar, Goalpara, Assam", pageWidth / 2, 78, {
+      align: "center",
+    });
+
+    // ===== TITLE BAND =====
+    doc.setLineWidth(0.4);
+    doc.line(30, 86, 180, 86);
+
+    doc.setFont("times", "bold");
+    doc.setFontSize(15);
+    doc.setFontSize(17);
+    doc.text("SCHOOL LEAVING CERTIFICATE", 105, 95, { align: "center" });
+
+    doc.setFontSize(13);
+    doc.line(30, 100, 180, 100);
+
+    // ===== BODY =====
+    doc.setFont("times", "normal");
+    doc.setFontSize(11.5);
+    let y = 114;
+    const lh = 8;
+
+    doc.setFont("times", "normal");
+    doc.text("This is to certify that Sri/Smt.", 30, y);
+
+    doc.setFont("times", "bold");
     doc.text(
-      new Date().toLocaleDateString("en-IN", {
-        day: "2-digit",
-        month: "2-digit",
-        year: "numeric",
-      }),
-      50,
-      BY - 8,
+      (student.name || "................................").toUpperCase(),
+      88,
+      y,
     );
-    doc.setDrawColor(120, 120, 120);
-    doc.setLineWidth(0.3);
-    doc.line(48, BY - 6, 95, BY - 6);
+    y += lh;
 
-    try {
-      const sealResponse = await fetch("/seal.png");
-      const sealBlob = await sealResponse.blob();
-      const sealBase64 = await new Promise((resolve) => {
-        const reader = new FileReader();
-        reader.onloadend = () => resolve(reader.result);
-        reader.readAsDataURL(sealBlob);
-      });
-      doc.addImage(sealBase64, "PNG", cx - 14, BY - 22, 28, 28);
-    } catch {
-      doc.setFillColor(150, 8, 8);
-      doc.circle(cx, BY - 8, 13, "F");
-      doc.setFillColor(170, 20, 20);
-      doc.circle(cx, BY - 8, 10, "F");
-      doc.setFillColor(185, 35, 35);
-      doc.circle(cx, BY - 8, 7, "F");
-      doc.setDrawColor(210, 160, 160);
-      doc.setLineWidth(0.25);
-      for (let a = 0; a < 360; a += 30) {
-        const rad = (a * Math.PI) / 180;
-        doc.line(
-          cx + 3 * Math.cos(rad),
-          BY - 8 + 3 * Math.sin(rad),
-          cx + 10 * Math.cos(rad),
-          BY - 8 + 10 * Math.sin(rad),
-        );
-      }
-      doc.setFont("helvetica", "bold");
-      doc.setFontSize(4.5);
-      doc.setTextColor(255, 220, 220);
-      doc.text("OFFICIAL", cx, BY - 10, { align: "center" });
-      doc.text("SEAL", cx, BY - 7, { align: "center" });
-    }
+    doc.setFont("times", "normal");
+    doc.text("Son / Daughter of", 30, y);
 
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(7.5);
-    doc.setTextColor(110, 110, 110);
-    doc.setCharSpace(2);
-    doc.text("SIGNATURE", W - 100, BY - 8);
-    doc.setCharSpace(0);
-    doc.setDrawColor(120, 120, 120);
-    doc.setLineWidth(0.3);
-    doc.line(W - 80, BY - 6, W - 30, BY - 6);
-    doc.setFont("times", "italic");
-    doc.setFontSize(10);
-    doc.setTextColor(60, 60, 60);
-    doc.text("Principal / Authority", W - 55, BY - 1, { align: "center" });
+    doc.setFont("times", "bold");
+    doc.text(
+      (
+        student.father_name || "......................................."
+      ).toUpperCase(),
+      70,
+      y,
+    );
+    y += lh;
 
-    const contactParts = [
-      student.phone ? `Phone: ${student.phone}` : "",
-      student.address ? `Address: ${student.address}` : "",
-    ].filter(Boolean);
-    if (contactParts.length) {
-      doc.setFont("helvetica", "normal");
-      doc.setFontSize(6.5);
-      doc.setTextColor(160, 160, 160);
-      doc.text(contactParts.join("   |   "), cx, H - 19, {
-        align: "center",
-        maxWidth: W - 60,
-      });
-    }
+    doc.setFont("times", "normal");
+    doc.text("Date of Birth", 30, y);
 
-    doc.save(`${student.name || "student"}-certificate.pdf`);
+    doc.setFont("times", "bold");
+    doc.text(
+      (student.date_of_birth
+        ? new Date(student.date_of_birth).toLocaleDateString("en-GB")
+        : "____________"
+      ).toUpperCase(),
+      62,
+      y,
+    );
+    y += lh;
+
+    doc.setFont("times", "normal");
+    doc.text("Nationality", 30, y);
+
+    doc.setFont("times", "bold");
+    doc.text((student.nationality || "INDIAN").toUpperCase(), 56, y);
+    doc.setFont("times", "normal");
+    doc.text("Religion", 120, y);
+
+    doc.setFont("times", "bold");
+    doc.text(
+      (student.religion || ".......................").toUpperCase(),
+      140,
+      y,
+    );
+    y += lh;
+
+    doc.setFont("times", "normal");
+    doc.text("Address :", 30, y);
+
+    doc.setFont("times", "bold");
+    doc.text(
+      (
+        student.address ||
+        "....................................................................................................."
+      ).toUpperCase(),
+      50,
+      y,
+      {
+        maxWidth: 130,
+      },
+    );
+
+    y += lh + 3;
+
+    doc.setFont("times", "normal");
+    doc.text("Was a bonafide student of this school from", 30, y);
+
+    doc.setFont("times", "bold");
+    doc.text((student.from_date || ".................").toUpperCase(), 112, y);
+
+    doc.setFont("times", "normal");
+    doc.text("to", 135, y);
+
+    doc.setFont("times", "bold");
+    doc.text((student.to_date || "................").toUpperCase(), 142, y);
+    y += lh + 2;
+
+    doc.setFont("times", "normal");
+    doc.text("Class", 30, y);
+
+    doc.setFont("times", "bold");
+    doc.text((student.class_name || "").toUpperCase(), 45, y);
+    doc.setFont("times", "normal");
+    doc.text("Section", 80, y);
+
+    doc.setFont("times", "bold");
+    doc.text((student.section || "").toUpperCase(), 98, y);
+    doc.setFont("times", "normal");
+    doc.text("Roll No.", 140, y);
+
+    doc.setFont("times", "bold");
+    doc.text(String(student.roll_no || "").toUpperCase(), 160, y);
+    y += lh + 3;
+
+    doc.text(
+      "He/She has completed the course of study prescribed for the class in which",
+      30,
+      y,
+    );
+    y += lh - 2;
+    doc.text(
+      "he/she was studying and has passed/failed in the final examination",
+      30,
+      y,
+    );
+    y += lh - 2;
+    doc.setFont("times", "normal");
+    doc.text("Held in the year", 30, y);
+
+    doc.setFont("times", "bold");
+    doc.text(String(student.passing_year || "................"), 66, y);
+    y += lh + 2;
+
+    doc.text(
+      "He/She is hereby relieved from the rolls of the school on his/her own request.",
+      30,
+      y,
+    );
+    y += lh + 2;
+
+    doc.setFont("times", "normal");
+    doc.text("Date of Leaving", 30, y);
+
+    doc.setFont("times", "bold");
+    doc.text(
+      (student.date_of_leaving || "........................").toUpperCase(),
+      68,
+      y,
+    );
+    y += lh + 6;
+
+    // ===== CHARACTER AND CONDUCT BOX =====
+    doc.setLineWidth(0.4);
+    doc.roundedRect(20, y, 170, 24, 2, 2);
+
+    doc.setFont("times", "bold");
+    doc.setFontSize(11);
+    doc.text("CHARACTER AND CONDUCT", pageWidth / 2, y + 7, {
+      align: "center",
+    });
+
+    doc.setFont("times", "normal");
+    doc.setFontSize(11);
+    doc.text(
+      `His/Her general character and conduct ${student.character || ".................................................................................................."}`,
+      25,
+      y + 17,
+    );
+
+    y += 26;
+
+    // ===== SIGNATURE (bottom-right) =====
+    doc.setLineWidth(0.4);
+    doc.line(135, y + 10, 192, y + 10);
+    doc.setFont("times", "bold");
+    doc.setFontSize(11);
+    doc.text("Principal / Headmaster", 163, y + 16, { align: "center" });
+
+    doc.setFont("times", "normal");
+    doc.setFontSize(9.5);
+    doc.text("Tarangajhar High School", 163, y + 21, { align: "center" });
+
+    doc.save(`${student.name || "Student"}-Leaving-Certificate.pdf`);
   };
-
   // ── Shared form JSX ──
   const renderForm = (onSubmit, submitLabel) => (
     <>
