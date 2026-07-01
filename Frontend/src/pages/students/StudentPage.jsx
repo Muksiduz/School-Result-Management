@@ -28,7 +28,7 @@ import { getSectionsByClass } from "../../services/sectionService";
 import AddStudent from "./AddStudentPage";
 import usePromoteStore from "../../store/PromoteStore";
 import jsPDF from "jspdf";
-import logoS from "../../../public/logoS.jpg";
+import logoS from "/logoS.jpg";
 
 function StudentsPage() {
   const [students, setStudents] = useState([]);

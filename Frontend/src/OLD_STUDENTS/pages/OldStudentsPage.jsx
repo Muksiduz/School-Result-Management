@@ -18,7 +18,7 @@ import {
 import { useOldStudentsStore } from "../store/oldStuduntsStore";
 import { updateOldStudents, deleteOldStudents } from "../utils/oldStudentsApi";
 import jsPDF from "jspdf";
-import logoS from "../../../public/logoS.jpg";
+import logoS from "/logoS.jpg";
 
 const PAGE_SIZE = 10;
 
