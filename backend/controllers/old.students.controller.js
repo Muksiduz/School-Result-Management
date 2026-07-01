@@ -80,9 +80,10 @@ export async function createOldStudents(req, res) {
     date_of_joining,
     date_of_leaving,
     final_examination_held,
-    created_by,
+    
   } = req.body;
 
+  const created_by = req.user.name;
   if (!name.trim() || !roll_no) {
     return res.status(400).json({
       message: "All fields are required",
@@ -132,9 +133,6 @@ export async function createOldStudents(req, res) {
         date_of_leaving,
         final_examination_held,
         created_by,
-        religion,
-        nationality,
-        date_of_joining,
       ],
     );
 

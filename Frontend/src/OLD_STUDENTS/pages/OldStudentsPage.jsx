@@ -413,7 +413,7 @@ const OldStudentsPage = () => {
     doc.setFont("times", "bold");
     doc.text(
       (student.date_of_leaving
-        ? new Date(student.date_of_joining).toLocaleDateString("en-GB")
+        ? new Date(student.date_of_leaving).toLocaleDateString("en-GB")
         : "................."
       ).toUpperCase(),
       68,
