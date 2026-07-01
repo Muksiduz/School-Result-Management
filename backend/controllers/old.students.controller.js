@@ -132,6 +132,9 @@ export async function createOldStudents(req, res) {
         date_of_leaving,
         final_examination_held,
         created_by,
+        religion,
+        nationality,
+        date_of_joining,
       ],
     );
 

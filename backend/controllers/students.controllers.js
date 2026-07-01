@@ -76,6 +76,9 @@ export async function createStudent(req, res) {
     date_of_birth,
     address,
     gender,
+    religion,
+    nationality,
+    date_of_joining,
   } = req.body;
 
   const created_by = req.user.name;
@@ -88,8 +91,8 @@ export async function createStudent(req, res) {
 
   try {
     const result = await pool.query(
-      `INSERT INTO students (name, roll_no, class_id,section_id,  father_name, mother_name, phone, date_of_birth, address,created_by,gender)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11) RETURNING *`,
+      `INSERT INTO students (name, roll_no, class_id,section_id,  father_name, mother_name, phone, date_of_birth, address,created_by,gender,religion,nationality,date_of_joining)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14) RETURNING *`,
       [
         name,
         roll_no,
@@ -102,6 +105,9 @@ export async function createStudent(req, res) {
         address,
         created_by,
         gender,
+        religion,
+        nationality,
+        date_of_joining,
       ],
     );
     res.status(201).json(result.rows[0]);
@@ -162,6 +168,10 @@ export async function updateStudent(req, res) {
         nationality,
         date_of_joining,
         req.params.id,
+        gender,
+        religion,
+        nationality,
+        date_of_joining,
       ],
     );
 

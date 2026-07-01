@@ -59,6 +59,16 @@ async function initDb() {
       date_of_birth DATE,
       address TEXT,
 
+      religion VARCHAR(50),
+      nationality VARCHAR(50),
+      
+      blood_group VARCHAR(5),
+
+      date_of_joining DATE,
+      date_of_leaving DATE,
+      final_examination_held DATE,
+
+
       is_active BOOLEAN DEFAULT true,
 
       created_by TEXT,
