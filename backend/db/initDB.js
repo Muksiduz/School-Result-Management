@@ -125,7 +125,7 @@ async function initDb() {
     )
   `);
 
-  await pool.query(`
+    await pool.query(`
     CREATE TABLE IF NOT EXISTS old_sessions (
       old_session_id SERIAL PRIMARY KEY,
       name TEXT NOT NULL,
@@ -133,24 +133,44 @@ async function initDb() {
     )
   `);
 
-   await pool.query(`
+    await pool.query(`
     CREATE TABLE IF NOT EXISTS old_students(
-      old_student_id SERIAL PRIMARY KEY ,
-      name TEXT NOT NULL,
-      roll_no VARCHAR(20) NOT NULL,
-      old_session_id INTEGER REFERENCES old_sessions(old_session_id),
-      class_name TEXT,
-      section TEXT,
-      father_name TEXT,
-      mother_name TEXT,
-      phone VARCHAR(20),
-      gender VARCHAR(10) CHECK (gender IN ('Male', 'Female', 'Other')),
-      date_of_birth DATE,
-      address TEXT,
-      is_active BOOLEAN DEFAULT true,
-      created_by TEXT,
-      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-      updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        old_student_id SERIAL PRIMARY KEY,
+
+    name TEXT NOT NULL,
+    roll_no VARCHAR(20) NOT NULL,
+
+    old_session_id INTEGER REFERENCES old_sessions(old_session_id),
+
+    class_name TEXT,
+    section TEXT,
+
+    father_name TEXT,
+    mother_name TEXT,
+    phone VARCHAR(20),
+
+    gender VARCHAR(10)
+    CHECK (gender IN ('Male','Female','Other')),
+
+    date_of_birth DATE,
+
+    religion VARCHAR(50),
+    nationality VARCHAR(50),
+
+    date_of_joining DATE,
+    date_of_leaving DATE,
+
+    final_examination_held VARCHAR(100),
+
+    address TEXT,
+
+    is_active BOOLEAN DEFAULT true,
+
+    created_by TEXT,
+
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 
       )`);
 

@@ -49,12 +49,20 @@ const EMPTY_FORM = {
   old_session_id: "",
   class_name: "",
   section: "",
-  father_name: "",
-  mother_name: "",
-  phone: "",
+
   gender: "",
   date_of_birth: "",
+  phone: "",
   address: "",
+
+  father_name: "",
+  mother_name: "",
+
+  religion: "",
+  nationality: "",
+  date_of_joining: "",
+  date_of_leaving: "",
+  final_examination_held: "",
 };
 
 const OldStudentsPage = () => {
@@ -131,6 +139,7 @@ const OldStudentsPage = () => {
     }
     setSubmitting(true);
     try {
+      console.log("formData", formData);
       await createOldStudents({
         ...formData,
         old_session_id: Number(formData.old_session_id),
@@ -145,6 +154,7 @@ const OldStudentsPage = () => {
   };
 
   const handleEditClick = (student) => {
+    console.log("student", student);
     setSelectedStudent(student);
     setFormData({
       name: student.name || "",
@@ -152,17 +162,20 @@ const OldStudentsPage = () => {
       old_session_id: student.old_session_id || "",
       class_name: student.class_name || "",
       section: student.section || "",
-      father_name: student.father_name || "",
-      //send section name here as student.section
-      //send religion here as student.religion
-      //send Nationality here as student.nationality
-      //send student from date as student.from_date
-      //send student to date as student.to_date
-      mother_name: student.mother_name || "",
-      phone: student.phone || "",
+
       gender: student.gender || "",
       date_of_birth: student.date_of_birth?.split("T")[0] || "",
+      phone: student.phone || "",
       address: student.address || "",
+
+      father_name: student.father_name || "",
+      mother_name: student.mother_name || "",
+
+      religion: student.religion || "",
+      nationality: student.nationality || "",
+      date_of_joining: student.date_of_joining?.split("T")[0] || "",
+      date_of_leaving: student.date_of_leaving?.split("T")[0] || "",
+      final_examination_held: student.final_examination_held || "",
     });
     setShowEditModal(true);
   };
@@ -198,6 +211,7 @@ const OldStudentsPage = () => {
   // ── Certificate PDF ──
 
   const generateCertificate = (student) => {
+    // console.log(student);
     const doc = new jsPDF();
     const today = new Date().toLocaleDateString("en-GB");
     const pageWidth = 210;
@@ -327,13 +341,27 @@ const OldStudentsPage = () => {
     doc.text("Was a bonafide student of this school from", 30, y);
 
     doc.setFont("times", "bold");
-    doc.text((student.from_date || ".................").toUpperCase(), 112, y);
+    doc.text(
+      (student.date_of_joining
+        ? new Date(student.date_of_joining).toLocaleDateString("en-GB")
+        : "................."
+      ).toUpperCase(),
+      108,
+      y,
+    );
 
     doc.setFont("times", "normal");
     doc.text("to", 135, y);
 
     doc.setFont("times", "bold");
-    doc.text((student.to_date || "................").toUpperCase(), 142, y);
+    doc.text(
+      (student.date_of_leaving
+        ? new Date(student.date_of_leaving).toLocaleDateString("en-GB")
+        : "................."
+      ).toUpperCase(),
+      142,
+      y,
+    );
     y += lh + 2;
 
     doc.setFont("times", "normal");
@@ -369,7 +397,7 @@ const OldStudentsPage = () => {
     doc.text("Held in the year", 30, y);
 
     doc.setFont("times", "bold");
-    doc.text(String(student.passing_year || "................"), 66, y);
+    doc.text(String(student.final_examination_held).toUpperCase(), 66, y);
     y += lh + 2;
 
     doc.text(
@@ -384,7 +412,10 @@ const OldStudentsPage = () => {
 
     doc.setFont("times", "bold");
     doc.text(
-      (student.date_of_leaving || "........................").toUpperCase(),
+      (student.date_of_leaving
+        ? new Date(student.date_of_joining).toLocaleDateString("en-GB")
+        : "................."
+      ).toUpperCase(),
       68,
       y,
     );
@@ -580,6 +611,92 @@ const OldStudentsPage = () => {
             />
           </div>
         </div>
+        <div className="flex items-center gap-3 mt-6 mb-4">
+          <span className="text-xs font-semibold text-purple-600 uppercase tracking-wide">
+            Academic Information
+          </span>
+          <div className="flex-1 h-px bg-purple-100" />
+        </div>
+
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className={labelClass}>Religion</label>
+            <input
+              type="text"
+              value={formData.religion}
+              onChange={(e) =>
+                setFormData({
+                  ...formData,
+                  religion: e.target.value,
+                })
+              }
+              className={inputClass}
+              placeholder="Religion"
+            />
+          </div>
+
+          <div>
+            <label className={labelClass}>Nationality</label>
+            <input
+              type="text"
+              value={formData.nationality}
+              onChange={(e) =>
+                setFormData({
+                  ...formData,
+                  nationality: e.target.value,
+                })
+              }
+              className={inputClass}
+              placeholder="Nationality"
+            />
+          </div>
+
+          <div>
+            <label className={labelClass}>Date of Joining</label>
+            <input
+              type="date"
+              value={formData.date_of_joining}
+              onChange={(e) =>
+                setFormData({
+                  ...formData,
+                  date_of_joining: e.target.value,
+                })
+              }
+              className={inputClass}
+            />
+          </div>
+
+          <div>
+            <label className={labelClass}>Date of Leaving</label>
+            <input
+              type="date"
+              value={formData.date_of_leaving}
+              onChange={(e) =>
+                setFormData({
+                  ...formData,
+                  date_of_leaving: e.target.value,
+                })
+              }
+              className={inputClass}
+            />
+          </div>
+
+          <div className="col-span-2">
+            <label className={labelClass}>Final Examination Held</label>
+            <input
+              type="text"
+              value={formData.final_examination_held}
+              onChange={(e) =>
+                setFormData({
+                  ...formData,
+                  final_examination_held: e.target.value,
+                })
+              }
+              className={inputClass}
+              placeholder="HSLC 2025 / Annual Examination 2025"
+            />
+          </div>
+        </div>
       </div>
 
       <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-gray-100">
@@ -673,6 +790,24 @@ const OldStudentsPage = () => {
                   value={formatDate(viewStudent.date_of_birth)}
                 />
                 <InfoCard title="Phone" value={viewStudent.phone} />
+                <InfoCard title="Religion" value={viewStudent.religion} />
+
+                <InfoCard title="Nationality" value={viewStudent.nationality} />
+
+                <InfoCard
+                  title="Date of Joining"
+                  value={formatDate(viewStudent.date_of_joining)}
+                />
+
+                <InfoCard
+                  title="Date of Leaving"
+                  value={formatDate(viewStudent.date_of_leaving)}
+                />
+
+                <InfoCard
+                  title="Final Examination"
+                  value={viewStudent.final_examination_held}
+                />
                 <div className="col-span-2 sm:col-span-3">
                   <InfoCard title="Address" value={viewStudent.address} />
                 </div>

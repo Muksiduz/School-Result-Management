@@ -122,12 +122,31 @@ export async function updateStudent(req, res) {
     phone,
     date_of_birth,
     address,
+    gender,
+    religion,
+    nationality,
+    date_of_joining,
   } = req.body;
+
   try {
     const result = await pool.query(
-      `UPDATE students SET name=$1, roll_no=$2, class_id=$3, section_id=$4, 
-       father_name=$5, mother_name=$6, phone=$7, date_of_birth=$8, address=$9
-       WHERE student_id=$10 RETURNING *`,
+      `UPDATE students
+       SET
+         name = $1,
+         roll_no = $2,
+         class_id = $3,
+         section_id = $4,
+         father_name = $5,
+         mother_name = $6,
+         phone = $7,
+         date_of_birth = $8,
+         address = $9,
+         gender = $10,
+         religion = $11,
+         nationality = $12,
+         date_of_joining = $13
+       WHERE student_id = $14
+       RETURNING *`,
       [
         name,
         roll_no,
@@ -138,14 +157,26 @@ export async function updateStudent(req, res) {
         phone,
         date_of_birth,
         address,
+        gender,
+        religion,
+        nationality,
+        date_of_joining,
         req.params.id,
       ],
     );
-    if (result.rows.length === 0)
-      return res.status(404).json({ message: "Student not found" });
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({
+        message: "Student not found",
+      });
+    }
+
     res.json(result.rows[0]);
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    console.error(err);
+    res.status(500).json({
+      message: err.message,
+    });
   }
 }
 
@@ -169,7 +200,7 @@ export async function promoteStudent(req, res) {
   const { student_id } = req.params;
   const { class_id, section_id, roll_no } = req.body;
   try {
-    if(roll_no) {
+    if (roll_no) {
       const result = await pool.query(
         `
         UPDATE students SET class_id = $1, section_id = $2, roll_no = $3
@@ -178,7 +209,7 @@ export async function promoteStudent(req, res) {
         [class_id, section_id, roll_no, student_id],
       );
       return res.status(200).json(result.rows[0]);
-    }else{
+    } else {
       const result = await pool.query(
         `
       UPDATE students SET class_id = $1, section_id = $2
@@ -187,7 +218,7 @@ export async function promoteStudent(req, res) {
         [class_id, section_id, student_id],
       );
     }
-    
+
     res.status(200).json(result.rows[0]);
   } catch (error) {
     res.status(500).json({ message: error.message });

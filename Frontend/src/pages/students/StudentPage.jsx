@@ -71,11 +71,18 @@ function StudentsPage() {
   const fetchStudents = async () => {
     try {
       const data = await getAllStudents();
+
+      // console.log("Fetched from API:", data);
+      // okay data is coming from api
+
       setStudents(data);
     } catch (error) {
       console.log(error);
     }
   };
+  useEffect(() => {
+    // console.log("Students State:", students);
+  }, [students]);
 
   const fetchClasses = async () => {
     try {
@@ -108,6 +115,7 @@ function StudentsPage() {
         setEditSections(data);
       }
 
+      console.log("edit data", student);
       setEditData({
         student_id: student.student_id,
         name: student.name || "",
@@ -115,11 +123,9 @@ function StudentsPage() {
         class_id: student.class_id || "",
         section_id: student.section_id || "",
         gender: student.gender || "",
-        //send section name here as student.section
-        //send religion here as student.religion
-        //send Nationality here as student.nationality
-        //send student from date as student.from_date
-        //send student to date as student.to_date
+        date_of_joining: student.date_of_joining?.split("T")[0] || "",
+        religion: student.religion || "",
+        nationality: student.nationality || "",
         father_name: student.father_name || "",
         mother_name: student.mother_name || "",
         phone: student.phone || "",
@@ -133,6 +139,7 @@ function StudentsPage() {
     }
   };
   const handleUpdate = async () => {
+    console.log("edited data", editData);
     try {
       await updateStudent(editData.student_id, editData);
 
@@ -387,6 +394,7 @@ function StudentsPage() {
     doc.save(`${student.name || "Student"}-Certificate-of-Achievement.pdf`);
   };
   const generatePassCertificate = (student) => {
+    console.log("From geeneratePassCertificate", student);
     const doc = new jsPDF();
     const today = new Date().toLocaleDateString("en-GB");
     const pageWidth = 210;
@@ -516,13 +524,24 @@ function StudentsPage() {
     doc.text("Was a bonafide student of this school from", 30, y);
 
     doc.setFont("times", "bold");
-    doc.text((student.from_date || ".................").toUpperCase(), 112, y);
+    doc.text(
+      (student.date_of_joining
+        ? new Date(student.date_of_joining).toLocaleDateString("en-GB")
+        : "................."
+      ).toUpperCase(),
+      108,
+      y,
+    );
 
     doc.setFont("times", "normal");
     doc.text("to", 135, y);
 
     doc.setFont("times", "bold");
-    doc.text((student.to_date || "................").toUpperCase(), 142, y);
+    doc.text(
+      (student.date_of_leaving || "................").toUpperCase(),
+      142,
+      y,
+    );
     y += lh + 2;
 
     doc.setFont("times", "normal");
@@ -534,7 +553,7 @@ function StudentsPage() {
     doc.text("Section", 80, y);
 
     doc.setFont("times", "bold");
-    doc.text((student.section || "").toUpperCase(), 98, y);
+    doc.text((student.section_name || "").toUpperCase(), 98, y);
     doc.setFont("times", "normal");
     doc.text("Roll No.", 140, y);
 
@@ -558,7 +577,11 @@ function StudentsPage() {
     doc.text("Held in the year", 30, y);
 
     doc.setFont("times", "bold");
-    doc.text(String(student.passing_year || "................"), 66, y);
+    doc.text(
+      String(student.final_examination_held || "................"),
+      66,
+      y,
+    );
     y += lh + 2;
 
     doc.text(
@@ -905,6 +928,18 @@ function StudentsPage() {
                     value: viewStudent.date_of_birth?.split("T")[0],
                   },
                   { label: "Phone", value: viewStudent.phone },
+                  {
+                    label: "Religion",
+                    value: viewStudent.religion,
+                  },
+                  {
+                    label: "Nationality",
+                    value: viewStudent.nationality,
+                  },
+                  {
+                    label: "Date of Joining",
+                    value: viewStudent.date_of_joining?.split("T")[0],
+                  },
                 ].map((item) => (
                   <div
                     key={item.label}
@@ -1093,6 +1128,65 @@ function StudentsPage() {
                         date_of_birth: e.target.value,
                       })
                     }
+                    className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm bg-gray-50 focus:outline-none focus:border-purple-400 focus:ring-2 focus:ring-purple-100 transition-all"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-gray-500 mb-1.5">
+                    Date of Joining
+                  </label>
+
+                  <input
+                    type="date"
+                    value={editData.date_of_joining || ""}
+                    onChange={(e) =>
+                      setEditData({
+                        ...editData,
+                        date_of_joining: e.target.value,
+                      })
+                    }
+                    className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm bg-gray-50 focus:outline-none focus:border-purple-400 focus:ring-2 focus:ring-purple-100 transition-all"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-gray-500 mb-1.5">
+                    Religion
+                  </label>
+
+                  <select
+                    value={editData.religion || ""}
+                    onChange={(e) =>
+                      setEditData({
+                        ...editData,
+                        religion: e.target.value,
+                      })
+                    }
+                    className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm bg-gray-50 focus:outline-none focus:border-purple-400 focus:ring-2 focus:ring-purple-100 transition-all">
+                    <option value="">Select Religion</option>
+                    <option value="Hindu">Hindu</option>
+                    <option value="Muslim">Muslim</option>
+                    <option value="Christian">Christian</option>
+                    <option value="Sikh">Sikh</option>
+                    <option value="Buddhist">Buddhist</option>
+                    <option value="Jain">Jain</option>
+                    <option value="Other">Other</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-gray-500 mb-1.5">
+                    Nationality
+                  </label>
+
+                  <input
+                    type="text"
+                    value={editData.nationality || ""}
+                    onChange={(e) =>
+                      setEditData({
+                        ...editData,
+                        nationality: e.target.value,
+                      })
+                    }
+                    placeholder="Indian"
                     className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm bg-gray-50 focus:outline-none focus:border-purple-400 focus:ring-2 focus:ring-purple-100 transition-all"
                   />
                 </div>
@@ -1362,7 +1456,9 @@ function StudentsPage() {
 
                   {/* Export Pass Certificate */}
                   <button
-                    onClick={() => generatePassCertificate(promoteStudent)}
+                    onClick={() => {
+                      generatePassCertificate(promoteStudent);
+                    }}
                     className="
         flex items-center justify-between
         rounded-2xl border border-emerald-100

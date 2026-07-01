@@ -15,14 +15,20 @@ function AddStudent({ onClose }) {
     roll_no: "",
     class_id: "",
     section_id: "",
+
     gender: "",
+    date_of_birth: "",
+    date_of_joining: "",
+
+    nationality: "Indian",
+    religion: "",
+
     father_name: "",
     mother_name: "",
+
     phone: "",
-    date_of_birth: "",
     address: "",
   });
-
   useEffect(() => {
     fetchClasses();
   }, []);
@@ -186,6 +192,58 @@ function AddStudent({ onClose }) {
                 className={inputClass}
               />
             </div>
+            {/* date of joining  */}
+            <div>
+              <label className={labelClass}>Date of Joining</label>
+
+              <input
+                type="date"
+                name="date_of_joining"
+                value={formData.date_of_joining}
+                onChange={handleChange}
+                className={inputClass}
+              />
+            </div>
+            {/* nationality  */}
+            <div>
+              <label className={labelClass}>Nationality</label>
+
+              <input
+                type="text"
+                name="nationality"
+                value={formData.nationality}
+                onChange={handleChange}
+                className={inputClass}
+                placeholder="Indian"
+              />
+            </div>
+            {/* religion  */}
+            <div>
+              <label className={labelClass}>Religion</label>
+
+              <select
+                name="religion"
+                value={formData.religion}
+                onChange={handleChange}
+                className={inputClass}>
+                <option value="">Select Religion</option>
+
+                <option value="Hindu">Hindu</option>
+
+                <option value="Muslim">Muslim</option>
+
+                <option value="Christian">Christian</option>
+
+                <option value="Sikh">Sikh</option>
+
+                <option value="Buddhist">Buddhist</option>
+
+                <option value="Jain">Jain</option>
+
+                <option value="Other">Other</option>
+              </select>
+            </div>
+
             {/* gender  */}
             <div>
               <label className={labelClass}>Gender *</label>
