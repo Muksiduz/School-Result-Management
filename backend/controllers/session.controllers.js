@@ -40,7 +40,7 @@ export async function updateSession(req, res) {
   try {
     const result = await pool.query(
       `UPDATE academic_sessions SET name=$1, year=$2, start_date=$3, end_date=$4 
-       WHERE id=$5 RETURNING *`,
+       WHERE session_id=$5 RETURNING *`,
       [name, year, start_date, end_date, req.params.id],
     );
     if (result.rows.length === 0)
