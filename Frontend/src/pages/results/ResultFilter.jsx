@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import useMarksEntryStore from "../../store/marksEntryStore";
 import useViewResultStore from "../../store/viewResultStore";
 
@@ -32,17 +32,18 @@ function ResultFilter() {
   const { sessions, classes, fetchInitialData } = useMarksEntryStore();
 
   const [viewMode, setViewMode] = useState("students");
-
-  // for edit marks modal
   const [editModal, setEditModal] = useState(false);
-
-  //for filter roll no
   const [rollFilter, setRollFilter] = useState("");
-  const filteredStudents = students.filter((student) =>
-    student.roll_no
-      ?.toString()
-      .toLowerCase()
-      .includes(rollFilter.toLowerCase()),
+
+  const filteredStudents = useMemo(
+    () =>
+      students.filter((student) =>
+        student.roll_no
+          ?.toString()
+          .toLowerCase()
+          .includes(rollFilter.toLowerCase()),
+      ),
+    [students, rollFilter],
   );
 
   const [editMark, setEditMark] = useState({
@@ -58,61 +59,78 @@ function ResultFilter() {
     fetchInitialData();
   }, []);
 
-  // console.log("Students:", students);
-  console.log("Full Result:", fullResult);
+  // Recomputes whenever fullResult changes in the store (fixes edit not reflecting in UI)
+  const arrangedResult = useMemo(() => {
+    if (!fullResult?.length) return null;
+    return {
+      student_id: fullResult[0]?.student_id,
+      student_name: fullResult[0]?.student_name,
+      test_name: fullResult[0]?.test_name,
+      class_name: fullResult[0]?.class_name,
+      section_name: fullResult[0]?.section_name,
+      father_name: fullResult[0]?.father_name,
+      session_name: fullResult[0]?.session_name,
+      roll_no: fullResult[0]?.roll_no,
+      subjects: fullResult.map((r) => ({
+        subject_id: r.subject_id,
+        subject_name: r.subject_name,
+        marks_obtained: Number(r.marks_obtained),
+        max_marks: Number(r.max_marks),
+        percentage: Number(
+          ((Number(r.marks_obtained) / Number(r.max_marks)) * 100).toFixed(1),
+        ),
+      })),
+      total_marks: fullResult.reduce(
+        (acc, r) => acc + Number(r.marks_obtained),
+        0,
+      ),
+      total_max_marks: fullResult.reduce(
+        (acc, r) => acc + Number(r.max_marks),
+        0,
+      ),
+      percentage: (
+        (fullResult.reduce((acc, r) => acc + Number(r.marks_obtained), 0) /
+          fullResult.reduce((acc, r) => acc + Number(r.max_marks), 0)) *
+        100
+      ).toFixed(2),
+    };
+  }, [fullResult]);
 
-  const arrangedResult =
-    fullResult?.length > 0
-      ? {
-          student_id: fullResult[0]?.student_id,
-          student_name: fullResult[0]?.student_name,
-          test_name: fullResult[0]?.test_name,
-          class_name: fullResult[0]?.class_name,
-          section_name: fullResult[0]?.section_name,
-          father_name: fullResult[0]?.father_name,
-          //added this
-          session_name: fullResult[0]?.session_name,
+  // Rule: fail in maths, science OR assamese = overall FAIL, other subjects don't affect pass/fail
+  const COMPULSORY = ["mathematics", "math", "science", "assamese"];
 
-          //upto here
-          roll_no: fullResult[0]?.roll_no,
-          subjects: fullResult.map((r) => ({
-            subject_id: r.subject_id,
-            subject_name: r.subject_name,
-            marks_obtained: Number(r.marks_obtained),
-            max_marks: Number(r.max_marks),
-            percentage: (
-              (Number(r.marks_obtained) / Number(r.max_marks)) *
-              100
-            ).toFixed(1),
-          })),
-          total_marks: fullResult.reduce(
-            (acc, r) => acc + Number(r.marks_obtained),
-            0,
-          ),
-          total_max_marks: fullResult.reduce(
-            (acc, r) => acc + Number(r.max_marks),
-            0,
-          ),
-          percentage: (
-            (fullResult.reduce((acc, r) => acc + Number(r.marks_obtained), 0) /
-              fullResult.reduce((acc, r) => acc + Number(r.max_marks), 0)) *
-            100
-          ).toFixed(2),
-        }
-      : null;
-
-  //  console.log("Arrange Result::",arrangedResult);
-  //  console.log(fullResult);
-  const failedSubjects =
-    arrangedResult?.subjects?.filter(
-      (subject) => Number(subject.marks_obtained) < 30,
-    ) || [];
+  const failedSubjects = useMemo(
+    () =>
+      arrangedResult?.subjects?.filter((subject) => {
+        const isCompulsory = COMPULSORY.some((c) =>
+          subject.subject_name?.toLowerCase().includes(c),
+        );
+        // only compulsory subjects can cause a fail
+        return isCompulsory && subject.marks_obtained < subject.max_marks * 0.3;
+      }) ?? [],
+    [arrangedResult],
+  );
 
   const isFailed = failedSubjects.length > 0;
-
   const resultStatus = isFailed ? "FAIL" : "PASS";
 
-  const getGrade = (percentage) => {
+  const getGrade = (percentage, subjects) => {
+    // If failed any compulsory subject → F, skip percentage curve entirely
+    const hasFailedCompulsory = subjects?.some((subject) => {
+      const isCompulsory = COMPULSORY.some((c) =>
+        subject.subject_name?.toLowerCase().includes(c),
+      );
+      return isCompulsory && Number(subject.percentage) < 30;
+    });
+
+    if (hasFailedCompulsory)
+      return {
+        grade: "F",
+        color: "text-red-700",
+        bg: "bg-red-50",
+        border: "border-red-300",
+      };
+
     if (percentage >= 90)
       return {
         grade: "A+",
@@ -137,7 +155,7 @@ function ResultFilter() {
     if (percentage >= 60)
       return {
         grade: "B",
-        color: "text-yellow-600",
+        color: "text-yellow-700",
         bg: "bg-yellow-50",
         border: "border-yellow-200",
       };
@@ -148,39 +166,36 @@ function ResultFilter() {
         bg: "bg-orange-50",
         border: "border-orange-200",
       };
-    if (percentage >= 40)
+    if (percentage >= 30)
       return {
         grade: "D",
-        color: "text-red-500",
-        bg: "bg-red-50",
-        border: "border-red-200",
+        color: "text-indigo-600",
+        bg: "bg-indigo-50",
+        border: "border-indigo-200",
       };
     return {
       grade: "F",
-      color: "text-red-600",
+      color: "text-red-700",
       bg: "bg-red-50",
-      border: "border-red-200",
+      border: "border-red-300",
     };
   };
 
-  const gradeInfo = arrangedResult
-    ? isFailed
-      ? {
-          grade: "F",
-          color: "text-red-600",
-          bg: "bg-red-50",
-          border: "border-red-200",
-        }
-      : getGrade(Number(arrangedResult.percentage))
-    : null;
+  const gradeInfo = useMemo(
+    () =>
+      arrangedResult
+        ? getGrade(Number(arrangedResult.percentage), arrangedResult.subjects)
+        : null,
+    [arrangedResult],
+  );
 
   const getProgressColor = (percentage) => {
     if (percentage >= 80) return "bg-emerald-500";
     if (percentage >= 60) return "bg-blue-500";
-    if (percentage >= 40) return "bg-amber-500";
+    if (percentage >= 50) return "bg-orange-500";
+    if (percentage >= 40) return "bg-indigo-500";
     return "bg-red-500";
   };
-
   // export pdf function
   const handleExportPDF = () => {
     if (!arrangedResult) return;
@@ -189,9 +204,23 @@ function ResultFilter() {
     const pageWidth = doc.internal.pageSize.getWidth();
     const pageHeight = doc.internal.pageSize.getHeight();
 
-    const gradeInfo = isFailed
+    // ── FIXED: use the same compulsory-subject rule as the UI ──────────────────
+    const COMPULSORY = ["mathematics", "math", "science", "assamese"];
+
+    const isSubjectFailed = (subject) =>
+      Number(subject.marks_obtained) < Number(subject.max_marks) * 0.3;
+
+    const isCompulsoryFailed = (subject) =>
+      COMPULSORY.some((c) => subject.subject_name?.toLowerCase().includes(c)) &&
+      isSubjectFailed(subject);
+
+    const pdfIsFailed = arrangedResult.subjects.some(isCompulsoryFailed);
+    const pdfResultStatus = pdfIsFailed ? "FAIL" : "PASS";
+
+    const gradeInfo = pdfIsFailed
       ? { grade: "F" }
-      : getGrade(Number(arrangedResult.percentage));
+      : getGrade(Number(arrangedResult.percentage), arrangedResult.subjects);
+    // ───────────────────────────────────────────────────────────────────────────
 
     const resultDate = arrangedResult.result_date
       ? new Date(arrangedResult.result_date).toLocaleDateString("en-IN", {
@@ -205,8 +234,8 @@ function ResultFilter() {
           year: "numeric",
         });
 
-    const M = 12; // left/right margin
-    const W = pageWidth - M * 2; // content width
+    const M = 12;
+    const W = pageWidth - M * 2;
 
     // ============================================================
     // HEADER
@@ -269,7 +298,6 @@ function ResultFilter() {
     // ============================================================
     // STUDENT INFO CARD
     // ============================================================
-    // Header bar
     doc.setFillColor(109, 40, 217);
     doc.rect(M, 54, W, 7, "F");
     doc.setTextColor(255, 255, 255);
@@ -277,17 +305,14 @@ function ResultFilter() {
     doc.setFont("helvetica", "bold");
     doc.text("STUDENT INFORMATION", pageWidth / 2, 58.8, { align: "center" });
 
-    // Card body
     doc.setFillColor(250, 248, 255);
     doc.setDrawColor(221, 214, 254);
     doc.setLineWidth(0.3);
     doc.rect(M, 61, W, 40, "FD");
 
-    // Center vertical divider
     doc.setDrawColor(221, 214, 254);
     doc.line(pageWidth / 2, 61, pageWidth / 2, 101);
 
-    // Horizontal row dividers
     [70, 79, 88].forEach((y) => {
       doc.setDrawColor(237, 233, 254);
       doc.setLineWidth(0.2);
@@ -312,7 +337,8 @@ function ResultFilter() {
       { label: "Section", value: arrangedResult.section_name || "-" },
       { label: "Examination", value: arrangedResult.test_name || "-" },
       { label: "Grade", value: gradeInfo.grade },
-      { label: "Result", value: resultStatus, isResult: true },
+      // ── FIXED: use pdfResultStatus instead of resultStatus from outer scope ──
+      { label: "Result", value: pdfResultStatus, isResult: true },
     ];
 
     col1.forEach((row, i) => {
@@ -337,10 +363,11 @@ function ResultFilter() {
       if (row.isResult) {
         doc.setFont("helvetica", "bold");
         doc.setFontSize(8);
+        // ── FIXED: pdfIsFailed drives the color ────────────────────────────────
         doc.setTextColor(
-          isFailed ? 200 : 22,
-          isFailed ? 0 : 163,
-          isFailed ? 0 : 74,
+          pdfIsFailed ? 200 : 22,
+          pdfIsFailed ? 0 : 163,
+          pdfIsFailed ? 0 : 74,
         );
       } else {
         doc.setFont("helvetica", "normal");
@@ -380,8 +407,11 @@ function ResultFilter() {
       ],
       body: arrangedResult.subjects.map((subject, idx) => {
         const subPct = Number(subject.percentage);
-        const subFailed = Number(subject.marks_obtained) < 30;
-        const subGrade = subFailed ? "F" : getGrade(subPct).grade;
+        // ── FIXED: 30% of max_marks threshold, not hardcoded < 30 ──────────────
+        const subFailed = isSubjectFailed(subject);
+        const subGrade = subFailed
+          ? "F"
+          : getGrade(subPct, arrangedResult.subjects).grade;
         return [
           idx + 1,
           subject.subject_name,
@@ -407,20 +437,15 @@ function ResultFilter() {
         textColor: [30, 30, 30],
         cellPadding: 4,
       },
-      alternateRowStyles: {
-        fillColor: [250, 248, 255],
-      },
-      columnStyles: {
-        0: { halign: "center" },
-        1: { halign: "left" },
-      },
+      alternateRowStyles: { fillColor: [250, 248, 255] },
+      columnStyles: { 0: { halign: "center" }, 1: { halign: "left" } },
       tableWidth: W,
       margin: { left: M, right: M },
-
       didParseCell: (data) => {
         if (data.section === "body") {
           const rowSubject = arrangedResult.subjects[data.row.index];
-          const subjectFailed = Number(rowSubject?.marks_obtained) < 30;
+          // ── FIXED: same threshold function as everywhere else ─────────────────
+          const subjectFailed = isSubjectFailed(rowSubject);
           if (subjectFailed) {
             data.cell.styles.fillColor = [255, 237, 237];
             data.cell.styles.textColor = [180, 0, 0];
@@ -455,7 +480,8 @@ function ResultFilter() {
       { label: "Marks Obtained", value: String(arrangedResult.total_marks) },
       { label: "Percentage", value: `${arrangedResult.percentage}%` },
       { label: "Grade", value: gradeInfo.grade },
-      { label: "Result", value: resultStatus },
+      // ── FIXED: pdfResultStatus ────────────────────────────────────────────────
+      { label: "Result", value: pdfResultStatus },
     ];
 
     const colW = W / cols.length;
@@ -472,10 +498,11 @@ function ResultFilter() {
       doc.setFontSize(9.5);
       doc.setFont("helvetica", "bold");
       if (isResult) {
+        // ── FIXED: pdfIsFailed ──────────────────────────────────────────────────
         doc.setTextColor(
-          isFailed ? 200 : 22,
-          isFailed ? 0 : 163,
-          isFailed ? 0 : 74,
+          pdfIsFailed ? 200 : 22,
+          pdfIsFailed ? 0 : 163,
+          pdfIsFailed ? 0 : 74,
         );
       } else {
         doc.setTextColor(20, 20, 20);
@@ -498,10 +525,9 @@ function ResultFilter() {
     // BOTTOM SECTION — Grade Scale LEFT + Signature RIGHT
     // ============================================================
     const bottomY = finalY + 30;
-    const gradeColWidth = W * 0.55; // 55% for grade scale
-    const sigColWidth = W * 0.45; // 45% for signature
+    const gradeColWidth = W * 0.55;
+    const sigColWidth = W * 0.45;
 
-    // --- GRADE SCALE (left column) ---
     doc.setFillColor(109, 40, 217);
     doc.rect(M, bottomY, gradeColWidth, 7, "F");
     doc.setTextColor(255, 255, 255);
@@ -533,20 +559,17 @@ function ResultFilter() {
       const gy = bottomY + 7 + i * gradeRowH;
       const midY = gy + gradeRowH / 2 + 1.5;
 
-      // Row divider
       if (i > 0) {
         doc.setDrawColor(237, 233, 254);
         doc.setLineWidth(0.2);
         doc.line(M, gy, M + gradeColWidth, gy);
       }
 
-      // Grade — left side
       doc.setFontSize(7.5);
       doc.setFont("helvetica", "bold");
       doc.setTextColor(109, 40, 217);
       doc.text(g.grade, M + gradeColWidth * 0.22, midY, { align: "center" });
 
-      // Divider inside grade row
       doc.setDrawColor(221, 214, 254);
       doc.setLineWidth(0.2);
       doc.line(
@@ -556,18 +579,14 @@ function ResultFilter() {
         gy + gradeRowH,
       );
 
-      // Range — right side
       doc.setFontSize(6.5);
       doc.setFont("helvetica", "normal");
       doc.setTextColor(60, 60, 60);
       doc.text(g.range, M + gradeColWidth * 0.7, midY, { align: "center" });
     });
 
-    // --- SIGNATURE (right column) ---
     const sigX = M + gradeColWidth + 4;
     const sigAreaW = sigColWidth - 4;
-
-    // Large blank space for actual signature
     const sigLineY = bottomY + 7 + gradeTableH - 8;
 
     doc.setDrawColor(180, 180, 180);
@@ -593,7 +612,6 @@ function ResultFilter() {
     // ============================================================
     doc.setFillColor(109, 40, 217);
     doc.rect(0, pageHeight - 12, pageWidth, 12, "F");
-
     doc.setFontSize(7);
     doc.setFont("helvetica", "normal");
     doc.setTextColor(196, 181, 253);
@@ -604,9 +622,6 @@ function ResultFilter() {
       { align: "center" },
     );
 
-    // ============================================================
-    // SAVE
-    // ============================================================
     doc.save(`${arrangedResult.student_name}-ReportCard.pdf`);
   };
   // handle update function is here
